@@ -17,6 +17,7 @@ class AudioControl {
     src: string;
     startTime: number;
     time: number;
+    isStreamming?: boolean;
   }) {
     const { id, src, startTime, time, engine } = data;
     let item: Howl;
@@ -26,7 +27,12 @@ class AudioControl {
       item.seek((time - startTime) % item.duration());
       item.play();
     } else {
-      item = new Howl({ src, loop: true, autoplay: true });
+      item = new Howl({
+        src,
+        loop: true,
+        autoplay: true,
+        ...(data.isStreamming && { html5: true }),
+      });
       this.cacheMap[id] = item;
       item.on("load", () => {
         item.rate(engine.getPlayRate());

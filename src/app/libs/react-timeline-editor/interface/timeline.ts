@@ -1,12 +1,12 @@
-import React, { ReactNode } from 'react';
-import { OnScrollParams } from 'react-virtualized';
-import { ITimelineEngine } from '..';
-import { Emitter } from '../engine/emitter';
-import { EventTypes } from '../engine/events';
-import { TimelineAction, TimelineRow } from './action';
-import { TimelineEffect } from './effect';
-export * from './action';
-export * from './effect';
+import React, { ReactNode } from "react";
+import { OnScrollParams } from "react-virtualized";
+import { ITimelineEngine } from "..";
+import { Emitter } from "../engine/emitter";
+import { EventTypes } from "../engine/events";
+import { TimelineAction, TimelineRow } from "./action";
+import { TimelineEffect } from "./effect";
+export * from "./action";
+export * from "./effect";
 
 export interface EditData {
   /**
@@ -87,27 +87,56 @@ export interface EditData {
   /**
    * @description 开始移动回调
    */
-  onActionMoveStart?: (params: { action: TimelineAction; row: TimelineRow }) => void;
+  onActionMoveStart?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+  }) => void;
   /**
    * @description 移动回调（return false可阻止移动）
    */
-  onActionMoving?: (params: { action: TimelineAction; row: TimelineRow; start: number; end: number }) => void | boolean;
+  onActionMoving?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+    start: number;
+    end: number;
+  }) => void | boolean;
   /**
    * @description 移动结束回调（return false可阻止onChange触发）
    */
-  onActionMoveEnd?: (params: { action: TimelineAction; row: TimelineRow; start: number; end: number }) => void;
+  onActionMoveEnd?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+    start: number;
+    end: number;
+  }) => void;
   /**
    * @description 开始改变大小回调
    */
-  onActionResizeStart?: (params: { action: TimelineAction; row: TimelineRow; dir: 'right' | 'left' }) => void;
+  onActionResizeStart?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+    dir: "right" | "left";
+  }) => void;
   /**
    * @description 开始大小回调（return false可阻止改变）
    */
-  onActionResizing?: (params: { action: TimelineAction; row: TimelineRow; start: number; end: number; dir: 'right' | 'left' }) => void | boolean;
+  onActionResizing?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+    start: number;
+    end: number;
+    dir: "right" | "left";
+  }) => void | boolean;
   /**
    * @description 改变大小结束回调（return false可阻止onChange触发）
    */
-  onActionResizeEnd?: (params: { action: TimelineAction; row: TimelineRow; start: number; end: number; dir: 'right' | 'left' }) => void;
+  onActionResizeEnd?: (params: {
+    action: TimelineAction;
+    row: TimelineRow;
+    start: number;
+    end: number;
+    dir: "right" | "left";
+  }) => void;
   /**
    * @description 点击行回调
    */
@@ -116,7 +145,7 @@ export interface EditData {
     param: {
       row: TimelineRow;
       time: number;
-    },
+    }
   ) => void;
   /**
    * @description 点击动作回调
@@ -127,7 +156,7 @@ export interface EditData {
       action: TimelineAction;
       row: TimelineRow;
       time: number;
-    },
+    }
   ) => void;
   /**
    * @description 点击动作回调（触发drag时不执行）
@@ -138,7 +167,7 @@ export interface EditData {
       action: TimelineAction;
       row: TimelineRow;
       time: number;
-    },
+    }
   ) => void;
   /**
    * @description 双击行回调
@@ -148,7 +177,7 @@ export interface EditData {
     param: {
       row: TimelineRow;
       time: number;
-    },
+    }
   ) => void;
   /**
    * @description 双击动作回调
@@ -159,7 +188,7 @@ export interface EditData {
       action: TimelineAction;
       row: TimelineRow;
       time: number;
-    },
+    }
   ) => void;
   /**
    * @description 右键行回调
@@ -169,7 +198,7 @@ export interface EditData {
     param: {
       row: TimelineRow;
       time: number;
-    },
+    }
   ) => void;
   /**
    * @description 右键动作回调
@@ -180,12 +209,16 @@ export interface EditData {
       action: TimelineAction;
       row: TimelineRow;
       time: number;
-    },
+    }
   ) => void;
   /**
    * @description 获取要提示辅助线的action id列表，在move/resize start 时进行计算，默认获取除当前移动action的全部
    */
-  getAssistDragLineActionIds?: (params: { action: TimelineAction; editorData: TimelineRow[]; row: TimelineRow }) => string[];
+  getAssistDragLineActionIds?: (params: {
+    action: TimelineAction;
+    editorData: TimelineRow[];
+    row: TimelineRow;
+  }) => string[];
   /**
    * @description cursor开始拖拽事件
    */
@@ -201,7 +234,10 @@ export interface EditData {
   /**
    * @description 点击时间区域事件, 返回false时阻止设置时间
    */
-  onClickTimeArea?: (time: number, e: React.MouseEvent<HTMLDivElement, MouseEvent>) => boolean | undefined;
+  onClickTimeArea?: (
+    time: number,
+    e: React.MouseEvent<HTMLDivElement, MouseEvent>
+  ) => boolean | undefined;
 }
 
 export interface TimelineState {
@@ -273,4 +309,11 @@ export interface TimelineEditor extends EditData {
    * @description 数据改变回调，会在操作动作end改变数据后触发(返回false会阻止自动engine同步，用于减少性能开销)
    */
   onChange?: (editorData: TimelineRow[]) => void | boolean;
+}
+
+export interface ScaleState {
+  scale: number;
+  scaleWidth: number;
+  startLeft: number;
+  scaleSplitCount: number;
 }

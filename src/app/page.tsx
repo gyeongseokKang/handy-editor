@@ -21,9 +21,15 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import dayjs from "dayjs";
+import duration from "dayjs/plugin/duration";
 import { cloneDeep } from "lodash";
 import { useRef, useState } from "react";
-import { Timeline, TimelineState } from "./libs/react-timeline-editor";
+import {
+  ScaleState,
+  Timeline,
+  TimelineState,
+} from "./libs/react-timeline-editor";
 import {
   mockData2,
   mockEffect2,
@@ -31,6 +37,8 @@ import {
 import TimelinePlayer from "./libs/react-timeline-editor/components/player/player";
 import Wavesurfer from "./libs/react-timeline-editor/components/wave/Wavesurfer";
 
+// duration 플러그인 사용 설정
+dayjs.extend(duration);
 const defaultEditorData = cloneDeep(mockData2);
 
 export default function Home() {
@@ -41,9 +49,32 @@ export default function Home() {
   const [dragMode, setDragMode] = useState(true);
   const timelineState = useRef<TimelineState>();
   const autoScrollWhenPlay = useRef<boolean>(true);
-  const [waveform, setWaveform] = useState(true);
+  const scaleState = useRef<ScaleState>({
+    scale: 5,
+    scaleWidth: 300,
+    startLeft: 20,
+    scaleSplitCount: 10,
+  });
+  const [waveform, setWaveform] = useState(false);
 
   const [scale, setScale] = useState(5);
+  const [sacleWidth, setScaleWidth] = useState(300);
+  const [scaleSplitCount, setScaleSplitCount] = useState(10);
+  const handleScaleChange = (value: number) => {
+    setScale(value);
+    scaleState.current.scale = value;
+  };
+
+  const handleScaleWidthChange = (value: number) => {
+    setScaleWidth(value);
+    scaleState.current.scaleWidth = value;
+  };
+
+  const handleScaleSplitCountChange = (value: number) => {
+    setScaleSplitCount(value);
+    scaleState.current.scaleSplitCount = value;
+  };
+
   const handleAudioUpload = (event) => {
     const file = event.target.files[0];
 
@@ -135,10 +166,30 @@ export default function Home() {
           />
           <Label htmlFor="drag-mode">Waveform</Label>
         </div>
-        <ScaleSelect scale={scale} setScale={setScale} />
       </div>
-      <FileInput handleAudioUpload={handleAudioUpload} />
+      <div>
+        <h2>눈금옵션</h2>
+        <div className="py-2 flex items-center space-x-2">
+          <ScaleSelect scale={scale} setScale={handleScaleChange} />
+          <ScaleWidthSelect
+            scaleWidth={sacleWidth}
+            setScaleWidth={handleScaleWidthChange}
+          />
+          <ScaleSplitCountSelect
+            scaleSplitCount={scaleSplitCount}
+            setScaleSplitCount={handleScaleSplitCountChange}
+          />
+        </div>
+      </div>
+      <div>
+        <h2>파일</h2>
+        <div className="py-2 flex items-center space-x-2">
+          <FileInput handleAudioUpload={handleAudioUpload} />
+        </div>
+      </div>
+
       <TimelinePlayer
+        scaleState={scaleState}
         timelineState={timelineState}
         autoScrollWhenPlay={autoScrollWhenPlay}
       />
@@ -147,13 +198,36 @@ export default function Home() {
         onChange={(data) => {
           setData(data as any);
         }}
-        scale={scale}
+        scale={scaleState.current.scale}
+        scaleWidth={scaleState.current.scaleWidth}
+        startLeft={scaleState.current.startLeft}
+        scaleSplitCount={scaleState.current.scaleSplitCount}
         editorData={data}
         effects={mockEffect2}
         hideCursor={hideCursor}
         autoScroll={true}
         dragLine={dragLine}
         disableDrag={!dragMode}
+        getScaleRender={(second) => {
+          const realSecond = second;
+          const timeDuration = dayjs.duration(realSecond, "seconds");
+          const hours = timeDuration.hours();
+
+          // 시간에 따라 포맷을 다르게 설정
+          if (hours > 0) {
+            return (
+              <div className="text-xs text-gray-500">
+                {timeDuration.format("HH:mm:ss")}
+              </div>
+            );
+          } else {
+            return (
+              <div className="text-xs text-gray-500">
+                {timeDuration.format("mm:ss")}
+              </div>
+            );
+          }
+        }}
         getActionRender={(action: any) => {
           const isOriginal = originalData.find(
             (d) => d.actions[0].id === action.id
@@ -163,9 +237,14 @@ export default function Home() {
               <ContextMenuTrigger>
                 <div className="w-full h-full flex justify-center items-center text-xl text-white">
                   {waveform ? (
-                    <Wavesurfer url={action.data.src}></Wavesurfer>
+                    <Wavesurfer
+                      url={action.data.src}
+                      peak={action.data.peak}
+                    ></Wavesurfer>
                   ) : (
-                    <div>{action.data.name}</div>
+                    <div className="w-full flex justify-start px-4">
+                      {action.data.name}
+                    </div>
                   )}
                 </div>
               </ContextMenuTrigger>
@@ -287,9 +366,9 @@ const FileInput = ({
 };
 
 const ScaleSelect = ({ scale, setScale }) => {
-  const scaleList = [5, 20, 60];
+  const scaleList = [5, 20, 60, 300, 600];
   return (
-    <div className="flex w-full max-w-sm items-center gap-1.5">
+    <div className="flex  max-w-sm items-center gap-1.5">
       <Select
         value={scale.toString()}
         onValueChange={(value) => {
@@ -311,6 +390,63 @@ const ScaleSelect = ({ scale, setScale }) => {
         </SelectContent>
       </Select>
       <Label>스케일</Label>
+    </div>
+  );
+};
+
+const ScaleWidthSelect = ({ scaleWidth, setScaleWidth }) => {
+  const scaleWidthList = [150, 300, 450, 600];
+  return (
+    <div className="flex  max-w-sm items-center gap-1.5">
+      <Select
+        value={scaleWidth.toString()}
+        onValueChange={(value) => {
+          setScaleWidth(parseInt(value));
+        }}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="ScaleWidth" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>ScaleWidth(px)</SelectLabel>
+            {scaleWidthList.map((rate) => (
+              <SelectItem key={rate} value={rate.toString()}>
+                {rate}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Label>스케일Width</Label>
+    </div>
+  );
+};
+const ScaleSplitCountSelect = ({ scaleSplitCount, setScaleSplitCount }) => {
+  const scaleSplitCountList = [5, 10, 20, 60];
+  return (
+    <div className="flex  max-w-sm items-center gap-1.5">
+      <Select
+        value={scaleSplitCount.toString()}
+        onValueChange={(value) => {
+          setScaleSplitCount(parseInt(value));
+        }}
+      >
+        <SelectTrigger className="w-[180px]">
+          <SelectValue placeholder="ScaleSplitCount" />
+        </SelectTrigger>
+        <SelectContent>
+          <SelectGroup>
+            <SelectLabel>ScaleSplitCount(px)</SelectLabel>
+            {scaleSplitCountList.map((rate) => (
+              <SelectItem key={rate} value={rate.toString()}>
+                {rate}
+              </SelectItem>
+            ))}
+          </SelectGroup>
+        </SelectContent>
+      </Select>
+      <Label>간격당 눈금개수</Label>
     </div>
   );
 };

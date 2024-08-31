@@ -2,14 +2,15 @@ import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import React, { FC, useEffect, useState } from "react";
 import { IoMdPause, IoMdPlay } from "react-icons/io";
-import { TimelineState } from "../../interface/timeline";
-import { scale, scaleWidth, startLeft } from "./mock";
+import { ScaleState, TimelineState } from "../../interface/timeline";
+
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
 const TimelinePlayer: FC<{
   timelineState: React.MutableRefObject<TimelineState>;
   autoScrollWhenPlay: React.MutableRefObject<boolean>;
-}> = ({ timelineState, autoScrollWhenPlay }) => {
+  scaleState: React.MutableRefObject<ScaleState>;
+}> = ({ scaleState, timelineState, autoScrollWhenPlay }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [time, setTime] = useState(0);
   const [rate, setRate] = useState(1);
@@ -20,11 +21,24 @@ const TimelinePlayer: FC<{
     engine.listener.on("play", () => setIsPlaying(true));
     engine.listener.on("paused", () => setIsPlaying(false));
     engine.listener.on("afterSetTime", ({ time }) => setTime(time));
+
+    return () => {
+      if (!engine) return;
+      engine.pause();
+      engine.listener.offAll();
+    };
+  }, []);
+
+  useEffect(() => {
+    const engine = timelineState.current;
     engine.listener.on("setTimeByTick", ({ time }) => {
       setTime(time);
       if (autoScrollWhenPlay.current) {
         const autoScrollFrom = 500;
-        const left = time * (scaleWidth / scale) + startLeft - autoScrollFrom;
+        const left =
+          time * (scaleState.current.scaleWidth / scaleState.current.scale) +
+          scaleState.current.startLeft -
+          autoScrollFrom;
         timelineState.current.setScrollLeft(left);
       }
     });
@@ -32,7 +46,7 @@ const TimelinePlayer: FC<{
     return () => {
       if (!engine) return;
       engine.pause();
-      engine.listener.offAll();
+      engine.listener.off("setTimeByTick");
     };
   }, []);
 
