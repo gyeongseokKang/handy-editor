@@ -1,12 +1,5 @@
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
+import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import React, { FC, useEffect, useState } from "react";
 import { IoMdPause, IoMdPlay } from "react-icons/io";
 import { TimelineState } from "../../interface/timeline";
@@ -19,6 +12,7 @@ const TimelinePlayer: FC<{
 }> = ({ timelineState, autoScrollWhenPlay }) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [time, setTime] = useState(0);
+  const [rate, setRate] = useState(1);
 
   useEffect(() => {
     if (!timelineState.current) return;
@@ -28,7 +22,6 @@ const TimelinePlayer: FC<{
     engine.listener.on("afterSetTime", ({ time }) => setTime(time));
     engine.listener.on("setTimeByTick", ({ time }) => {
       setTime(time);
-
       if (autoScrollWhenPlay.current) {
         const autoScrollFrom = 500;
         const left = time * (scaleWidth / scale) + startLeft - autoScrollFrom;
@@ -70,26 +63,19 @@ const TimelinePlayer: FC<{
         {isPlaying ? <IoMdPause size={30} /> : <IoMdPlay size={30} />}
       </div>
 
-      <div className="rate-control">
-        <Select
+      <div className="flex gap-1 items-center">
+        <Slider
+          className="w-[180px]"
+          defaultValue={[1]}
           onValueChange={(value) => {
-            handleRateChange(parseFloat(value));
+            setRate(value[0]);
+            handleRateChange(value[0]);
           }}
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="Speed" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectGroup>
-              <SelectLabel>Speed</SelectLabel>
-              {Rates.map((rate) => (
-                <SelectItem key={rate} value={rate.toString()}>{`${rate.toFixed(
-                  1
-                )}배속`}</SelectItem>
-              ))}
-            </SelectGroup>
-          </SelectContent>
-        </Select>
+          max={2}
+          min={0.25}
+          step={0.25}
+        />
+        <Label>{rate}x 배속재생</Label>
       </div>
       <div className="time">{timeRender(time)}</div>
     </div>

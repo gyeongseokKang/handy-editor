@@ -48,7 +48,7 @@ export const EditRow: FC<EditRowProps> = (props) => {
     <div
       className={`${prefix(...classNames)} ${(rowData?.classNames || []).join(
         " "
-      )}`}
+      )} z-10`}
       style={style}
       onClick={(e) => {
         if (rowData && onClickRow) {

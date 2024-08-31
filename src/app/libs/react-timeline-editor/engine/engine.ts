@@ -1,46 +1,49 @@
-import { TimelineAction, TimelineRow } from '../interface/action';
-import { TimelineEffect } from '../interface/effect';
-import { Emitter } from './emitter';
-import { Events, EventTypes } from './events';
+import { TimelineAction, TimelineRow } from "../interface/action";
+import { TimelineEffect } from "../interface/effect";
+import { Emitter } from "./emitter";
+import { Events, EventTypes } from "./events";
 
-const PLAYING = 'playing';
-const PAUSED = 'paused';
-type PlayState = 'playing' | 'paused';
+const PLAYING = "playing";
+const PAUSED = "paused";
+type PlayState = "playing" | "paused";
 
 export interface ITimelineEngine extends Emitter<EventTypes> {
   readonly isPlaying: boolean;
   readonly isPaused: boolean;
   effects: Record<string, TimelineEffect>;
   data: TimelineRow[];
-  /** 设置播放速率 */
+  /** 플레이 속도 설정 */
   setPlayRate(rate: number): boolean;
-  /** 获取播放速率 */
+  /** 플레이 속도 가져오기 */
   getPlayRate(): number;
-  /** 重新渲染当前时间 */
+  /** 현재 시간을 다시 렌더링 */
   reRender(): void;
-  /** 设置播放时间 */
+  /** 플레이 시간 설정 */
   setTime(time: number, isTick?: boolean): boolean;
-  /** 获取播放时间 */
+  /** 플레이 시간 가져오기 */
   getTime(): number;
-  /** 播放 */
+  /** 재생 */
   play(param: {
-    /** 默认从头运行到尾, 优先级大于autoEnd */
+    /** 기본적으로 처음부터 끝까지 실행, autoEnd보다 우선 */
     toTime?: number;
-    /** 是否播放完后自动结束 */
+    /** 재생이 끝난 후 자동 종료할지 여부 */
     autoEnd?: boolean;
   }): boolean;
-  /** 暂停 */
+  /** 일시 정지 */
   pause(): void;
 }
 
 /**
- * 时间轴播放器
- * 可脱离编辑器单独运行
+ * 타임라인 플레이어
+ * 에디터와 독립적으로 실행 가능
  * @export
  * @class TimelineEngine
  * @extends {Emitter<EventTypes>}
  */
-export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngine {
+export class TimelineEngine
+  extends Emitter<EventTypes>
+  implements ITimelineEngine
+{
   constructor() {
     super(new Events());
   }
@@ -48,34 +51,34 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   /** requestAnimationFrame timerId */
   private _timerId: number;
 
-  /** 播放速率 */
+  /** 플레이 속도 */
   private _playRate = 1;
-  /** 当前时间 */
+  /** 현재 시간 */
   private _currentTime: number = 0;
-  /** 播放状态 */
-  private _playState: PlayState = 'paused';
-  /** 时间帧pre数据 */
+  /** 플레이 상태 */
+  private _playState: PlayState = "paused";
+  /** 이전 프레임의 시간 데이터 */
   private _prev: number;
 
-  /** 动作效果map */
+  /** 액션 효과 맵 */
   private _effectMap: Record<string, TimelineEffect> = {};
-  /** 需要运行的动作map */
+  /** 실행할 액션 맵 */
   private _actionMap: Record<string, TimelineAction> = {};
-  /** 按动作开始时间正序排列后的动作id数组 */
+  /** 액션 시작 시간 순서대로 정렬된 액션 ID 배열 */
   private _actionSortIds: string[] = [];
 
-  /** 当前遍历到的action index */
+  /** 현재 순회 중인 액션 인덱스 */
   private _next: number = 0;
-  /** 动作时间范围包含当前时间的actionId列表 */
+  /** 현재 시간이 포함된 액션 ID 목록 */
   private _activeActionIds: string[] = [];
 
-  /** 是否正在播放 */
+  /** 재생 중인지 여부 */
   get isPlaying() {
-    return this._playState === 'playing';
+    return this._playState === "playing";
   }
-  /** 是否暂停中 */
+  /** 일시 정지 중인지 여부 */
   get isPaused() {
-    return this._playState === 'paused';
+    return this._playState === "paused";
   }
 
   set effects(effects: Record<string, TimelineEffect>) {
@@ -89,23 +92,23 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   /**
-   * 设置播放速率
+   * 플레이 속도 설정
    * @memberof TimelineEngine
    */
   setPlayRate(rate: number): boolean {
     if (rate <= 0) {
-      console.error('Error: rate cannot be less than 0!');
+      console.error("오류: 속도는 0보다 작을 수 없습니다!");
       return;
     }
-    const result = this.trigger('beforeSetPlayRate', { rate, engine: this });
+    const result = this.trigger("beforeSetPlayRate", { rate, engine: this });
     if (!result) return false;
     this._playRate = rate;
-    this.trigger('afterSetPlayRate', { rate, engine: this });
+    this.trigger("afterSetPlayRate", { rate, engine: this });
 
     return true;
   }
   /**
-   * 获取播放速率
+   * 플레이 속도 가져오기
    * @memberof TimelineEngine
    */
   getPlayRate() {
@@ -113,7 +116,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   /**
-   * 重新渲染当前时间
+   * 현재 시간을 다시 렌더링
    * @return {*}
    * @memberof TimelineEngine
    */
@@ -123,13 +126,14 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   /**
-   * 设置播放时间
+   * 플레이 시간 설정
    * @param {number} time
-   * @param {boolean} [isTick] 是否是tick触发
+   * @param {boolean} [isTick] tick로 인해 호출되었는지 여부
    * @memberof TimelineEngine
    */
   setTime(time: number, isTick?: boolean): boolean {
-    const result = isTick || this.trigger('beforeSetTime', { time, engine: this });
+    const result =
+      isTick || this.trigger("beforeSetTime", { time, engine: this });
     if (!result) return false;
 
     this._currentTime = time;
@@ -138,12 +142,12 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     this._dealLeave(time);
     this._dealEnter(time);
 
-    if (isTick) this.trigger('setTimeByTick', { time, engine: this });
-    else this.trigger('afterSetTime', { time, engine: this });
+    if (isTick) this.trigger("setTimeByTick", { time, engine: this });
+    else this.trigger("afterSetTime", { time, engine: this });
     return true;
   }
   /**
-   * 获取当前时间
+   * 현재 시간 가져오기
    * @return {*}  {number}
    * @memberof TimelineEngine
    */
@@ -152,30 +156,30 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   /**
-   * 运行: 开始时间为当前time
+   * 재생: 시작 시간은 현재 time
    * @param param
    * @return {boolean} {boolean}
    */
   play(param: {
-    /** 默认从头运行到尾, 优先级大于autoEnd */
+    /** 기본적으로 처음부터 끝까지 실행, autoEnd보다 우선 */
     toTime?: number;
-    /** 是否播放完后自动结束 */
+    /** 재생이 끝난 후 자동 종료할지 여부 */
     autoEnd?: boolean;
   }): boolean {
     const { toTime, autoEnd } = param;
 
     const currentTime = this.getTime();
-    /** 当前状体啊正在播放中 or 运行终止时间小于开始时间 直接返回*/
+    /** 현재 상태가 재생 중이거나 실행 종료 시간이 시작 시간보다 작을 경우 바로 반환 */
     if (this.isPlaying || (toTime && toTime <= currentTime)) return false;
 
-    // 设置运行状态
+    // 실행 상태 설정
     this._playState = PLAYING;
 
-    // activeIds 运行 start
-    this._startOrStop('start');
+    // activeIds 실행 시작
+    this._startOrStop("start");
 
-    // 触发事件
-    this.trigger('play', { engine: this });
+    // 이벤트 트리거
+    this.trigger("play", { engine: this });
 
     this._timerId = requestAnimationFrame((time: number) => {
       this._prev = time;
@@ -185,62 +189,83 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
   }
 
   /**
-   * 暂停播放
+   * 재생 일시 정지
    * @memberof TimelineEngine
    */
   pause() {
     if (this.isPlaying) {
       this._playState = PAUSED;
-      // activeIds 运行 stop
-      this._startOrStop('stop');
+      // activeIds 실행 정지
+      this._startOrStop("stop");
 
-      this.trigger('paused', { engine: this });
+      this.trigger("paused", { engine: this });
     }
     cancelAnimationFrame(this._timerId);
   }
 
-  /** 播放完成 */
+  /** 재생 완료 */
   private _end() {
     this.pause();
-    this.trigger('ended', { engine: this });
+    this.trigger("ended", { engine: this });
   }
 
-  private _startOrStop(type?: 'start' | 'stop') {
+  private _startOrStop(type?: "start" | "stop") {
     for (let i = 0; i < this._activeActionIds.length; i++) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
       const effect = this._effectMap[action?.effectId];
 
-      if (type === 'start') {
-        effect?.source?.start && effect.source.start({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
-      } else if (type === 'stop') {
-        effect?.source?.stop && effect.source.stop({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
+      if (type === "start") {
+        effect?.source?.start &&
+          effect.source.start({
+            action,
+            effect,
+            engine: this,
+            isPlaying: this.isPlaying,
+            time: this.getTime(),
+          });
+      } else if (type === "stop") {
+        effect?.source?.stop &&
+          effect.source.stop({
+            action,
+            effect,
+            engine: this,
+            isPlaying: this.isPlaying,
+            time: this.getTime(),
+          });
       }
     }
   }
 
-  /** 每帧执行 */
+  /** 매 프레임 실행 */
   private _tick(data: { now: number; autoEnd?: boolean; to?: number }) {
     if (this.isPaused) return;
     const { now, autoEnd, to } = data;
 
-    // 计算当前时间
-    let currentTime = this.getTime() + (Math.min(1000, now - this._prev) / 1000) * this._playRate;
+    // 현재 시간 계산
+    let currentTime =
+      this.getTime() +
+      (Math.min(1000, now - this._prev) / 1000) * this._playRate;
     this._prev = now;
 
-    // 设置当前时间
+    // 현재 시간 설정
     if (to && to <= currentTime) currentTime = to;
     this.setTime(currentTime, true);
 
-    // 执行动作
+    // 액션 실행
     this._tickAction(currentTime);
-    // 自动停止情况下，判断是否所有动作执行完毕
-    if (!to && autoEnd && this._next >= this._actionSortIds.length && this._activeActionIds.length === 0) {
+    // 자동 종료 설정 시, 모든 액션이 완료되었는지 확인
+    if (
+      !to &&
+      autoEnd &&
+      this._next >= this._actionSortIds.length &&
+      this._activeActionIds.length === 0
+    ) {
       this._end();
       return;
     }
 
-    // 判断是否终止
+    // 종료 여부 확인
     if (to && to <= currentTime) {
       this._end();
     }
@@ -251,24 +276,30 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     });
   }
 
-  /** tick运行actions */
+  /** tick 시 액션 실행 */
   private _tickAction(time: number) {
     this._dealEnter(time);
     this._dealLeave(time);
 
-    // render
+    // 렌더링
     const length = this._activeActionIds.length;
     for (let i = 0; i < length; i++) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
       const effect = this._effectMap[action.effectId];
       if (effect && effect.source?.update) {
-        effect.source.update({ time, action, isPlaying: this.isPlaying, effect, engine: this });
+        effect.source.update({
+          time,
+          action,
+          isPlaying: this.isPlaying,
+          effect,
+          engine: this,
+        });
       }
     }
   }
 
-  /** 重置active数据 */
+  /** active 데이터 초기화 */
   private _dealClear() {
     while (this._activeActionIds.length) {
       const actionId = this._activeActionIds.shift();
@@ -276,28 +307,39 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
 
       const effect = this._effectMap[action?.effectId];
       if (effect?.source?.leave) {
-        effect.source.leave({ action, effect, engine: this, isPlaying: this.isPlaying, time: this.getTime() });
+        effect.source.leave({
+          action,
+          effect,
+          engine: this,
+          isPlaying: this.isPlaying,
+          time: this.getTime(),
+        });
       }
     }
     this._next = 0;
   }
 
-  /** 处理action time enter */
+  /** 액션 시작 시점 처리 */
   private _dealEnter(time: number) {
-    // add to active
+    // active 목록에 추가
     while (this._actionSortIds[this._next]) {
       const actionId = this._actionSortIds[this._next];
       const action = this._actionMap[actionId];
 
       if (!action.disable) {
-        // 判断动作开始时间是否到达
-
+        // 액션 시작 시간이 도래했는지 확인
         if (action.start > time) break;
-        // 动作可以执行开始
+        // 액션 실행 가능 여부 확인
         if (action.end > time && !this._activeActionIds.includes(actionId)) {
           const effect = this._effectMap[action.effectId];
           if (effect && effect.source?.enter) {
-            effect.source.enter({ action, effect, isPlaying: this.isPlaying, time, engine: this });
+            effect.source.enter({
+              action,
+              effect,
+              isPlaying: this.isPlaying,
+              time,
+              engine: this,
+            });
           }
 
           this._activeActionIds.push(actionId);
@@ -307,19 +349,25 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     }
   }
 
-  /** 处理action time leave */
+  /** 액션 종료 시점 처리 */
   private _dealLeave(time: number) {
     let i = 0;
     while (this._activeActionIds[i]) {
       const actionId = this._activeActionIds[i];
       const action = this._actionMap[actionId];
 
-      // 不在播放区域内
+      // 현재 시간 범위에서 벗어났는지 확인
       if (action.start > time || action.end < time) {
         const effect = this._effectMap[action.effectId];
 
         if (effect && effect.source?.leave) {
-          effect.source.leave({ action, effect, isPlaying: this.isPlaying, time, engine: this });
+          effect.source.leave({
+            action,
+            effect,
+            isPlaying: this.isPlaying,
+            time,
+            engine: this,
+          });
         }
 
         this._activeActionIds.splice(i, 1);
@@ -329,7 +377,7 @@ export class TimelineEngine extends Emitter<EventTypes> implements ITimelineEngi
     }
   }
 
-  /** 处理数据 */
+  /** 데이터 처리 */
   private _dealData(data: TimelineRow[]) {
     const actions: TimelineAction[] = [];
     data.map((row) => {
