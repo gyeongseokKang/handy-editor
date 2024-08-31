@@ -5,6 +5,7 @@ import interact from "interactjs";
 import { cloneElement, FC, ReactElement, useEffect, useRef } from "react";
 
 export const InteractComp: FC<{
+  children: React.ReactNode;
   interactRef?: React.MutableRefObject<Interactable>;
   draggable: boolean;
   draggableOptions: DraggableOptions;
@@ -69,3 +70,5 @@ export const InteractComp: FC<{
     draggable: false,
   });
 };
+
+InteractComp.displayName = "InteractComp";

@@ -222,8 +222,9 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
                   <EditArea
                     {...checkedProps}
                     timelineWidth={width}
+                    // TODO: fix type
                     ref={(ref) =>
-                      ((areaRef.current as any) = ref?.domRef.current)
+                      ((areaRef.current as any) = ref?.domRef.current) as any
                     }
                     disableDrag={disableDrag || isPlaying}
                     editorData={editorData}
