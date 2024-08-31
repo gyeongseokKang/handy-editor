@@ -16,18 +16,276 @@
   }
 }
 
-body {
-  color: rgb(var(--foreground-rgb));
-  background: linear-gradient(
-      to bottom,
-      transparent,
-      rgb(var(--background-end-rgb))
-    )
-    rgb(var(--background-start-rgb));
-}
-
 @layer utilities {
   .text-balance {
     text-wrap: balance;
+  }
+}
+
+.timeline-editor {
+  height: 600px;
+  width: 100%;
+  background-color: #191b1d;
+
+  min-height: 32px;
+  position: relative;
+  font-size: 12px;
+  font-family: "PingFang SC";
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.timeline-editor-drag-line-container {
+  position: absolute;
+  height: 100%;
+  top: 0;
+  left: 0;
+}
+
+.timeline-editor-drag-line {
+  width: 0;
+  position: absolute;
+  top: 0;
+  height: 99%;
+  border-left: 1px dashed rgba(82, 151, 255, 0.6);
+}
+
+.timeline-editor-example0 .timeline-editor {
+  width: 100%;
+  max-width: 800px;
+  height: 300px;
+}
+
+.timeline-editor-example0 .timeline-editor-action {
+  height: 28px !important;
+  top: 50%;
+  transform: translateY(-50%);
+}
+
+.timeline-editor-cursor {
+  cursor: ew-resize;
+  position: absolute;
+  top: 32px;
+  height: calc(100% - 32px);
+  box-sizing: border-box;
+  border-left: 1px solid #5297ff;
+  border-right: 1px solid #5297ff;
+  transform: translateX(-25%) scaleX(0.5);
+}
+
+.timeline-editor-cursor-top {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translate(-50%, 0) scaleX(2);
+  margin: auto;
+}
+
+.timeline-editor-cursor-area {
+  width: 16px;
+  height: 100%;
+  cursor: ew-resize;
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
+.timeline-editor-edit-row {
+  background-repeat: no-repeat, repeat;
+  background-image: linear-gradient(#191b1d, #191b1d),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.08) 1px, transparent 0);
+  display: flex;
+  flex-direction: row;
+  box-sizing: border-box;
+}
+
+.timeline-editor-time-area {
+  position: relative;
+  height: 32px;
+  flex: 0 0 auto;
+}
+
+.timeline-editor-time-area .ReactVirtualized__Grid {
+  outline: none;
+}
+
+.timeline-editor-time-area .ReactVirtualized__Grid::-webkit-scrollbar {
+  display: none;
+}
+
+.timeline-editor-time-area-interact {
+  position: absolute;
+  cursor: pointer;
+  left: 0;
+  top: 0;
+}
+
+.timeline-editor-time-unit {
+  border-right: 1px solid rgba(255, 255, 255, 0.2);
+  position: relative;
+  box-sizing: content-box;
+  height: 4px !important;
+  bottom: 0 !important;
+  top: auto !important;
+}
+
+.timeline-editor-time-unit-big {
+  height: 8px !important;
+}
+
+.timeline-editor-time-unit-scale {
+  color: rgba(255, 255, 255, 0.6);
+  position: absolute;
+  right: 0;
+  top: 0;
+  transform: translate(50%, -100%);
+}
+
+.timeline-editor-action {
+  position: absolute;
+  left: 0;
+  top: 0;
+  background-color: #2f3134;
+}
+
+.timeline-editor-action-left-stretch,
+.timeline-editor-action-right-stretch {
+  position: absolute;
+  top: 0;
+  width: 10px;
+  border-radius: 4px;
+  height: 100%;
+  overflow: hidden;
+}
+
+.timeline-editor-action-left-stretch::after,
+.timeline-editor-action-right-stretch::after {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  margin: auto;
+  border-radius: 4px;
+  border-top: 28px solid transparent;
+  border-bottom: 28px solid transparent;
+}
+
+.timeline-editor-action-left-stretch {
+  left: 0;
+}
+
+.timeline-editor-action-left-stretch::after {
+  left: 0;
+  content: "";
+  border-left: 7px solid rgba(255, 255, 255, 0.1);
+  border-right: 7px solid transparent;
+}
+
+.timeline-editor-action-right-stretch {
+  right: 0;
+}
+
+.timeline-editor-action-right-stretch::after {
+  right: 0;
+  content: "";
+  border-right: 7px solid rgba(255, 255, 255, 0.1);
+  border-left: 7px solid transparent;
+}
+
+.timeline-editor:hover
+  .timeline-editor-edit-area
+  .ReactVirtualized__Grid::-webkit-scrollbar {
+  height: 4px;
+}
+
+.timeline-editor-edit-area {
+  flex: 1 1 auto;
+  margin-top: 10px;
+  overflow: hidden;
+  position: relative;
+}
+
+.timeline-editor-edit-area .ReactVirtualized__Grid {
+  outline: none !important;
+  overflow: overlay !important;
+}
+
+.timeline-editor-edit-area .ReactVirtualized__Grid::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+}
+
+.timeline-editor-edit-area .ReactVirtualized__Grid::-webkit-scrollbar-track {
+  background-color: transparent !important;
+}
+
+.timeline-editor-edit-area .ReactVirtualized__Grid::-webkit-scrollbar-thumb {
+  background: #313132;
+  border-radius: 16px;
+}
+
+@layer base {
+  :root {
+    --background: 0 0% 100%;
+    --foreground: 0 0% 3.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 0 0% 3.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 0 0% 3.9%;
+    --primary: 0 0% 9%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
+    --accent: 0 0% 96.1%;
+    --accent-foreground: 0 0% 9%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 89.8%;
+    --ring: 0 0% 3.9%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+    --radius: 0.5rem;
+  }
+  .dark {
+    --background: 0 0% 3.9%;
+    --foreground: 0 0% 98%;
+    --card: 0 0% 3.9%;
+    --card-foreground: 0 0% 98%;
+    --popover: 0 0% 3.9%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 0 0% 98%;
+    --primary-foreground: 0 0% 9%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 0 0% 14.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 0 0% 83.1%;
+    --chart-1: 220 70% 50%;
+    --chart-2: 160 60% 45%;
+    --chart-3: 30 80% 55%;
+    --chart-4: 280 65% 60%;
+    --chart-5: 340 75% 55%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
   }
 }
