@@ -3,24 +3,25 @@ import { TimelineAction } from "./action";
 
 export interface TimelineEffect {
   /** 效果id */
-  id: string, 
+  id?: string;
   /** 效果名称 */
-  name?: string, 
+  name?: string;
   /** 效果运行代码 */
-  source?: TimeLineEffectSource,
+  source?: TimeLineEffectSource;
 }
 
 export interface EffectSourceParam {
+  id?: string;
   /** 当前时间 */
-  time: number,
+  time: number;
   /** 是否正在运行 */
-  isPlaying: boolean,
+  isPlaying: boolean;
   /** 动作 */
-  action: TimelineAction,
+  action: TimelineAction;
   /** 动作效果 */
-  effect: TimelineEffect,
+  effect: TimelineEffect;
   /** 运行引擎 */
-  engine: TimelineEngine,
+  engine: TimelineEngine;
 }
 
 /**

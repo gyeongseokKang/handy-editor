@@ -24,7 +24,7 @@ class AudioControl {
     if (this.cacheMap[id]) {
       item = this.cacheMap[id];
       item.rate(engine.getPlayRate());
-      item.seek((time - startTime) % item.duration());
+      item.seek(time - startTime);
       item.play();
     } else {
       item = new Howl({
@@ -36,13 +36,13 @@ class AudioControl {
       this.cacheMap[id] = item;
       item.on("load", () => {
         item.rate(engine.getPlayRate());
-        item.seek((time - startTime) % item.duration());
+        item.seek(time - startTime);
       });
     }
 
     const timeListener = (data: { time: number }) => {
       const { time } = data;
-      item.seek(time);
+      item.seek(time - startTime);
     };
     const rateListener = (data: { rate: number }) => {
       const { rate } = data;

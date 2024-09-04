@@ -33,7 +33,7 @@
   font-family: "PingFang SC";
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /* overflow: hidden; */
 }
 
 .timeline-editor-drag-line-container {
@@ -209,7 +209,7 @@
 
 .timeline-editor-edit-area .ReactVirtualized__Grid {
   outline: none !important;
-  overflow-y: hidden !important;
+  /* overflow-y: hidden !important; */
   /* overflow: overlay !important; */
 }
 
