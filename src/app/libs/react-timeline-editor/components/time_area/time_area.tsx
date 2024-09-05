@@ -1,4 +1,4 @@
-import { FC, useEffect, useRef } from "react";
+import { FC, useEffect, useRef, useState } from "react";
 import {
   AutoSizer,
   Grid,
@@ -9,17 +9,19 @@ import { CommonProp } from "../../interface/common_prop";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserPixelToTime } from "../../utils/deal_data";
 
-/** 动画时间轴组件参数 */
+/** 애니메이션 타임라인 컴포넌트의 매개변수 */
 export type TimeAreaProps = CommonProp & {
-  /** 左侧滚动距离 */
+  /** 좌측 스크롤 거리 */
   scrollLeft: number;
-  /** 滚动回调，用于同步滚动 */
+  /** 스크롤 콜백, 스크롤을 동기화하는 데 사용됨 */
   onScroll: (params: OnScrollParams) => void;
-  /** 设置光标位置 */
+  /** 커서 위치 설정 */
   setCursor: (param: { left?: number; time?: number }) => void;
+
+  onDragTimeArea?: (start: number, end: number) => void;
 };
 
-/** 动画时间轴组件 */
+/** 애니메이션 타임라인 컴포넌트 */
 export const TimeArea: FC<TimeAreaProps> = ({
   setCursor,
   maxScaleCount,
@@ -31,13 +33,14 @@ export const TimeArea: FC<TimeAreaProps> = ({
   startLeft,
   scrollLeft,
   onClickTimeArea,
+  onDragTimeArea,
   getScaleRender,
 }) => {
   const gridRef = useRef<Grid>();
-  /** 是否显示细分刻度 */
+  /** 세분화된 눈금을 표시할지 여부 */
   const showUnit = scaleSplitCount > 0;
 
-  /** 获取每个cell渲染内容 */
+  /** 각 셀의 렌더링 내용을 가져옴 */
   const cellRenderer: GridCellRenderer = ({ columnIndex, key, style }) => {
     const isShowScale = showUnit ? columnIndex % scaleSplitCount === 0 : true;
     const classNames = ["time-unit"];
@@ -55,11 +58,86 @@ export const TimeArea: FC<TimeAreaProps> = ({
     );
   };
 
+  const [dragStart, setDragStart] = useState<number | null>(null);
+  const [dragEnd, setDragEnd] = useState<number | null>(null);
+  const [dragging, setDragging] = useState(false);
+
+  /** 드래그 시작 처리 */
+  const handleMouseDown = (e: React.MouseEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const position = e.clientX - rect.x;
+    const left = Math.max(position + scrollLeft, startLeft);
+
+    setDragStart(left);
+    setDragEnd(null);
+    setDragging(true);
+  };
+
+  /** 드래그 중 처리 */
+  const handleMouseMove = (e: React.MouseEvent) => {
+    if (!dragging) return;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const position = e.clientX - rect.x;
+    const left = Math.max(position + scrollLeft, startLeft);
+
+    setDragEnd(left);
+
+    if (dragStart !== null) {
+      const startTime = parserPixelToTime(dragStart, {
+        startLeft,
+        scale,
+        scaleWidth,
+      });
+      const endTime = parserPixelToTime(left, {
+        startLeft,
+        scale,
+        scaleWidth,
+      });
+      const isRealDrag = checkRealDrag(dragStart, dragEnd);
+      if (onDragTimeArea && isRealDrag) {
+        if (startTime > endTime) {
+          onDragTimeArea(endTime, startTime);
+        } else {
+          onDragTimeArea(startTime, endTime);
+        }
+      }
+    }
+  };
+
+  /** 드래그 종료 처리 */
+  const handleMouseUp = (e: React.MouseEvent) => {
+    if (!dragging) return;
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    const position = e.clientX - rect.x;
+    const left = Math.max(position + scrollLeft, startLeft);
+
+    setDragging(false);
+
+    if (dragStart !== null) {
+      const startTime = parserPixelToTime(dragStart, {
+        startLeft,
+        scale,
+        scaleWidth,
+      });
+      const endTime = parserPixelToTime(left, { startLeft, scale, scaleWidth });
+      const isRealDrag = checkRealDrag(dragStart, dragEnd);
+      if (isRealDrag) {
+        if (startTime > endTime) {
+          onDragTimeArea?.(endTime, startTime);
+        } else {
+          onDragTimeArea?.(startTime, endTime);
+        }
+      } else {
+        onDragTimeArea?.(undefined, undefined);
+      }
+    }
+  };
+
   useEffect(() => {
     gridRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft]);
 
-  /** 获取列宽 */
+  /** 각 열의 너비를 가져옴 */
   const getColumnWidth = (data: { index: number }) => {
     switch (data.index) {
       case 0:
@@ -92,9 +170,16 @@ export const TimeArea: FC<TimeAreaProps> = ({
                 scrollLeft={scrollLeft}
               ></Grid>
               <div
+                id="time-area-interact"
                 style={{ width, height }}
+                onMouseDown={handleMouseDown}
+                onMouseMove={handleMouseMove}
+                onMouseUp={handleMouseUp}
                 onClick={(e) => {
-                  if (hideCursor) return;
+                  const isRealDrag = checkRealDrag(dragStart, dragEnd);
+
+                  if (hideCursor || isRealDrag) return;
+
                   const rect = (
                     e.currentTarget as HTMLElement
                   ).getBoundingClientRect();
@@ -112,7 +197,7 @@ export const TimeArea: FC<TimeAreaProps> = ({
                     scaleWidth,
                   });
                   const result = onClickTimeArea && onClickTimeArea(time, e);
-                  if (result === false) return; // 返回false时阻止设置时间
+                  if (result === false) return; // false를 반환하면 시간 설정을 중단함
                   setCursor({ time });
                 }}
                 className={prefix("time-area-interact")}
@@ -123,4 +208,8 @@ export const TimeArea: FC<TimeAreaProps> = ({
       </AutoSizer>
     </div>
   );
+};
+
+const checkRealDrag = (dragStart: number | null, dragEnd: number | null) => {
+  return dragStart && dragEnd && Math.abs(dragStart - dragEnd) > 20;
 };

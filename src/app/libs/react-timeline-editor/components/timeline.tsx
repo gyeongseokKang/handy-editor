@@ -22,6 +22,7 @@ import {
   parserTimeToPixel,
 } from "../utils/deal_data";
 import { Cursor } from "./cursor/cursor";
+import { DragAreaCursor } from "./cursor/dragAreaCursor";
 import { EditArea } from "./edit_area/edit_area";
 import { TimeArea } from "./time_area/time_area";
 
@@ -51,18 +52,23 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
     const areaRef = useRef<HTMLDivElement>();
     const scrollSync = useRef<ScrollSync>();
 
-    // 编辑器数据
+    // 편집기 데이터
     const [editorData, setEditorData] = useState(data);
-    // scale数量
+    // 스케일 개수
     const [scaleCount, setScaleCount] = useState(MIN_SCALE_COUNT);
-    // 光标距离
+    // 커서 위치 시간
     const [cursorTime, setCursorTime] = useState(START_CURSOR_TIME);
-    // 是否正在运行
+    // 재생 중인지 여부
     const [isPlaying, setIsPlaying] = useState(false);
-    // 当前时间轴宽度
+    // 현재 타임라인 너비
     const [width, setWidth] = useState(Number.MAX_SAFE_INTEGER);
 
-    /** 监听数据变化 */
+    const [drag, setDrag] = useState({
+      start: undefined,
+      end: undefined,
+    });
+
+    /** 데이터 변경 감지 */
     useLayoutEffect(() => {
       handleSetScaleCount(getScaleCountByRows(data, { scale }));
       setEditorData(data);
@@ -86,13 +92,13 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
         scrollSync.current.setState({ scrollTop: scrollTop });
     }, [scrollTop]);
 
-    /** 动态设置scale count */
+    /** 동적으로 스케일 개수 설정 */
     const handleSetScaleCount = (value: number) => {
       const data = Math.min(maxScaleCount, Math.max(minScaleCount, value));
       setScaleCount(data);
     };
 
-    /** 处理主动数据变化 */
+    /** 사용자 데이터 변경 처리 */
     const handleEditorDataChange = (editorData: TimelineRow[]) => {
       const result = onChange(editorData);
       if (result !== false) {
@@ -101,7 +107,7 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       }
     };
 
-    /** 处理光标 */
+    /** 커서 처리 */
     const handleSetCursor = (param: {
       left?: number;
       time?: number;
@@ -125,10 +131,14 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       return result;
     };
 
-    /** 设置scrollLeft */
+    const handleLoop = (start: number, end: number) => {
+      engineRef.current.setLoop(start, end);
+      engineRef.current.reRender();
+    };
+
+    /** 스크롤 좌측 설정 */
     const handleDeltaScrollLeft = (delta: number) => {
-      console.log("delta", delta);
-      // 当超过最大距离时，禁止自动滚动
+      // 최대 거리를 초과할 경우 자동 스크롤 금지
       const data = scrollSync.current.state.scrollLeft + delta;
       if (data > scaleCount * (scaleWidth - 1) + startLeft - width) return;
       scrollSync.current &&
@@ -137,19 +147,23 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
         });
     };
 
-    // 处理运行器相关数据
+    // 엔진 관련 데이터 처리
     useEffect(() => {
       const handleTime = ({ time }) => {
         handleSetCursor({ time, updateTime: false });
       };
+      const handleLoop = ({ time }) => {
+        handleSetCursor({ time, updateTime: true });
+      };
       const handlePlay = () => setIsPlaying(true);
       const handlePaused = () => setIsPlaying(false);
       engineRef.current.on("setTimeByTick", handleTime);
+      engineRef.current.on("playAtLoop", handleLoop);
       engineRef.current.on("play", handlePlay);
       engineRef.current.on("paused", handlePaused);
     }, []);
 
-    // ref 数据
+    // ref 데이터
     useImperativeHandle(ref, () => ({
       get target() {
         return domRef.current;
@@ -165,7 +179,12 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       },
       setPlayRate: engineRef.current.setPlayRate.bind(engineRef.current),
       getPlayRate: engineRef.current.getPlayRate.bind(engineRef.current),
-      setTime: (time: number) => handleSetCursor({ time }),
+      setTime: (time: number) => {
+        handleSetCursor({ time });
+      },
+      setLoop(start, end) {
+        engineRef.current.setLoop(start, end);
+      },
       getTime: engineRef.current.getTime.bind(engineRef.current),
       reRender: engineRef.current.reRender.bind(engineRef.current),
       play: (param: Parameters<TimelineState["play"]>[0]) =>
@@ -181,7 +200,7 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       },
     }));
 
-    // 监听timeline区域宽度变化
+    // 타임라인 영역의 너비 변화 감지
     useEffect(() => {
       if (areaRef.current) {
         const resizeObserver = new ResizeObserver(() => {
@@ -208,7 +227,6 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
                   <TimeArea
                     {...checkedProps}
                     timelineWidth={width}
-                    disableDrag={disableDrag || isPlaying}
                     setCursor={handleSetCursor}
                     cursorTime={cursorTime}
                     editorData={editorData}
@@ -216,11 +234,18 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
                     setScaleCount={handleSetScaleCount}
                     onScroll={onScroll}
                     scrollLeft={scrollLeft}
+                    onDragTimeArea={(start, end) => {
+                      setDrag({
+                        start,
+                        end,
+                      });
+                      handleLoop(start, end);
+                    }}
                   />
                   <EditArea
                     {...checkedProps}
                     timelineWidth={width}
-                    // TODO: fix type
+                    // TODO: 타입 수정
                     ref={(ref) =>
                       ((areaRef.current as any) = ref?.domRef.current) as any
                     }
@@ -248,6 +273,23 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
                       setScaleCount={handleSetScaleCount}
                       setCursor={handleSetCursor}
                       cursorTime={cursorTime}
+                      editorData={editorData}
+                      areaRef={areaRef}
+                      scrollSync={scrollSync}
+                      deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                    />
+                  )}
+                  {drag.start && drag.end && (
+                    <DragAreaCursor
+                      {...checkedProps}
+                      drag={drag}
+                      timelineWidth={width}
+                      disableDrag={isPlaying}
+                      scrollLeft={scrollLeft}
+                      scaleCount={scaleCount}
+                      setScaleCount={handleSetScaleCount}
+                      setCursor={handleSetCursor}
+                      cursorTime={drag.start}
                       editorData={editorData}
                       areaRef={areaRef}
                       scrollSync={scrollSync}

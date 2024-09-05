@@ -71,14 +71,13 @@
   box-sizing: border-box;
   border-left: 1px solid #5297ff;
   border-right: 1px solid #5297ff;
-  transform: translateX(-25%) scaleX(0.5);
 }
 
 .timeline-editor-cursor-top {
   position: absolute;
   top: 0;
   left: 50%;
-  transform: translate(-50%, 0) scaleX(2);
+  transform: translate(-50%, 0);
   margin: auto;
 }
 

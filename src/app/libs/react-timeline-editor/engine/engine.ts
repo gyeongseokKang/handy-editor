@@ -20,6 +20,8 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   reRender(): void;
   /** 플레이 시간 설정 */
   setTime(time: number, isTick?: boolean): boolean;
+  /** 루프 설정 */
+  setLoop(start: number, end: number): boolean;
   /** 플레이 시간 가져오기 */
   getTime(): number;
   /** 재생 */
@@ -71,6 +73,13 @@ export class TimelineEngine
   private _next: number = 0;
   /** 현재 시간이 포함된 액션 ID 목록 */
   private _activeActionIds: string[] = [];
+
+  /** 루프 모드 설정 */
+  private _loopStart: number | null = null;
+  private _loopEnd: number | null = null;
+  private _isLooping: boolean = false;
+
+  /**
 
   /** 재생 중인지 여부 */
   get isPlaying() {
@@ -147,6 +156,31 @@ export class TimelineEngine
     return true;
   }
   /**
+   * 루프 설정
+   * @param {number} start 루프 시작 시간
+   * @param {number} end 루프 종료 시간
+   */
+  setLoop(start: number, end: number): boolean {
+    if (start >= end) {
+      console.error("오류: 루프 시작 시간은 종료 시간보다 작아야 합니다.");
+      return false;
+    }
+    this._loopStart = start;
+    this._loopEnd = end;
+    this._isLooping = true;
+
+    return true;
+  }
+
+  /**
+   * 루프 모드 종료
+   */
+  clearLoop(): void {
+    this._loopStart = null;
+    this._loopEnd = null;
+    this._isLooping = false;
+  }
+  /**
    * 현재 시간 가져오기
    * @return {*}  {number}
    * @memberof TimelineEngine
@@ -205,8 +239,13 @@ export class TimelineEngine
 
   /** 재생 완료 */
   private _end() {
-    this.pause();
-    this.trigger("ended", { engine: this });
+    if (this._isLooping) {
+      this.setTime(this._loopStart || 0);
+      this.play({ toTime: this._loopEnd });
+    } else {
+      this.pause();
+      this.trigger("ended", { engine: this });
+    }
   }
 
   private _startOrStop(type?: "start" | "stop") {
@@ -247,6 +286,14 @@ export class TimelineEngine
       this.getTime() +
       (Math.min(1000, now - this._prev) / 1000) * this._playRate;
     this._prev = now;
+
+    // 루프가 설정되어 있을 때, end 시간을 넘으면 다시 start로 돌아가도록 처리
+    if (this._isLooping && this._loopEnd && currentTime >= this._loopEnd) {
+      currentTime = this._loopStart || 0;
+
+      this.trigger("playAtLoop", { time: this._loopStart, engine: this });
+      this.play({ toTime: currentTime });
+    }
 
     // 현재 시간 설정
     if (to && to <= currentTime) currentTime = to;

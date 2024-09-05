@@ -245,39 +245,42 @@ export interface EditData {
 }
 
 export interface TimelineState {
-  /** dom节点 */
+  /** DOM 노드 */
   target: HTMLElement;
-  /** 运行监听器 */
+  /** 실행 리스너 */
   listener: Emitter<EventTypes>;
-  /** 是否正在播放 */
+  /** 재생 중인지 여부 */
   isPlaying: boolean;
-  /** 是否暂停中 */
+  /** 일시 정지 중인지 여부 */
   isPaused: boolean;
-  /** 设置当前播放时间 */
+  /** 현재 재생 시간을 설정 */
   setTime: (time: number) => void;
-  /** 获取当前播放时间 */
+  /** 현재 재생 시간을 가져오기 */
   getTime: () => number;
-  /** 设置播放速率 */
+  /** 재생 속도 설정 */
   setPlayRate: (rate: number) => void;
-  /** 设置播放速率 */
+  /** 재생 속도 가져오기 */
   getPlayRate: () => number;
-  /** 重新渲染当前时间 */
+  /** 현재 시간을 다시 렌더링 */
   reRender: () => void;
-  /** 播放 */
+  /** 재생 */
   play: (param: {
-    /** 默认从头运行到尾, 优先级大于autoEnd */
+    /** 기본적으로 처음부터 끝까지 실행, autoEnd보다 우선 */
     toTime?: number;
-    /** 是否播放完后自动结束 */
+    /** 재생이 끝난 후 자동 종료할지 여부 */
     autoEnd?: boolean;
-    /** 运行的actionId列表，不穿默认全部运行 */
+    /** 실행할 actionId 목록, 제공되지 않으면 기본적으로 모두 실행 */
     runActionIds?: string[];
   }) => boolean;
-  /** 暂停 */
+  /** 일시 정지 */
   pause: () => void;
-  /** 设置scroll left */
+  /** 스크롤 좌측 위치 설정 */
   setScrollLeft: (val: number) => void;
-  /** 设置scroll top */
+  /** 스크롤 상단 위치 설정 */
   setScrollTop: (val: number) => void;
+
+  /** 루프 설정 */
+  setLoop: (start: number, end: number) => void;
 }
 
 /**

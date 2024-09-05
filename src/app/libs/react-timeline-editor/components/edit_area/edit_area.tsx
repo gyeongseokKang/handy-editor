@@ -209,7 +209,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
                   width
                 )}
                 width={width}
-                height={height}
+                height={height + 20}
                 rowHeight={({ index }) => heights[index] || rowHeight}
                 overscanRowCount={10}
                 overscanColumnCount={0}
