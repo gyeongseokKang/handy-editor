@@ -271,9 +271,19 @@ export default function Home() {
               <ContextMenuContent>
                 <ContextMenuItem
                   onClick={() => {
-                    setData(
-                      data.filter((d) => d.actions[0].id !== action.id) as any
+                    const newData = [...data];
+                    const target = newData.find((d) =>
+                      d.actions.find((a) => a.id === action.id)
                     );
+                    const targetAction = target?.actions.find(
+                      (a) => a.id === action.id
+                    );
+                    if (targetAction) {
+                      target.actions = target.actions.filter(
+                        (a) => a.id !== action.id
+                      );
+                      setData(newData as any);
+                    }
                   }}
                 >
                   Delete
@@ -337,7 +347,7 @@ export default function Home() {
                         const targetAction = target?.actions.find(
                           (a) => a.id === action.id
                         );
-                        if (target) {
+                        if (targetAction) {
                           const duration =
                             targetAction.end - targetAction.start;
 
@@ -346,9 +356,9 @@ export default function Home() {
                             `${newAction.id.split("_")[0]}` +
                             "_" +
                             Math.random();
+                          newAction.data.id = newAction.id + "_data";
                           newAction.start = targetAction.start + duration + 5;
                           newAction.end = targetAction.end + duration + 5;
-                          console.log(newAction);
                           target.actions.push(newAction);
                           setData(newData as any);
                         }
