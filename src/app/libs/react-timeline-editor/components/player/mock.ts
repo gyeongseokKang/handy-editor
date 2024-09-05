@@ -105,47 +105,47 @@ export const mockData2: CusTomTimelineRow[] = [
   {
     id: "1",
     actions: [
-      // {
-      //   id: "내손을잡아",
-      //   start: 0,
-      //   end: 10,
-      //   effectId: "audioPlayer",
-      //   data: {
-      //     id: "내손을잡아",
-      //     src: "/audio/내손을잡아.mp3",
-      //     name: "내손을잡아",
-      //   },
-      // },
-      ...Array.from({ length: 20 }).map((_, i) => ({
-        id: `내손을잡아${i}`,
-        start: i * 5,
-        end: i * 5 + 5,
+      {
+        id: "내손을잡아",
+        start: 0,
+        end: 10,
         effectId: "audioPlayer",
         data: {
-          id: `내손을잡아${i}`,
+          id: "내손을잡아",
           src: "/audio/내손을잡아.mp3",
-          name: `내손을잡아${i}`,
+          name: "내손을잡아",
         },
-      })),
+      },
+      // ...Array.from({ length: 20 }).map((_, i) => ({
+      //   id: `내손을잡아${i}`,
+      //   start: i * 5,
+      //   end: i * 5 + 5,
+      //   effectId: "audioPlayer",
+      //   data: {
+      //     id: `내손을잡아${i}`,
+      //     src: "/audio/내손을잡아.mp3",
+      //     name: `내손을잡아${i}`,
+      //   },
+      // })),
     ],
   },
 
-  ...Array.from({ length: 20 }).map((_, i) => ({
-    id: `${i + 3}`,
-    actions: [
-      {
-        id: `최애의아이${i}`,
-        start: i * 5,
-        end: i * 5 + 5,
-        effectId: "audioPlayer",
-        data: {
-          id: `최애의아이${i}`,
-          src: "/audio/최애의아이.mp3",
-          name: `최애의아이${i}`,
-        },
-      },
-    ],
-  })),
+  // ...Array.from({ length: 20 }).map((_, i) => ({
+  //   id: `${i + 3}`,
+  //   actions: [
+  //     {
+  //       id: `최애의아이${i}`,
+  //       start: i * 5,
+  //       end: i * 5 + 5,
+  //       effectId: "audioPlayer",
+  //       data: {
+  //         id: `최애의아이${i}`,
+  //         src: "/audio/최애의아이.mp3",
+  //         name: `최애의아이${i}`,
+  //       },
+  //     },
+  //   ],
+  // })),
 
   // {
   //   id: "3",

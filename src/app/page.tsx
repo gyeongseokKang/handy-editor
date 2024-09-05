@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { cn } from "@/lib/utils";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { cloneDeep } from "lodash";
@@ -30,10 +31,8 @@ import {
   Timeline,
   TimelineState,
 } from "./libs/react-timeline-editor";
-import {
-  mockData2,
-  mockEffect2,
-} from "./libs/react-timeline-editor/components/player/mock";
+import { AudioPlayerEffect } from "./libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
+import { mockData2 } from "./libs/react-timeline-editor/components/player/mock";
 import TimelinePlayer from "./libs/react-timeline-editor/components/player/player";
 import Wavesurfer from "./libs/react-timeline-editor/components/wave/Wavesurfer";
 
@@ -101,6 +100,7 @@ export default function Home() {
                   src: `data:${contentType};base64,${base64Str}`,
                   name: file.name,
                 },
+                isDragging: false,
               },
             ],
           });
@@ -203,7 +203,10 @@ export default function Home() {
         startLeft={scaleState.current.startLeft}
         scaleSplitCount={scaleState.current.scaleSplitCount}
         editorData={data}
-        effects={mockEffect2}
+        effects={{
+          ...AudioPlayerEffect,
+          ...AudioPlayerEffect,
+        }}
         hideCursor={hideCursor}
         autoScroll={true}
         dragLine={dragLine}
@@ -228,24 +231,41 @@ export default function Home() {
             );
           }
         }}
-        getActionRender={(action: any) => {
+        getActionRender={(action: any, row, { isDragging }) => {
           const isOriginal = originalData.find(
             (d) => d.actions[0].id === action.id
           );
           return (
             <ContextMenu>
               <ContextMenuTrigger>
-                <div className="w-full h-full flex justify-center items-center text-xl text-white">
+                <div
+                  className={cn(
+                    "relative w-full h-full flex justify-center items-center text-xl text-white",
+                    {
+                      "cursor-ew-resize": isDragging,
+                    }
+                  )}
+                >
+                  <DraggingTimelineTooltip
+                    time={action.start}
+                    direction="left"
+                    isDragging={isDragging}
+                  />
                   {waveform ? (
                     <Wavesurfer
                       url={action.data.src}
-                      peak={action.data.peak}
+                      isDragging={isDragging}
                     ></Wavesurfer>
                   ) : (
                     <div className="w-full flex justify-start px-4">
                       {action.data.name}
                     </div>
                   )}
+                  <DraggingTimelineTooltip
+                    time={action.end}
+                    direction="right"
+                    isDragging={isDragging}
+                  />
                 </div>
               </ContextMenuTrigger>
               <ContextMenuContent>
@@ -447,6 +467,42 @@ const ScaleSplitCountSelect = ({ scaleSplitCount, setScaleSplitCount }) => {
         </SelectContent>
       </Select>
       <Label>간격당 눈금개수</Label>
+    </div>
+  );
+};
+
+const DraggingTimelineTooltip = ({
+  time,
+  direction,
+  isDragging,
+}: {
+  time: number | string;
+  direction: "left" | "right";
+  isDragging: boolean;
+}) => {
+  if (!isDragging) {
+    return null;
+  }
+
+  function isConvertibleToNumber(value) {
+    return !isNaN(Number(value));
+  }
+
+  const renderTime =
+    typeof time === "number"
+      ? time.toFixed(2)
+      : isConvertibleToNumber(time)
+      ? Number(time).toFixed(2)
+      : "-";
+
+  return (
+    <div
+      className={cn(
+        `absolute text-sm bg-gray-500 text-white  px-1 rounded`,
+        direction === "left" ? "-left-6" : "-right-6"
+      )}
+    >
+      {renderTime}
     </div>
   );
 };

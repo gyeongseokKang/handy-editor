@@ -1,47 +1,50 @@
 /**
- * 动作的基本参数
+ * 동작의 기본 매개변수
  * @export
  * @interface TimelineAction
  */
 export interface TimelineAction {
-  /** 动作id */
+  /** 동작 id */
   id: string;
-  /** 动作开始时间 */
+  /** 동작 시작 시간 */
   start: number;
-  /** 动作结束时间 */
+  /** 동작 종료 시간 */
   end: number;
-  /** 动作所对应的effectId */
+  /** 동작에 해당하는 effectId */
   effectId: string;
 
-  /** 动作是否被选中 */
+  /** 동작이 선택되었는지 여부 */
   selected?: boolean;
-  /** 动作是否可伸缩 */
+  /** 동작이 확장 가능한지 여부 */
   flexible?: boolean;
-  /** 动作是否可移动 */
+  /** 동작이 이동 가능한지 여부 */
   movable?: boolean;
-  /** 动作是否禁止运行 */
+  /** 동작이 실행 금지인지 여부 */
   disable?: boolean;
 
-  /** 动作最小开始时间限制 */
+  /** 동작의 최소 시작 시간 제한 */
   minStart?: number;
-  /** 动作最大结束时间限制 */
+  /** 동작의 최대 종료 시간 제한 */
   maxEnd?: number;
+
+  /** 동작dml 드래그 여부*/
+  isDragging?: boolean;
 }
 
 /**
- * 动作行基本参数
+ * 동작 행 기본 매개변수
  * @export
  * @interface TimelineRow
  */
 export interface TimelineRow {
-  /** 动作行id */
+  /** 동작 행 id */
   id: string;
-  /** 行的动作列表 */
+  /** 행의 동작 리스트 */
   actions: TimelineAction[];
-  /** 自定义行高 */
+  /** 사용자 정의 행 높이 */
   rowHeight?: number;
-  /** 行是否选中 */
+  /** 행이 선택되었는지 여부 */
   selected?: boolean;
-  /** 行的扩展类名 */
+  /** 행의 추가 클래스명 */
   classNames?: string[];
 }

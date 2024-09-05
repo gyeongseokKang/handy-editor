@@ -5,10 +5,14 @@ import WavesurferPlayer from "@wavesurfer/react";
 import { memo, useState } from "react";
 import { IoMdPause, IoMdPlay } from "react-icons/io";
 import { MdStop } from "react-icons/md";
-const Wavesurfer = ({ url, peak }: { url: string; peak?: string }) => {
+
+interface WavesurferProps {
+  url: string;
+  isDragging: boolean;
+}
+const Wavesurfer = ({ url, isDragging }: WavesurferProps) => {
   const [wavesurfer, setWavesurfer] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [peakData, setPeakData] = useState([]);
 
   const onReady = (ws) => {
     setWavesurfer(ws);
@@ -23,25 +27,13 @@ const Wavesurfer = ({ url, peak }: { url: string; peak?: string }) => {
     wavesurfer && wavesurfer.stop();
   };
 
-  //   useEffect(() => {
-  //     if (!peak) return;
-  //     const loadPeaks = async () => {
-  //       const response = await fetch(peak);
-  //       const data = await response.json();
-  //       setPeakData(data);
-  //     };
-  //     // loadPeaks();
-  //   }, [peak]);
-  //   console.log("peakData", peakData);
-
   return (
-    <div className="w-full relative">
+    <div className={"w-full relative "}>
       <WavesurferPlayer
         height={50}
         waveColor="gray"
         normalize={true}
         url={url}
-        // {...(peak && { peaks: [[100, 100, 100]] })}
         onReady={onReady}
         onPlay={() => setIsPlaying(true)}
         onPause={() => setIsPlaying(false)}

@@ -106,6 +106,8 @@ export const EditAction: FC<EditActionProps> = ({
     );
   });
 
+  const [isDragging, setIsDragging] = useState(false);
+
   useLayoutEffect(() => {
     setTransform(
       parserTimeToTransform({ start, end }, { startLeft, scale, scaleWidth })
@@ -134,6 +136,7 @@ export const EditAction: FC<EditActionProps> = ({
 
   //#region [rgba(100,120,156,0.08)] 回调
   const handleDragStart: RndDragStartCallback = () => {
+    setIsDragging(true);
     onActionMoveStart && onActionMoveStart({ action, row });
   };
   const handleDrag: RndDragCallback = ({ left, width }) => {
@@ -152,6 +155,7 @@ export const EditAction: FC<EditActionProps> = ({
   };
 
   const handleDragEnd: RndDragEndCallback = ({ left, width }) => {
+    setIsDragging(false);
     // 计算时间
     const { start, end } = parserTransformToTime(
       { left, width },
@@ -287,7 +291,10 @@ export const EditAction: FC<EditActionProps> = ({
         className={prefix((classNames || []).join(" "))}
         style={{ height: rowHeight }}
       >
-        {getActionRender && getActionRender(nowAction, nowRow)}
+        {getActionRender &&
+          getActionRender(nowAction, nowRow, {
+            isDragging: isDragging,
+          })}
         {flexible && <div className={prefix("action-left-stretch")}></div>}
         {flexible && <div className={prefix("action-right-stretch")} />}
       </div>
