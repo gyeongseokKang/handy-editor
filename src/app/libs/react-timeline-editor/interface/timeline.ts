@@ -274,6 +274,8 @@ export interface TimelineState {
   }) => boolean;
   /** 일시 정지 */
   pause: () => void;
+  /** 정지 */
+  stop: () => void;
   /** 스크롤 좌측 위치 설정 */
   setScrollLeft: (val: number) => void;
   /** 스크롤 상단 위치 설정 */

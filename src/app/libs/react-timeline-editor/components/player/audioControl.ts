@@ -30,7 +30,7 @@ class AudioControl {
     } else {
       item = new Howl({
         src,
-        loop: true,
+        loop: false,
         autoplay: true,
         ...(data.isStreamming && { html5: true }),
       });
@@ -40,7 +40,6 @@ class AudioControl {
         const analyserNode = audioAnalyzer.initNode(
           Howler.ctx.createAnalyser()
         );
-        console.log("connect~");
 
         gainNode.connect(analyserNode);
         analyserNode.connect(Howler.ctx.destination);

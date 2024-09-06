@@ -20,6 +20,7 @@ const TimelinePlayer: FC<{
     const engine = timelineState.current;
     engine.listener.on("play", () => setIsPlaying(true));
     engine.listener.on("paused", () => setIsPlaying(false));
+    engine.listener.on("stop", () => setIsPlaying(false));
     engine.listener.on("afterSetTime", ({ time }) => setTime(time));
 
     return () => {

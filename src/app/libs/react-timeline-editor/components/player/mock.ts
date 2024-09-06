@@ -106,14 +106,25 @@ export const mockData2: CusTomTimelineRow[] = [
     id: "1",
     actions: [
       {
-        id: "내손을잡아",
-        start: 0,
+        id: "최애의아이",
+        start: 0.001,
+        end: 5,
+        effectId: "audioPlayer",
+        data: {
+          id: "최애의아이",
+          src: "/audio/최애의아이.mp3",
+          name: "최애의아이",
+        },
+      },
+      {
+        id: "최애의아이2",
+        start: 6,
         end: 10,
         effectId: "audioPlayer",
         data: {
-          id: "내손을잡아",
-          src: "/audio/내손을잡아.mp3",
-          name: "내손을잡아",
+          id: "최애의아이2",
+          src: "/audio/최애의아이.mp3",
+          name: "최애의아이2",
         },
       },
       // ...Array.from({ length: 20 }).map((_, i) => ({

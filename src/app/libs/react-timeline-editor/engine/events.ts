@@ -12,6 +12,7 @@ export class Events {
       afterSetPlayRate: [],
       setActiveActionIds: [],
       play: [],
+      stop: [],
       playAtLoop: [],
       paused: [],
       ended: [],
@@ -70,6 +71,12 @@ export interface EventTypes {
    * @memberof EventTypes
    */
   paused: { engine: TimelineEngine };
+  /**
+   * 실행 종료
+   * @type {{ engine: TimelineEngine }}
+   * @memberof EventTypes
+   */
+  stop: { engine: TimelineEngine };
   /**
    * 실행 종료
    * @type {{ engine: TimelineEngine }}

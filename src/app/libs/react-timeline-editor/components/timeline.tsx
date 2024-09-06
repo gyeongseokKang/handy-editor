@@ -155,11 +155,16 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       const handleLoop = ({ time }) => {
         handleSetCursor({ time, updateTime: true });
       };
+
+      const handleStop = () => {
+        handleSetCursor({ time: 0, updateTime: true });
+      };
       const handlePlay = () => setIsPlaying(true);
       const handlePaused = () => setIsPlaying(false);
       engineRef.current.on("setTimeByTick", handleTime);
       engineRef.current.on("playAtLoop", handleLoop);
       engineRef.current.on("play", handlePlay);
+      engineRef.current.on("stop", handleStop);
       engineRef.current.on("paused", handlePaused);
     }, []);
 
@@ -190,6 +195,7 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       play: (param: Parameters<TimelineState["play"]>[0]) =>
         engineRef.current.play({ ...param }),
       pause: engineRef.current.pause.bind(engineRef.current),
+      stop: engineRef.current.stop.bind(engineRef.current),
       setScrollLeft: (val) => {
         scrollSync.current &&
           scrollSync.current.setState({ scrollLeft: Math.max(val, 0) });

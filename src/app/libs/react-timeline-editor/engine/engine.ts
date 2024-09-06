@@ -33,6 +33,8 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   }): boolean;
   /** 일시 정지 */
   pause(): void;
+  /** 정지 */
+  stop(): void;
 }
 
 /**
@@ -161,10 +163,14 @@ export class TimelineEngine
    * @param {number} end 루프 종료 시간
    */
   setLoop(start: number, end: number): boolean {
+    if (start === undefined || end === undefined) {
+      return;
+    }
     if (start >= end) {
       console.error("오류: 루프 시작 시간은 종료 시간보다 작아야 합니다.");
       return false;
     }
+
     this._loopStart = start;
     this._loopEnd = end;
     this._isLooping = true;
@@ -200,7 +206,7 @@ export class TimelineEngine
     /** 재생이 끝난 후 자동 종료할지 여부 */
     autoEnd?: boolean;
   }): boolean {
-    const { toTime, autoEnd } = param;
+    const { toTime, autoEnd = true } = param;
 
     const currentTime = this.getTime();
     /** 현재 상태가 재생 중이거나 실행 종료 시간이 시작 시간보다 작을 경우 바로 반환 */
@@ -237,13 +243,32 @@ export class TimelineEngine
     cancelAnimationFrame(this._timerId);
   }
 
+  /**
+   * 재생 중단
+   * @memberof TimelineEngine
+   */
+  stop() {
+    // 현재 재생 상태를 일시 정지로 설정
+    this.pause();
+    this._playState = PAUSED;
+
+    // 활성화된 액션들을 모두 중지
+    this._startOrStop("stop");
+
+    // 타이머 중지
+    cancelAnimationFrame(this._timerId);
+
+    // 이벤트 트리거
+    this.trigger("stop", { engine: this });
+  }
+
   /** 재생 완료 */
   private _end() {
     if (this._isLooping) {
       this.setTime(this._loopStart || 0);
       this.play({ toTime: this._loopEnd });
     } else {
-      this.pause();
+      this.stop(); // 재생 종료 시 stop 호출
       this.trigger("ended", { engine: this });
     }
   }
