@@ -35,21 +35,12 @@ export class AudioAnalyzerClass {
     );
   }
 
-  // AnalyserNode의 주파수 데이터를 가져오는 메서드
-  getFrequencyData(): Uint8Array | null {
+  // AnalyserNode의 주파수 데이터를 데시벨 단위로 가져오는 메서드
+  getDecibelData(): Float32Array | null {
     if (!this.analyserNode) return null;
     const bufferLength = this.analyserNode.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    this.analyserNode.getByteFrequencyData(dataArray);
-    return dataArray;
-  }
-
-  // AnalyserNode의 시간 영역 데이터를 가져오는 메서드
-  getTimeDomainData(): Uint8Array | null {
-    if (!this.analyserNode) return null;
-    const bufferLength = this.analyserNode.frequencyBinCount;
-    const dataArray = new Uint8Array(bufferLength);
-    this.analyserNode.getByteTimeDomainData(dataArray);
+    const dataArray = new Float32Array(bufferLength);
+    this.analyserNode.getFloatFrequencyData(dataArray); // 주파수 데이터를 dB로 가져옴
     return dataArray;
   }
 
