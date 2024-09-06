@@ -1,5 +1,6 @@
 import { Howl } from "howler";
 import { TimelineEngine } from "../../engine/engine";
+import { audioAnalyzer } from "./audioAnalyzer";
 
 class AudioControl {
   cacheMap: Record<string, Howl> = {};
@@ -33,6 +34,18 @@ class AudioControl {
         autoplay: true,
         ...(data.isStreamming && { html5: true }),
       });
+
+      const gainNode: GainNode = (item as any)?._sounds[0]?._node;
+      if (gainNode) {
+        const analyserNode = audioAnalyzer.initNode(
+          Howler.ctx.createAnalyser()
+        );
+        console.log("connect~");
+
+        gainNode.connect(analyserNode);
+        analyserNode.connect(Howler.ctx.destination);
+      }
+
       this.cacheMap[id] = item;
       item.on("load", () => {
         item.rate(engine.getPlayRate());

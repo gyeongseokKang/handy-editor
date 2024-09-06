@@ -31,6 +31,7 @@ import {
   Timeline,
   TimelineState,
 } from "./libs/react-timeline-editor";
+import AudioVisualizer from "./libs/react-timeline-editor/components/player/AudioVisualizer";
 import { AudioPlayerEffect } from "./libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
 import { mockData2 } from "./libs/react-timeline-editor/components/player/mock";
 import TimelinePlayer from "./libs/react-timeline-editor/components/player/player";
@@ -55,6 +56,7 @@ export default function Home() {
     scaleSplitCount: 10,
   });
   const [waveform, setWaveform] = useState(false);
+  const [visualizer, setVisualizer] = useState(false);
 
   const [scale, setScale] = useState(5);
   const [sacleWidth, setScaleWidth] = useState(300);
@@ -95,7 +97,7 @@ export default function Home() {
                 id: file.name,
                 start: 0,
                 end: audio.duration,
-                effectId: "effect0",
+                effectId: "audioPlayer",
                 data: {
                   src: `data:${contentType};base64,${base64Str}`,
                   name: file.name,
@@ -166,6 +168,16 @@ export default function Home() {
           />
           <Label htmlFor="drag-mode">Waveform</Label>
         </div>
+        <div className="flex items-center space-x-2">
+          <Switch
+            id="analyzer-mode"
+            checked={visualizer}
+            onCheckedChange={() => {
+              setVisualizer(!visualizer);
+            }}
+          />
+          <Label htmlFor="analyzer-mode">Audio Visualizer</Label>
+        </div>
       </div>
       <div>
         <h2>눈금옵션</h2>
@@ -187,6 +199,7 @@ export default function Home() {
           <FileInput handleAudioUpload={handleAudioUpload} />
         </div>
       </div>
+      {visualizer && <AudioVisualizer />}
 
       <TimelinePlayer
         scaleState={scaleState}
