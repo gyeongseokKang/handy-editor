@@ -164,6 +164,7 @@ export class TimelineEngine
    */
   setLoop(start: number, end: number): boolean {
     if (start === undefined || end === undefined) {
+      this.clearLoop();
       return;
     }
     if (start >= end) {
