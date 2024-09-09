@@ -1,6 +1,6 @@
 import React, { FC, useEffect, useRef } from "react";
-import { ScrollSync } from "react-virtualized";
 import { CommonProp } from "../../interface/common_prop";
+import useScrollStore from "../../store/ScrollStore";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserPixelToTime, parserTimeToPixel } from "../../utils/deal_data";
 import { RowDnd } from "../row_rnd/row_rnd";
@@ -17,7 +17,6 @@ export type CursorProps = CommonProp & {
   /** 设置scroll left */
   deltaScrollLeft: (delta: number) => void;
   /** 滚动同步ref（TODO: 该数据用于临时解决scrollLeft拖住时不同步问题） */
-  scrollSync: React.MutableRefObject<ScrollSync>;
 };
 
 export const Cursor: FC<CursorProps> = ({
@@ -29,7 +28,6 @@ export const Cursor: FC<CursorProps> = ({
   scaleWidth,
   scale,
   scrollLeft,
-  scrollSync,
   areaRef,
   maxScaleCount,
   deltaScrollLeft,
@@ -83,8 +81,7 @@ export const Cursor: FC<CursorProps> = ({
         draggingLeft.current = undefined;
       }}
       onDrag={({ left }, scroll = 0) => {
-        const scrollLeft = scrollSync.current.state.scrollLeft;
-
+        const scrollLeft = useScrollStore.getState().scrollLeft;
         if (!scroll || scrollLeft === 0) {
           // 拖拽时，如果当前left < left min，将数值设置为 left min
           if (left < startLeft - scrollLeft)

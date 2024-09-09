@@ -1,31 +1,35 @@
 export const PREFIX = `timeline-editor`;
 
-/** 开始时光标所在时间 */
+/** 시작 시 커서 위치한 시간 */
 export const START_CURSOR_TIME = 0;
-/** 默认刻度 */
+/** 기본 스케일 */
 export const DEFAULT_SCALE = 1;
-/** 默认刻度分割数量 */
+/** 기본 스케일 분할 개수 */
 export const DEFAULT_SCALE_SPLIT_COUNT = 10;
 
-/** 默认刻度显示宽度 */
+/** 기본 스케일 표시 너비 */
 export const DEFAULT_SCALE_WIDTH = 160;
-/** 默认刻度左侧开始距离 */
+/** 기본 스케일의 왼쪽 시작 거리 */
 export const DEFAULT_START_LEFT = 20;
-/** 默认移动最小像素 */
+/** 기본 이동 최소 픽셀 */
 export const DEFAULT_MOVE_GRID = 1;
-/** 默认吸附像素 */
+/** 기본 흡착 픽셀 */
 export const DEFAULT_ADSORPTION_DISTANCE = 8;
-/** 默认动作行高度 */
+/** 기본 액션 행 높이 */
 export const DEFAULT_ROW_HEIGHT = 50;
 
-/** 最小scale数量 */
+/** 최소 스케일 개수 */
 export const MIN_SCALE_COUNT = 20;
-/** 每次新增scale个数 */
+/** 스케일을 추가할 때마다 추가되는 개수 */
 export const ADD_SCALE_COUNT = 5;
 
-/** 错误信息 */
+export const EDIT_ARED_DEFAULT_MARGIN_TOP = 10;
+export const TIME_AREA_DEFAULT_HEIGHT = 32;
+export const ROW_HEADER_DEFAULT_WIDTH = 100;
+
+/** 오류 메시지 */
 export const ERROR = {
-  START_TIME_LESS_THEN_ZERO: "Action start time cannot be less than 0!",
+  START_TIME_LESS_THEN_ZERO: "액션 시작 시간이 0보다 작을 수 없습니다!",
   END_TIME_LESS_THEN_START_TIME:
-    "Action end time cannot be less then start time!",
+    "액션 종료 시간이 시작 시간보다 작을 수 없습니다!",
 };

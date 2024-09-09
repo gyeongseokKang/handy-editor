@@ -1,6 +1,5 @@
 import { cn } from "@/lib/utils";
 import React, { FC, useEffect, useRef } from "react";
-import { ScrollSync } from "react-virtualized";
 import { CommonProp } from "../../interface/common_prop";
 import { prefix } from "../../utils/deal_class_prefix";
 import {
@@ -24,8 +23,6 @@ export type dragAreaCursorProps = CommonProp & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /** 스크롤 좌측 설정 */
   deltaScrollLeft: (delta: number) => void;
-  /** 스크롤 동기화 ref (TODO: 이 데이터는 scrollLeft 드래그 시 동기화 문제를 임시로 해결하는 데 사용됨) */
-  scrollSync: React.MutableRefObject<ScrollSync>;
 };
 
 export const DragAreaCursor: FC<dragAreaCursorProps> = ({

@@ -6,6 +6,7 @@ import {
   OnScrollParams,
 } from "react-virtualized";
 import { CommonProp } from "../../interface/common_prop";
+import { TIME_AREA_DEFAULT_HEIGHT } from "../../interface/const";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserPixelToTime } from "../../utils/deal_data";
 
@@ -150,7 +151,8 @@ export const TimeArea: FC<TimeAreaProps> = ({
   return (
     <div className={prefix("time-area")}>
       <AutoSizer>
-        {({ width, height }) => {
+        {({ width, height: audioSizerHeight }) => {
+          const height = TIME_AREA_DEFAULT_HEIGHT || audioSizerHeight;
           return (
             <>
               <Grid

@@ -7,7 +7,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { ScrollSync } from "react-virtualized";
+import { OnScrollParams, ScrollSync } from "react-virtualized";
 import { ITimelineEngine, TimelineEngine } from "../engine/engine";
 import { MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME } from "../interface/const";
 import {
@@ -15,6 +15,7 @@ import {
   TimelineRow,
   TimelineState,
 } from "../interface/timeline";
+import useScrollStore from "../store/ScrollStore";
 import { checkProps } from "../utils/check_props";
 import {
   getScaleCountByRows,
@@ -32,7 +33,6 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
     let {
       effects,
       editorData: data,
-      scrollTop,
       autoScroll,
       hideCursor,
       disableDrag,
@@ -86,12 +86,6 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       autoReRender && engineRef.current.reRender();
     }, [editorData]);
 
-    // deprecated
-    useEffect(() => {
-      scrollSync.current &&
-        scrollSync.current.setState({ scrollTop: scrollTop });
-    }, [scrollTop]);
-
     /** 동적으로 스케일 개수 설정 */
     const handleSetScaleCount = (value: number) => {
       const data = Math.min(maxScaleCount, Math.max(minScaleCount, value));
@@ -139,11 +133,16 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
     /** 스크롤 좌측 설정 */
     const handleDeltaScrollLeft = (delta: number) => {
       // 최대 거리를 초과할 경우 자동 스크롤 금지
-      const data = scrollSync.current.state.scrollLeft + delta;
+      const scrollLeft = useScrollStore.getState().scrollLeft;
+      const data = scrollLeft + delta;
       if (data > scaleCount * (scaleWidth - 1) + startLeft - width) return;
+      const newScrollLeft = Math.max(scrollLeft + delta, 0);
+      useScrollStore.getState().setScrollState({
+        scrollLeft: newScrollLeft,
+      });
       scrollSync.current &&
         scrollSync.current.setState({
-          scrollLeft: Math.max(scrollSync.current.state.scrollLeft + delta, 0),
+          scrollLeft: newScrollLeft,
         });
     };
 
@@ -197,12 +196,21 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       pause: engineRef.current.pause.bind(engineRef.current),
       stop: engineRef.current.stop.bind(engineRef.current),
       setScrollLeft: (val) => {
+        const scrollLeft = Math.max(val, 0);
+        useScrollStore.getState().setScrollState({
+          scrollLeft: scrollLeft,
+        });
         scrollSync.current &&
-          scrollSync.current.setState({ scrollLeft: Math.max(val, 0) });
+          scrollSync.current.setState({ scrollLeft: scrollLeft });
       },
       setScrollTop: (val) => {
+        const scrollTop = Math.max(val, 0);
+        useScrollStore.getState().setScrollState({
+          scrollTop: scrollTop,
+        });
+
         scrollSync.current &&
-          scrollSync.current.setState({ scrollTop: Math.max(val, 0) });
+          scrollSync.current.setState({ scrollTop: scrollTop });
       },
     }));
 
@@ -227,82 +235,83 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       >
         <ScrollSync ref={scrollSync}>
           {({ scrollLeft, scrollTop, onScroll }) => {
+            const handleOnScroll = (params: OnScrollParams) => {
+              onScroll(params);
+              useScrollStore.getState().setScrollState(params);
+            };
+
             return (
               <>
-                <>
-                  <TimeArea
+                <TimeArea
+                  {...checkedProps}
+                  timelineWidth={width}
+                  setCursor={handleSetCursor}
+                  cursorTime={cursorTime}
+                  editorData={editorData}
+                  scaleCount={scaleCount}
+                  setScaleCount={handleSetScaleCount}
+                  onScroll={handleOnScroll}
+                  scrollLeft={scrollLeft}
+                  onDragTimeArea={(start, end) => {
+                    setDrag({
+                      start,
+                      end,
+                    });
+                    handleLoop(start, end);
+                  }}
+                />
+                <EditArea
+                  {...checkedProps}
+                  timelineWidth={width}
+                  // TODO: 타입 수정
+                  ref={(ref) =>
+                    ((areaRef.current as any) = ref?.domRef.current) as any
+                  }
+                  disableDrag={disableDrag || isPlaying}
+                  editorData={editorData}
+                  cursorTime={cursorTime}
+                  scaleCount={scaleCount}
+                  setScaleCount={handleSetScaleCount}
+                  scrollTop={scrollTop}
+                  scrollLeft={scrollLeft}
+                  setEditorData={handleEditorDataChange}
+                  deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                  onScroll={(params) => {
+                    handleOnScroll(params);
+                    onScrollVertical && onScrollVertical(params);
+                  }}
+                />
+                {!hideCursor && (
+                  <Cursor
                     {...checkedProps}
                     timelineWidth={width}
+                    disableDrag={isPlaying}
+                    scrollLeft={scrollLeft}
+                    scaleCount={scaleCount}
+                    setScaleCount={handleSetScaleCount}
                     setCursor={handleSetCursor}
                     cursorTime={cursorTime}
                     editorData={editorData}
-                    scaleCount={scaleCount}
-                    setScaleCount={handleSetScaleCount}
-                    onScroll={onScroll}
-                    scrollLeft={scrollLeft}
-                    onDragTimeArea={(start, end) => {
-                      setDrag({
-                        start,
-                        end,
-                      });
-                      handleLoop(start, end);
-                    }}
-                  />
-                  <EditArea
-                    {...checkedProps}
-                    timelineWidth={width}
-                    // TODO: 타입 수정
-                    ref={(ref) =>
-                      ((areaRef.current as any) = ref?.domRef.current) as any
-                    }
-                    disableDrag={disableDrag || isPlaying}
-                    editorData={editorData}
-                    cursorTime={cursorTime}
-                    scaleCount={scaleCount}
-                    setScaleCount={handleSetScaleCount}
-                    scrollTop={scrollTop}
-                    scrollLeft={scrollLeft}
-                    setEditorData={handleEditorDataChange}
+                    areaRef={areaRef}
                     deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
-                    onScroll={(params) => {
-                      onScroll(params);
-                      onScrollVertical && onScrollVertical(params);
-                    }}
                   />
-                  {!hideCursor && (
-                    <Cursor
-                      {...checkedProps}
-                      timelineWidth={width}
-                      disableDrag={isPlaying}
-                      scrollLeft={scrollLeft}
-                      scaleCount={scaleCount}
-                      setScaleCount={handleSetScaleCount}
-                      setCursor={handleSetCursor}
-                      cursorTime={cursorTime}
-                      editorData={editorData}
-                      areaRef={areaRef}
-                      scrollSync={scrollSync}
-                      deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
-                    />
-                  )}
-                  {drag.start && drag.end && (
-                    <DragAreaCursor
-                      {...checkedProps}
-                      drag={drag}
-                      timelineWidth={width}
-                      disableDrag={isPlaying}
-                      scrollLeft={scrollLeft}
-                      scaleCount={scaleCount}
-                      setScaleCount={handleSetScaleCount}
-                      setCursor={handleSetCursor}
-                      cursorTime={drag.start}
-                      editorData={editorData}
-                      areaRef={areaRef}
-                      scrollSync={scrollSync}
-                      deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
-                    />
-                  )}
-                </>
+                )}
+                {drag.start && drag.end && (
+                  <DragAreaCursor
+                    {...checkedProps}
+                    drag={drag}
+                    timelineWidth={width}
+                    disableDrag={isPlaying}
+                    scrollLeft={scrollLeft}
+                    scaleCount={scaleCount}
+                    setScaleCount={handleSetScaleCount}
+                    setCursor={handleSetCursor}
+                    cursorTime={drag.start}
+                    editorData={editorData}
+                    areaRef={areaRef}
+                    deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                  />
+                )}
               </>
             );
           }}

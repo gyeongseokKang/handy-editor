@@ -1,4 +1,5 @@
 /* eslint-disable react/display-name */
+import { cn } from "@/lib/utils";
 import React, {
   useEffect,
   useImperativeHandle,
@@ -13,6 +14,7 @@ import {
 } from "react-virtualized";
 import { TimelineRow } from "../../interface/action";
 import { CommonProp } from "../../interface/common_prop";
+import { EDIT_ARED_DEFAULT_MARGIN_TOP } from "../../interface/const";
 import { EditData } from "../../interface/timeline";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserTimeToPixel } from "../../utils/deal_data";
@@ -175,7 +177,13 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
     }, [editorData]);
 
     return (
-      <div ref={editAreaRef} className={prefix("edit-area")}>
+      <div
+        ref={editAreaRef}
+        className={cn(prefix("edit-area"), "relative flex-auto ")}
+        style={{
+          marginTop: EDIT_ARED_DEFAULT_MARGIN_TOP,
+        }}
+      >
         <AutoSizer>
           {({ width, height }) => {
             // 获取全部高度

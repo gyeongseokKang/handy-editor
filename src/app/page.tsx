@@ -31,6 +31,7 @@ import {
   Timeline,
   TimelineState,
 } from "./libs/react-timeline-editor";
+import RowHeaderArea from "./libs/react-timeline-editor/components/header_area/RowHeaderArea";
 import AudioVisualizer from "./libs/react-timeline-editor/components/player/AudioVisualizer";
 import { AudioPlayerEffect } from "./libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
 import { mockData2 } from "./libs/react-timeline-editor/components/player/mock";
@@ -57,6 +58,7 @@ export default function Home() {
   });
   const [waveform, setWaveform] = useState(false);
   const [visualizer, setVisualizer] = useState(false);
+  const [rowHeader, setRowHeader] = useState(true);
 
   const [scale, setScale] = useState(5);
   const [sacleWidth, setScaleWidth] = useState(300);
@@ -160,6 +162,16 @@ export default function Home() {
         </div>
         <div className="flex items-center space-x-2">
           <Switch
+            id="rowHeader"
+            checked={rowHeader}
+            onCheckedChange={() => {
+              setRowHeader(!rowHeader);
+            }}
+          />
+          <Label htmlFor="rowHeader">Row Header</Label>
+        </div>
+        <div className="flex items-center space-x-2">
+          <Switch
             id="drag-mode"
             checked={waveform}
             onCheckedChange={() => {
@@ -206,186 +218,197 @@ export default function Home() {
         timelineState={timelineState}
         autoScrollWhenPlay={autoScrollWhenPlay}
       />
-      <Timeline
-        ref={timelineState}
-        onChange={(data) => {
-          setData(data as any);
-        }}
-        scale={scaleState.current.scale}
-        scaleWidth={scaleState.current.scaleWidth}
-        startLeft={scaleState.current.startLeft}
-        scaleSplitCount={scaleState.current.scaleSplitCount}
-        editorData={data}
-        effects={{
-          ...AudioPlayerEffect,
-          ...AudioPlayerEffect,
-        }}
-        hideCursor={hideCursor}
-        autoScroll={true}
-        dragLine={dragLine}
-        disableDrag={!dragMode}
-        getScaleRender={(second) => {
-          const realSecond = second;
-          const timeDuration = dayjs.duration(realSecond, "seconds");
-          const hours = timeDuration.hours();
+      <div className="flex gap-1 w-full">
+        {rowHeader && (
+          <RowHeaderArea
+            data={data}
+            getRowHeader={({ id, actions }) => {
+              return <div className="text">{`${id}`}</div>;
+            }}
+          />
+        )}
 
-          // 시간에 따라 포맷을 다르게 설정
-          if (hours > 0) {
-            return (
-              <div className="text-xs text-gray-500">
-                {timeDuration.format("HH:mm:ss")}
-              </div>
-            );
-          } else {
-            return (
-              <div className="text-xs text-gray-500">
-                {timeDuration.format("mm:ss")}
-              </div>
-            );
-          }
-        }}
-        getActionRender={(action: any, row, { isDragging }) => {
-          const isOriginal = originalData.find(
-            (d) => d.actions[0].id === action.id
-          );
-          return (
-            <ContextMenu>
-              <ContextMenuTrigger>
-                <div
-                  className={cn(
-                    "relative w-full h-full flex justify-center items-center text-xl text-white",
-                    {
-                      "cursor-ew-resize": isDragging,
-                    }
-                  )}
-                >
-                  <DraggingTimelineTooltip
-                    time={action.start}
-                    direction="left"
-                    isDragging={isDragging}
-                  />
-                  {waveform ? (
-                    <Wavesurfer
-                      url={action.data.src}
-                      isDragging={isDragging}
-                    ></Wavesurfer>
-                  ) : (
-                    <div className="w-full flex justify-start px-4">
-                      {action.data.name}
-                    </div>
-                  )}
-                  <DraggingTimelineTooltip
-                    time={action.end}
-                    direction="right"
-                    isDragging={isDragging}
-                  />
+        <Timeline
+          ref={timelineState}
+          onChange={(data) => {
+            setData(data as any);
+          }}
+          scale={scaleState.current.scale}
+          scaleWidth={scaleState.current.scaleWidth}
+          startLeft={scaleState.current.startLeft}
+          scaleSplitCount={scaleState.current.scaleSplitCount}
+          editorData={data}
+          effects={{
+            ...AudioPlayerEffect,
+            ...AudioPlayerEffect,
+          }}
+          hideCursor={hideCursor}
+          autoScroll={true}
+          dragLine={dragLine}
+          disableDrag={!dragMode}
+          getScaleRender={(second) => {
+            const realSecond = second;
+            const timeDuration = dayjs.duration(realSecond, "seconds");
+            const hours = timeDuration.hours();
+
+            // 시간에 따라 포맷을 다르게 설정
+            if (hours > 0) {
+              return (
+                <div className="text-xs text-gray-500">
+                  {timeDuration.format("HH:mm:ss")}
                 </div>
-              </ContextMenuTrigger>
-              <ContextMenuContent>
-                <ContextMenuItem
-                  onClick={() => {
-                    const newData = [...data];
-                    const target = newData.find((d) =>
-                      d.actions.find((a) => a.id === action.id)
-                    );
-                    const targetAction = target?.actions.find(
-                      (a) => a.id === action.id
-                    );
-                    if (targetAction) {
-                      target.actions = target.actions.filter(
-                        (a) => a.id !== action.id
+              );
+            } else {
+              return (
+                <div className="text-xs text-gray-500">
+                  {timeDuration.format("mm:ss")}
+                </div>
+              );
+            }
+          }}
+          getActionRender={(action: any, row, { isDragging }) => {
+            const isOriginal = originalData.find(
+              (d) => d.actions[0].id === action.id
+            );
+            return (
+              <ContextMenu>
+                <ContextMenuTrigger>
+                  <div
+                    className={cn(
+                      "relative w-full h-full flex justify-center items-center text-xl text-white",
+                      {
+                        "cursor-ew-resize": isDragging,
+                      }
+                    )}
+                  >
+                    <DraggingTimelineTooltip
+                      time={action.start}
+                      direction="left"
+                      isDragging={isDragging}
+                    />
+                    {waveform ? (
+                      <Wavesurfer
+                        url={action.data.src}
+                        isDragging={isDragging}
+                      ></Wavesurfer>
+                    ) : (
+                      <div className="w-full flex justify-start px-4">
+                        {action.data.name}
+                      </div>
+                    )}
+                    <DraggingTimelineTooltip
+                      time={action.end}
+                      direction="right"
+                      isDragging={isDragging}
+                    />
+                  </div>
+                </ContextMenuTrigger>
+                <ContextMenuContent>
+                  <ContextMenuItem
+                    onClick={() => {
+                      const newData = [...data];
+                      const target = newData.find((d) =>
+                        d.actions.find((a) => a.id === action.id)
                       );
-                      setData(newData as any);
-                    }
-                  }}
-                >
-                  Delete
-                </ContextMenuItem>
-                <ContextMenuItem
-                  disabled={!isOriginal}
-                  onClick={() => {
-                    const newData = [...data];
-                    const target = newData.find(
-                      (d) => d.actions[0].id === action.id
-                    );
-                    if (target) {
-                      const originalTarget = originalData.find(
+                      const targetAction = target?.actions.find(
+                        (a) => a.id === action.id
+                      );
+                      if (targetAction) {
+                        target.actions = target.actions.filter(
+                          (a) => a.id !== action.id
+                        );
+                        setData(newData as any);
+                      }
+                    }}
+                  >
+                    Delete
+                  </ContextMenuItem>
+                  <ContextMenuItem
+                    disabled={!isOriginal}
+                    onClick={() => {
+                      const newData = [...data];
+                      const target = newData.find(
                         (d) => d.actions[0].id === action.id
                       );
-                      if (originalTarget) {
-                        target.actions[0].start =
-                          originalTarget.actions[0].start;
-                        target.actions[0].end = originalTarget.actions[0].end;
+                      if (target) {
+                        const originalTarget = originalData.find(
+                          (d) => d.actions[0].id === action.id
+                        );
+                        if (originalTarget) {
+                          target.actions[0].start =
+                            originalTarget.actions[0].start;
+                          target.actions[0].end = originalTarget.actions[0].end;
+                        }
                       }
-                    }
-                    setData(newData as any);
-                  }}
-                >
-                  Reset
-                </ContextMenuItem>
-                <ContextMenuSub>
-                  <ContextMenuSubTrigger>duplicate</ContextMenuSubTrigger>
-                  <ContextMenuSubContent className="w-48">
-                    <ContextMenuItem
-                      onClick={() => {
-                        const newData = [...data];
-                        const target = newData.find((d) =>
-                          d.actions.find((a) => a.id === action.id)
-                        );
-                        const targetAction = target?.actions.find(
-                          (a) => a.id === action.id
-                        );
-                        if (target) {
-                          const newAction = cloneDeep(targetAction);
-                          newAction.id =
-                            `${newAction.id.split("_")[0]}` +
-                            "_" +
-                            Math.random();
-                          newData.push({
-                            id: (newData.length + 1).toString(),
-                            actions: [newAction],
-                          });
-                          setData(newData as any);
-                        }
-                      }}
-                    >
-                      new line
-                    </ContextMenuItem>
-                    <ContextMenuItem
-                      onClick={() => {
-                        const newData = [...data];
-                        const target = newData.find((d) =>
-                          d.actions.find((a) => a.id === action.id)
-                        );
-                        const targetAction = target?.actions.find(
-                          (a) => a.id === action.id
-                        );
-                        if (targetAction) {
-                          const duration =
-                            targetAction.end - targetAction.start;
+                      setData(newData as any);
+                    }}
+                  >
+                    Reset
+                  </ContextMenuItem>
+                  <ContextMenuSub>
+                    <ContextMenuSubTrigger>duplicate</ContextMenuSubTrigger>
+                    <ContextMenuSubContent className="w-48">
+                      <ContextMenuItem
+                        onClick={() => {
+                          const newData = [...data];
+                          const target = newData.find((d) =>
+                            d.actions.find((a) => a.id === action.id)
+                          );
+                          const targetAction = target?.actions.find(
+                            (a) => a.id === action.id
+                          );
+                          if (target) {
+                            const newAction = cloneDeep(targetAction);
+                            newAction.id =
+                              `${newAction.id.split("_")[0]}` +
+                              "_" +
+                              Math.random();
+                            newData.push({
+                              id: (newData.length + 1).toString(),
+                              actions: [newAction],
+                            });
+                            setData(newData as any);
+                          }
+                        }}
+                      >
+                        new line
+                      </ContextMenuItem>
+                      <ContextMenuItem
+                        onClick={() => {
+                          const newData = [...data];
+                          const target = newData.find((d) =>
+                            d.actions.find((a) => a.id === action.id)
+                          );
+                          const targetAction = target?.actions.find(
+                            (a) => a.id === action.id
+                          );
+                          if (targetAction) {
+                            const duration =
+                              targetAction.end - targetAction.start;
 
-                          const newAction = cloneDeep(targetAction);
-                          newAction.id =
-                            `${newAction.id.split("_")[0]}` +
-                            "_" +
-                            Math.random();
-                          newAction.data.id = newAction.id + "_data";
-                          newAction.start = targetAction.start + duration + 5;
-                          newAction.end = targetAction.end + duration + 5;
-                          target.actions.push(newAction);
-                          setData(newData as any);
-                        }
-                      }}
-                    >
-                      same line
-                    </ContextMenuItem>
-                  </ContextMenuSubContent>
-                </ContextMenuSub>
-              </ContextMenuContent>
-            </ContextMenu>
-          );
-        }}
-      />
+                            const newAction = cloneDeep(targetAction);
+                            newAction.id =
+                              `${newAction.id.split("_")[0]}` +
+                              "_" +
+                              Math.random();
+                            newAction.data.id = newAction.id + "_data";
+                            newAction.start = targetAction.start + duration + 5;
+                            newAction.end = targetAction.end + duration + 5;
+                            target.actions.push(newAction);
+                            setData(newData as any);
+                          }
+                        }}
+                      >
+                        same line
+                      </ContextMenuItem>
+                    </ContextMenuSubContent>
+                  </ContextMenuSub>
+                </ContextMenuContent>
+              </ContextMenu>
+            );
+          }}
+        />
+      </div>
     </div>
   );
 }

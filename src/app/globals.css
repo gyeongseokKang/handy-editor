@@ -194,37 +194,11 @@
   border-left: 7px solid transparent;
 }
 
-/* .timeline-editor:hover
-  .timeline-editor-edit-area
-  .ReactVirtualized__Grid::-webkit-scrollbar {
-  height: 4px;
-} */
-
-.timeline-editor-edit-area {
-  flex: 1 1 auto;
-  margin-top: 10px;
-  position: relative;
-}
-
 .timeline-editor-edit-area .ReactVirtualized__Grid {
   outline: none !important;
   /* overflow-y: hidden !important; */
   /* overflow: overlay !important; */
 }
-
-/* .timeline-editor-edit-area .ReactVirtualized__Grid::-webkit-scrollbar {
-  width: 0;
-  height: 0;
-} */
-
-/* .timeline-editor-edit-area .ReactVirtualized__Grid::-webkit-scrollbar-track {
-  background-color: transparent !important;
-} */
-
-/* .timeline-editor-edit-area .ReactVirtualized__Grid::-webkit-scrollbar-thumb {
-  background: #313132;
-  border-radius: 16px;
-} */
 
 @layer base {
   :root {

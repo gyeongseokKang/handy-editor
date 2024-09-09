@@ -103,28 +103,17 @@ export const mockEffect2: Record<string, TimelineEffect> = {
 
 export const mockData2: CusTomTimelineRow[] = [
   {
-    id: "1",
+    id: "row1",
     actions: [
       {
         id: "최애의아이",
-        start: 0.001,
-        end: 5,
+        start: 0,
+        end: 226,
         effectId: "audioPlayer",
         data: {
           id: "최애의아이",
           src: "/audio/최애의아이.mp3",
           name: "최애의아이",
-        },
-      },
-      {
-        id: "최애의아이2",
-        start: 6,
-        end: 10,
-        effectId: "audioPlayer",
-        data: {
-          id: "최애의아이2",
-          src: "/audio/최애의아이.mp3",
-          name: "최애의아이2",
         },
       },
       // ...Array.from({ length: 20 }).map((_, i) => ({
@@ -140,9 +129,25 @@ export const mockData2: CusTomTimelineRow[] = [
       // })),
     ],
   },
+  {
+    id: "row2",
+    actions: [
+      {
+        id: "내손을잡아",
+        start: 5,
+        end: 208,
+        effectId: "audioPlayer",
+        data: {
+          id: "내손을잡아",
+          src: "/audio/내손을잡아.mp3",
+          name: "내손을잡아",
+        },
+      },
+    ],
+  },
 
   // ...Array.from({ length: 20 }).map((_, i) => ({
-  //   id: `${i + 3}`,
+  //   id: `${i + 2}`,
   //   actions: [
   //     {
   //       id: `최애의아이${i}`,
