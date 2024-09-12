@@ -30,13 +30,13 @@ import {
   ScaleState,
   Timeline,
   TimelineState,
-} from "./libs/react-timeline-editor";
-import RowHeaderArea from "./libs/react-timeline-editor/components/header_area/RowHeaderArea";
-import AudioVisualizer from "./libs/react-timeline-editor/components/player/AudioVisualizer";
-import { AudioPlayerEffect } from "./libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
-import { mockData2 } from "./libs/react-timeline-editor/components/player/mock";
-import TimelinePlayer from "./libs/react-timeline-editor/components/player/player";
-import Wavesurfer from "./libs/react-timeline-editor/components/wave/Wavesurfer";
+} from "../libs/react-timeline-editor";
+import RowHeaderArea from "../libs/react-timeline-editor/components/header_area/RowHeaderArea";
+import AudioVisualizer from "../libs/react-timeline-editor/components/player/AudioVisualizer";
+import { AudioPlayerEffect } from "../libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
+import { mockData2 } from "../libs/react-timeline-editor/components/player/mock";
+import TimelinePlayer from "../libs/react-timeline-editor/components/player/player";
+import Wavesurfer from "../libs/react-timeline-editor/components/wave/Wavesurfer";
 
 // duration 플러그인 사용 설정
 dayjs.extend(duration);
@@ -118,6 +118,7 @@ export default function Home() {
 
   return (
     <div className="p-4">
+      <h1>미디오, 오디오 에디터 POC</h1>
       <h2>옵션들</h2>
       <div className="py-4 flex gap-2">
         <div className="flex items-center space-x-2">

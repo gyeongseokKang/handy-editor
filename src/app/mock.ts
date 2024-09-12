@@ -1,4 +1,4 @@
-import { TimelineEffect, TimelineRow } from "./libs/react-timeline-editor";
+import { TimelineEffect, TimelineRow } from "../libs/react-timeline-editor";
 
 export const mockEffect: Record<string, TimelineEffect> = {
   effect0: {
