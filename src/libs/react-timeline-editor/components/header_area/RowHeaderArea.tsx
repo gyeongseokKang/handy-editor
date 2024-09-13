@@ -42,7 +42,7 @@ const RowHeaderArea = ({ data, width, getRowHeader }: RowHeaderAreaProps) => {
     >
       {data.map((item) => (
         <div
-          className="flex items-center justify-center  min-h-[50px]"
+          className="flex items-center justify-center min-h-[50px]"
           key={item.id}
         >
           {getRowHeader?.(item)}

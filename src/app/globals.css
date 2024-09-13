@@ -26,16 +26,14 @@
   height: 600px;
   width: 100%;
   background-color: #191b1d;
-
   min-height: 32px;
   position: relative;
   font-size: 12px;
   font-family: "PingFang SC";
   display: flex;
   flex-direction: column;
-  /* overflow: hidden; */
+  overflow: hidden;
 }
-
 .timeline-editor-drag-line-container {
   position: absolute;
   height: 100%;
