@@ -1,3 +1,4 @@
+import useOptionStore from "@/app/media-editor/store/OptionStore";
 import { FC, useEffect, useRef, useState } from "react";
 import {
   AutoSizer,
@@ -27,17 +28,16 @@ export const TimeArea: FC<TimeAreaProps> = ({
   setCursor,
   maxScaleCount,
   hideCursor,
-  scale,
-  scaleWidth,
   scaleCount,
-  scaleSplitCount,
-  startLeft,
   scrollLeft,
   onClickTimeArea,
   onDragTimeArea,
   getScaleRender,
 }) => {
   const gridRef = useRef<Grid>();
+  const { scale, scaleWidth, startLeft, scaleSplitCount } = useOptionStore(
+    (state) => state.editorOption.scaleState
+  );
   /** 세분화된 눈금을 표시할지 여부 */
   const showUnit = scaleSplitCount > 0;
 
@@ -136,7 +136,7 @@ export const TimeArea: FC<TimeAreaProps> = ({
 
   useEffect(() => {
     gridRef.current?.recomputeGridSize();
-  }, [scaleWidth, startLeft]);
+  }, [scaleWidth, startLeft, scaleSplitCount, scaleCount]);
 
   /** 각 열의 너비를 가져옴 */
   const getColumnWidth = (data: { index: number }) => {

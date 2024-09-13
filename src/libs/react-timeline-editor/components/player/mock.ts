@@ -129,22 +129,22 @@ export const mockData2: CusTomTimelineRow[] = [
       // })),
     ],
   },
-  {
-    id: "row2",
-    actions: [
-      {
-        id: "내손을잡아",
-        start: 5,
-        end: 208,
-        effectId: "audioPlayer",
-        data: {
-          id: "내손을잡아",
-          src: "/audio/내손을잡아.mp3",
-          name: "내손을잡아",
-        },
-      },
-    ],
-  },
+  // {
+  //   id: "row2",
+  //   actions: [
+  //     {
+  //       id: "내손을잡아",
+  //       start: 5,
+  //       end: 208,
+  //       effectId: "audioPlayer",
+  //       data: {
+  //         id: "내손을잡아",
+  //         src: "/audio/내손을잡아.mp3",
+  //         name: "내손을잡아",
+  //       },
+  //     },
+  //   ],
+  // },
 
   // ...Array.from({ length: 20 }).map((_, i) => ({
   //   id: `${i + 2}`,

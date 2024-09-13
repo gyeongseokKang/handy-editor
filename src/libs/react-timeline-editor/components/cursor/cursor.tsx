@@ -1,3 +1,4 @@
+import useOptionStore from "@/app/media-editor/store/OptionStore";
 import React, { FC, useEffect, useRef } from "react";
 import { CommonProp } from "../../interface/common_prop";
 import useScrollStore from "../../store/ScrollStore";
@@ -23,10 +24,7 @@ export const Cursor: FC<CursorProps> = ({
   disableDrag,
   cursorTime,
   setCursor,
-  startLeft,
   timelineWidth,
-  scaleWidth,
-  scale,
   scrollLeft,
   areaRef,
   maxScaleCount,
@@ -35,6 +33,9 @@ export const Cursor: FC<CursorProps> = ({
   onCursorDrag,
   onCursorDragEnd,
 }) => {
+  const { scale, scaleWidth, startLeft } = useOptionStore(
+    (state) => state.editorOption.scaleState
+  );
   const rowRnd = useRef<RowRndApi>();
   const draggingLeft = useRef<undefined | number>();
 

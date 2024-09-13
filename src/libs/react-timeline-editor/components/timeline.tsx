@@ -1,5 +1,6 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
+import useOptionStore from "@/app/media-editor/store/OptionStore";
 import React, {
   useEffect,
   useImperativeHandle,
@@ -36,9 +37,7 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       autoScroll,
       hideCursor,
       disableDrag,
-      scale,
-      scaleWidth,
-      startLeft,
+
       minScaleCount,
       maxScaleCount,
       onChange,
@@ -46,6 +45,10 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       autoReRender = true,
       onScroll: onScrollVertical,
     } = checkedProps;
+
+    const { scale, scaleWidth, startLeft } = useOptionStore(
+      (state) => state.editorOption.scaleState
+    );
 
     const engineRef = useRef<ITimelineEngine>(engine || new TimelineEngine());
     const domRef = useRef<HTMLDivElement>();
@@ -134,6 +137,7 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
     const handleDeltaScrollLeft = (delta: number) => {
       // 최대 거리를 초과할 경우 자동 스크롤 금지
       const scrollLeft = useScrollStore.getState().scrollLeft;
+
       const data = scrollLeft + delta;
       if (data > scaleCount * (scaleWidth - 1) + startLeft - width) return;
       const newScrollLeft = Math.max(scrollLeft + delta, 0);
@@ -165,7 +169,7 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       engineRef.current.on("play", handlePlay);
       engineRef.current.on("stop", handleStop);
       engineRef.current.on("paused", handlePaused);
-    }, []);
+    }, [scale, scaleWidth, startLeft]);
 
     // ref 데이터
     useImperativeHandle(ref, () => ({

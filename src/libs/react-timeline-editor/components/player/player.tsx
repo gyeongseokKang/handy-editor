@@ -1,17 +1,18 @@
+import useOptionStore from "@/app/media-editor/store/OptionStore";
 import { Label } from "@/components/ui/label";
 import { Slider } from "@/components/ui/slider";
 import React, { FC, useEffect, useState } from "react";
 import { IoMdPause, IoMdPlay } from "react-icons/io";
-import { ScaleState, TimelineState } from "../../interface/timeline";
+import { TimelineState } from "../../interface/timeline";
 
 export const Rates = [0.2, 0.5, 1.0, 1.5, 2.0];
 
 const TimelinePlayer: FC<{
   timelineState: React.MutableRefObject<TimelineState>;
   autoScrollWhenPlay: React.MutableRefObject<boolean>;
-  scaleState: React.MutableRefObject<ScaleState>;
-}> = ({ scaleState, timelineState, autoScrollWhenPlay }) => {
+}> = ({ timelineState, autoScrollWhenPlay }) => {
   const [isPlaying, setIsPlaying] = useState(false);
+  // const scaleState = useOptionStore((state) => state.editorOption.scaleState);
   const [time, setTime] = useState(0);
   const [rate, setRate] = useState(1);
 
@@ -36,10 +37,10 @@ const TimelinePlayer: FC<{
       setTime(time);
       if (autoScrollWhenPlay.current) {
         const autoScrollFrom = 500;
-        const left =
-          time * (scaleState.current.scaleWidth / scaleState.current.scale) +
-          scaleState.current.startLeft -
-          autoScrollFrom;
+
+        const { scaleWidth, scale, startLeft } =
+          useOptionStore.getState().editorOption.scaleState;
+        const left = time * (scaleWidth / scale) + startLeft - autoScrollFrom;
         timelineState.current.setScrollLeft(left);
       }
     });

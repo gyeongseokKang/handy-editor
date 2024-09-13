@@ -1,4 +1,5 @@
 /* eslint-disable react/display-name */
+import useOptionStore from "@/app/media-editor/store/OptionStore";
 import { cn } from "@/lib/utils";
 import React, {
   useEffect,
@@ -45,12 +46,9 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
     const {
       editorData,
       rowHeight,
-      scaleWidth,
       scaleCount,
-      startLeft,
       scrollLeft,
       scrollTop,
-      scale,
       hideCursor,
       cursorTime,
       onScroll,
@@ -63,6 +61,11 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
       onActionResizeStart,
       onActionResizing,
     } = props;
+
+    const { scale, scaleWidth, startLeft } = useOptionStore(
+      (state) => state.editorOption.scaleState
+    );
+
     const {
       dragLineData,
       initDragLine,

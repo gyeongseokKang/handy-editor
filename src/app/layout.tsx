@@ -1,8 +1,8 @@
 import Sidebar from "@/components/common/Sidebar";
 import Topbar from "@/components/common/Topbar";
-import { TooltipProvider } from "@/components/ui/tooltip";
 import type { Metadata } from "next";
 import "./globals.css";
+import { Provider } from "./Provider";
 export const metadata: Metadata = {
   title: "Online Media Editor",
   description:
@@ -16,8 +16,8 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <TooltipProvider>
-        <body>
+      <body>
+        <Provider>
           <div className="flex flex-col">
             <Topbar />
             <div className="flex w-full">
@@ -25,8 +25,8 @@ export default function RootLayout({
               <main className="p-2 w-full">{children}</main>
             </div>
           </div>
-        </body>
-      </TooltipProvider>
+        </Provider>
+      </body>
     </html>
   );
 }
