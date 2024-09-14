@@ -29,6 +29,7 @@ import duration from "dayjs/plugin/duration";
 import { cloneDeep } from "lodash";
 import { useRef, useState } from "react";
 import useOptionStore from "../../store/OptionStore";
+import UploadDropdown from "./component/UploadDropdown";
 
 // duration 플러그인 사용 설정
 dayjs.extend(duration);
@@ -36,8 +37,6 @@ dayjs.extend(duration);
 export default function MediaEditor() {
   const originalData = cloneDeep(sample);
   const [data, setData] = useState(defaultEditorData);
-  const [dragLine, setDragLine] = useState(true);
-  const [hideCursor, setHideCursor] = useState(false);
   const [dragMode, setDragMode] = useState(true);
   const timelineState = useRef<TimelineState>();
   const autoScrollWhenPlay = useRef<boolean>(true);
@@ -89,16 +88,7 @@ export default function MediaEditor() {
     <div className="px-2">
       <div className="py-4 flex gap-2">
         <div className="flex items-center space-x-2">
-          <Switch
-            id="dragLine-mode"
-            checked={dragLine}
-            onCheckedChange={() => {
-              setDragLine(!dragLine);
-            }}
-          />
-          <Label htmlFor="dragLine-mode">DragLine</Label>
-        </div>
-        <div className="flex items-center space-x-2">
+          <UploadDropdown />
           <Switch
             id="autoScroll-mode"
             defaultChecked={autoScrollWhenPlay.current}
@@ -108,16 +98,7 @@ export default function MediaEditor() {
           />
           <Label htmlFor="autoScroll-mode">autoScroll</Label>
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="hideCursor-mode"
-            checked={hideCursor}
-            onCheckedChange={() => {
-              setHideCursor(!hideCursor);
-            }}
-          />
-          <Label htmlFor="hideCursor-mode">hideCursor</Label>
-        </div>
+
         <div className="flex items-center space-x-2">
           <Switch
             id="drag-mode"
@@ -196,9 +177,8 @@ export default function MediaEditor() {
             ...AudioPlayerEffect,
             ...VideoPlayerEffect,
           }}
-          hideCursor={hideCursor}
           autoScroll={true}
-          dragLine={dragLine}
+          dragLine={true}
           disableDrag={!dragMode}
           getScaleRender={(second) => <ScaleRender second={second} />}
           getActionRender={(action: any, row, { isDragging }) => {
@@ -257,28 +237,6 @@ export default function MediaEditor() {
                     }}
                   >
                     Delete
-                  </ContextMenuItem>
-                  <ContextMenuItem
-                    disabled={!isOriginal}
-                    onClick={() => {
-                      const newData = [...data];
-                      const target = newData.find(
-                        (d) => d.actions[0].id === action.id
-                      );
-                      if (target) {
-                        const originalTarget = originalData.find(
-                          (d) => d.actions[0].id === action.id
-                        );
-                        if (originalTarget) {
-                          target.actions[0].start =
-                            originalTarget.actions[0].start;
-                          target.actions[0].end = originalTarget.actions[0].end;
-                        }
-                      }
-                      setData(newData as any);
-                    }}
-                  >
-                    Reset
                   </ContextMenuItem>
                   <ContextMenuSub>
                     <ContextMenuSubTrigger>duplicate</ContextMenuSubTrigger>

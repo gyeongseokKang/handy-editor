@@ -7,77 +7,76 @@ import { TimelineAction, TimelineRow } from "./action";
 import { TimelineEffect } from "./effect";
 export * from "./action";
 export * from "./effect";
-
 export interface EditData {
   /**
-   * @description 时间轴编辑数据
+   * @description 시간축 편집 데이터
    */
   editorData: TimelineRow[];
   /**
-   * @description 时间轴动作效果map
+   * @description 시간축 동작 및 효과 맵
    */
   effects: Record<string, TimelineEffect>;
   /**
-   * @description 单个刻度标记范畴（>0）
+   * @description 단일 눈금 범위 (>0)
    * @default 1
    */
   scale?: number;
   /**
-   * @description 最少刻度个数（>=1）
+   * @description 최소 눈금 개수 (>=1)
    * @default 20
    */
   minScaleCount?: number;
   /**
-   * @description 最大刻度个数（>=minScaleCount）
+   * @description 최대 눈금 개수 (>=minScaleCount)
    * @default Infinity
    */
   maxScaleCount?: number;
   /**
-   * @description 单个刻度细分单元数（>0整数）
+   * @description 단일 눈금의 세부 단위 수 (>0 정수)
    * @default 10
    */
   scaleSplitCount?: number;
   /**
-   * @description 单个刻度的显示宽度（>0, 单位：px）
+   * @description 단일 눈금의 표시 너비 (>0, 단위: px)
    * @default 160
    */
   scaleWidth?: number;
   /**
-   * @description 刻度开始距离左侧的距离（>=0, 单位：px）
+   * @description 눈금 시작 지점이 왼쪽으로부터의 거리 (>=0, 단위: px)
    * @default 20
    */
   startLeft?: number;
   /**
-   * @description 每个编辑行默认高度（>0, 单位：px）
+   * @description 각 편집 행의 기본 높이 (>0, 단위: px)
    * @default 32
    */
   rowHeight?: number;
   /**
-   * @description 是否启动网格移动吸附
+   * @description 그리드 스냅을 활성화할지 여부
    * @default false
    */
   gridSnap?: boolean;
   /**
-   * @description 启动拖拽辅助线吸附
+   * @description 드래그 시 보조선을 스냅할지 여부
    * @default false
    */
   dragLine?: boolean;
   /**
-   * @description 是否隐藏光标
+   * @description 커서를 숨길지 여부
    * @default false
    */
   hideCursor?: boolean;
   /**
-   * @description 禁止全部动作区域拖动
+   * @description 모든 동작 영역에서 드래그를 금지할지 여부
    * @default false
    */
   disableDrag?: boolean;
   /**
-   * @description timeline运行器，不传则使用内置运行器
+   * @description 타임라인 엔진을 지정하지 않으면 내장 엔진을 사용
    */
   engine?: ITimelineEngine;
   /**
-   * @description 自定义action区域渲染
+   * @description 사용자 정의 동작 영역 렌더링
    */
   getActionRender?: (
     action: TimelineAction,
@@ -85,18 +84,18 @@ export interface EditData {
     { isDragging }: { isDragging: boolean }
   ) => ReactNode;
   /**
-   * @description 自定义scale渲染
+   * @description 사용자 정의 눈금 렌더링
    */
   getScaleRender?: (scale: number) => ReactNode;
   /**
-   * @description 开始移动回调
+   * @description 동작이 시작될 때의 콜백 함수
    */
   onActionMoveStart?: (params: {
     action: TimelineAction;
     row: TimelineRow;
   }) => void;
   /**
-   * @description 移动回调（return false可阻止移动）
+   * @description 동작 중 콜백 함수 (false를 반환하면 이동을 차단)
    */
   onActionMoving?: (params: {
     action: TimelineAction;
@@ -105,7 +104,7 @@ export interface EditData {
     end: number;
   }) => void | boolean;
   /**
-   * @description 移动结束回调（return false可阻止onChange触发）
+   * @description 동작이 끝날 때의 콜백 함수 (false를 반환하면 onChange가 호출되지 않음)
    */
   onActionMoveEnd?: (params: {
     action: TimelineAction;
@@ -114,7 +113,7 @@ export interface EditData {
     end: number;
   }) => void;
   /**
-   * @description 开始改变大小回调
+   * @description 크기 조정이 시작될 때의 콜백 함수
    */
   onActionResizeStart?: (params: {
     action: TimelineAction;
@@ -122,7 +121,7 @@ export interface EditData {
     dir: "right" | "left";
   }) => void;
   /**
-   * @description 开始大小回调（return false可阻止改变）
+   * @description 크기 조정 중 콜백 함수 (false를 반환하면 크기 조정을 차단)
    */
   onActionResizing?: (params: {
     action: TimelineAction;
@@ -132,7 +131,7 @@ export interface EditData {
     dir: "right" | "left";
   }) => void | boolean;
   /**
-   * @description 改变大小结束回调（return false可阻止onChange触发）
+   * @description 크기 조정이 끝날 때의 콜백 함수 (false를 반환하면 onChange가 호출되지 않음)
    */
   onActionResizeEnd?: (params: {
     action: TimelineAction;
@@ -142,7 +141,7 @@ export interface EditData {
     dir: "right" | "left";
   }) => void;
   /**
-   * @description 点击行回调
+   * @description 행을 클릭할 때의 콜백 함수
    */
   onClickRow?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -152,7 +151,7 @@ export interface EditData {
     }
   ) => void;
   /**
-   * @description 点击动作回调
+   * @description 동작을 클릭할 때의 콜백 함수
    */
   onClickAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -163,7 +162,7 @@ export interface EditData {
     }
   ) => void;
   /**
-   * @description 点击动作回调（触发drag时不执行）
+   * @description 동작을 클릭할 때의 콜백 함수 (드래그가 발생할 때는 실행되지 않음)
    */
   onClickActionOnly?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -174,7 +173,7 @@ export interface EditData {
     }
   ) => void;
   /**
-   * @description 双击行回调
+   * @description 행을 더블 클릭할 때의 콜백 함수
    */
   onDoubleClickRow?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -184,7 +183,7 @@ export interface EditData {
     }
   ) => void;
   /**
-   * @description 双击动作回调
+   * @description 동작을 더블 클릭할 때의 콜백 함수
    */
   onDoubleClickAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -195,7 +194,7 @@ export interface EditData {
     }
   ) => void;
   /**
-   * @description 右键行回调
+   * @description 행을 우클릭할 때의 콜백 함수
    */
   onContextMenuRow?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -205,7 +204,7 @@ export interface EditData {
     }
   ) => void;
   /**
-   * @description 右键动作回调
+   * @description 동작을 우클릭할 때의 콜백 함수
    */
   onContextMenuAction?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
@@ -216,7 +215,7 @@ export interface EditData {
     }
   ) => void;
   /**
-   * @description 获取要提示辅助线的action id列表，在move/resize start 时进行计算，默认获取除当前移动action的全部
+   * @description 이동/크기 조정 시작 시 드래그 보조선을 표시할 action id 목록을 가져옴. 기본적으로 현재 이동 중인 동작을 제외한 모든 동작을 가져옴.
    */
   getAssistDragLineActionIds?: (params: {
     action: TimelineAction;
@@ -224,19 +223,19 @@ export interface EditData {
     row: TimelineRow;
   }) => string[];
   /**
-   * @description cursor开始拖拽事件
+   * @description 커서가 드래그를 시작할 때의 이벤트
    */
   onCursorDragStart?: (time: number) => void;
   /**
-   * @description cursor结束拖拽事件
+   * @description 커서가 드래그를 끝낼 때의 이벤트
    */
   onCursorDragEnd?: (time: number) => void;
   /**
-   * @description cursor拖拽事件
+   * @description 커서가 드래그될 때의 이벤트
    */
   onCursorDrag?: (time: number) => void;
   /**
-   * @description 点击时间区域事件, 返回false时阻止设置时间
+   * @description 시간 영역을 클릭할 때의 이벤트, false를 반환하면 시간 설정을 방지
    */
   onClickTimeArea?: (
     time: number,
@@ -286,36 +285,36 @@ export interface TimelineState {
 }
 
 /**
- * 动画编辑器参数
+ * 애니메이션 편집기 매개변수
  * @export
  * @interface TimelineProp
  */
 export interface TimelineEditor extends EditData {
   /**
-   * @description 编辑区域距离顶部滚动距离 (请使用ref.setScrollTop代替)
+   * @description 편집 영역의 상단 스크롤 거리 (ref.setScrollTop을 사용해주세요)
    * @deprecated
    */
   scrollTop?: number;
   /**
-   * @description 编辑区域滚动回调 (用于控制与编辑行滚动同步)
+   * @description 편집 영역 스크롤 콜백 (편집 행과의 스크롤 동기화를 위해 사용)
    */
   onScroll?: (params: OnScrollParams) => void;
   /**
-   * @description 拖拽时是否启动自动滚动
+   * @description 드래그 중 자동 스크롤을 활성화할지 여부
    * @default false
    */
   autoScroll?: boolean;
   /**
-   * @description 自定义timeline样式
+   * @description 사용자 정의 타임라인 스타일
    */
   style?: React.CSSProperties;
   /**
-   * @description 是否自动重新渲染（当数据改变或光标时间改变时update tick）
+   * @description 데이터 변경 시 자동으로 다시 렌더링할지 여부 (데이터 변경 또는 커서 시간 변경 시 업데이트됨)
    * @default true
    */
   autoReRender?: boolean;
   /**
-   * @description 数据改变回调，会在操作动作end改变数据后触发(返回false会阻止自动engine同步，用于减少性能开销)
+   * @description 데이터 변경 콜백, 동작이 끝나고 데이터가 변경된 후 호출됨 (false를 반환하면 엔진 동기화를 방지하여 성능 오버헤드를 줄일 수 있음)
    */
   onChange?: (editorData: TimelineRow[]) => void | boolean;
 }
