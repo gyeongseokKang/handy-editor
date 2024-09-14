@@ -54,3 +54,4 @@ const VideoPlayer2 = forwardRef<any, { src: string; id: string }>(
     );
   }
 );
+VideoPlayer2.displayName = "VideoPlayer2";
