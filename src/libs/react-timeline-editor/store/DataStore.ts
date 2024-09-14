@@ -15,7 +15,24 @@ type Actions = {
 };
 
 const initialState: State = {
-  timelineRowList: [],
+  timelineRowList: [
+    {
+      id: "row2",
+      segments: [
+        {
+          id: "video_18분짜리",
+          start: 10,
+          end: 1167,
+          effectId: "videoPlayer",
+          data: {
+            src: "/video/18분짜리 인터뷰.mp4",
+            name: "18분짜리 인터뷰",
+            videoSrc: "/video/18분짜리 인터뷰.mp4",
+          },
+        },
+      ],
+    },
+  ],
 };
 
 const useDataStore = create(
@@ -52,7 +69,7 @@ export default useDataStore;
 export class DataStoreUtil {
   static makeTimelineRow() {
     const newTimelineRow: TimelineRow = {
-      id: crypto.randomUUID(),
+      id: "row" + crypto.randomUUID(),
       segments: [],
       rowHeight: DEFAULT_ROW_HEIGHT,
       selected: true,
@@ -74,7 +91,10 @@ export class DataStoreUtil {
 
     if (type === "newLine") {
       const newTimelineRow = DataStoreUtil.makeTimelineRow();
-      newTimelineRow.segments.push({ ...segment, id: crypto.randomUUID() });
+      newTimelineRow.segments.push({
+        ...segment,
+        id: "copy" + crypto.randomUUID(),
+      });
       return [...timelineRowList, newTimelineRow];
     }
 
@@ -85,7 +105,7 @@ export class DataStoreUtil {
 
           start: segment.end,
           end: segment.end + segment.end,
-          id: crypto.randomUUID(),
+          id: "copy" + crypto.randomUUID(),
         });
       }
       return row;

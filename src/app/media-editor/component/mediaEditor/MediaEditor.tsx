@@ -145,7 +145,7 @@ export default function MediaEditor() {
                       ></Wavesurfer>
                     ) : (
                       <div className="w-full flex justify-start px-4">
-                        {segment.id?.split("-")[0]}
+                        {segment.data.name}
                       </div>
                     )}
                     <DraggingTimelineTooltip
@@ -273,7 +273,6 @@ export const sample: TimelineRow[] = [
         end: 1167,
         effectId: "videoPlayer",
         data: {
-          id: "video_18분짜리",
           src: "/video/18분짜리 인터뷰.mp4",
           name: "18분짜리 인터뷰",
         },

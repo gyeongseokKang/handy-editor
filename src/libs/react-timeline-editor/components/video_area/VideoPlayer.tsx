@@ -24,16 +24,19 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
       {videoEditData.map((video, index) => {
         if (video.segments?.length === 0) return null;
         if ("data" in video.segments[0] === false) return null;
-        const { id, src } = video.segments?.[0]?.data;
-        if (!src) return null;
-        return (
-          <VideoPlayer2
-            key={id}
-            id={id}
-            ref={(el) => (videoRef.current[index] = el)}
-            src={src}
-          />
-        );
+        const { id, data } = video.segments?.[0];
+        if ("videoSrc" in data) {
+          return (
+            <VideoPlayer2
+              key={id}
+              id={id}
+              ref={(el) => (videoRef.current[index] = el)}
+              src={data.videoSrc}
+            />
+          );
+        }
+
+        return null;
       })}
     </div>
   );
@@ -52,6 +55,7 @@ const VideoPlayer2 = forwardRef<any, { src: string; id: string }>(
         }}
         className="z-10 size-full max-w-screen-sm rounded-2xl object-cover  top-0 absolute"
         muted
+        controls
         src={src}
       />
     );

@@ -51,7 +51,6 @@ export interface TimelineSegmentBase {
 
 export interface AudioPlayerSegment extends TimelineSegmentBase {
   data: {
-    id?: string;
     src: string;
     name: string;
   };
@@ -59,10 +58,13 @@ export interface AudioPlayerSegment extends TimelineSegmentBase {
 
 export interface VideoPlayerSegment extends TimelineSegmentBase {
   data: {
-    id?: string;
     src: string;
+    videoSrc: string;
     name: string;
   };
 }
 
-export type TimelineSegment = TimelineSegmentBase | AudioPlayerSegment;
+export type TimelineSegment =
+  | TimelineSegmentBase
+  | AudioPlayerSegment
+  | VideoPlayerSegment;

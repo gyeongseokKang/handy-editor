@@ -2,6 +2,10 @@ import { Howl } from "howler";
 import { TimelineEngine } from "../../../engine/engine";
 import { audioAnalyzer } from "../audioAnalyzer";
 
+interface Window {
+  webkitAudioContext: typeof AudioContext;
+}
+
 class VideoControl {
   cacheMap: Record<
     string,
@@ -15,6 +19,7 @@ class VideoControl {
     {
       time?: (data: { time: number }) => void;
       rate?: (data: { rate: number }) => void;
+      timeUpdate?: (data: { currentTime: number }) => void;
     }
   > = {};
 
@@ -24,44 +29,48 @@ class VideoControl {
     src: string;
     startTime: number;
     time: number;
-    isStreamming?: boolean;
   }) {
     const { id, src, startTime, time, engine } = data;
     let audioItem: Howl;
     let videoItem: HTMLVideoElement;
+    let analyserNode: AnalyserNode;
     if (this.cacheMap[id]) {
       audioItem = this.cacheMap[id].audioItem;
-      audioItem.rate(engine.getPlayRate());
-      audioItem.seek(time - startTime);
-      audioItem.play();
-
       videoItem = this.cacheMap[id].videoItem;
     } else {
+      console.log("loadStart!!");
       engine.trigger("loadStart", { id });
       audioItem = new Howl({
         src,
         loop: false,
         autoplay: true,
-        ...(data.isStreamming && { html5: true }),
+        html5: true,
+        preload: true,
       });
 
       videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
 
-      const gainNode: GainNode = (audioItem as any)?._sounds[0]?._node;
+      const gainNode: GainNode | HTMLVideoElement = (audioItem as any)
+        ?._sounds[0]?._node;
       if (gainNode) {
-        const analyserNode = audioAnalyzer.initNode(
-          Howler.ctx.createAnalyser()
-        );
-
-        gainNode.connect(analyserNode);
-        analyserNode.connect(Howler.ctx.destination);
+        analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
+        if ("connect" in gainNode) {
+          gainNode.connect(analyserNode);
+          analyserNode.connect(Howler.ctx.destination);
+        } else {
+          const source = Howler.ctx.createMediaElementSource(gainNode);
+          source.connect(analyserNode);
+          analyserNode.connect(Howler.ctx.destination);
+        }
       }
 
       this.cacheMap[id] = {
         audioItem: audioItem,
         videoItem: videoItem,
       };
+
       audioItem.on("load", () => {
+        console.log("load!!");
         engine.trigger("loadEnd", { id });
         const currentTime = engine.getTime();
         audioItem.rate(engine.getPlayRate());
@@ -69,6 +78,9 @@ class VideoControl {
       });
     }
 
+    audioItem.rate(engine.getPlayRate());
+    audioItem.seek(time - startTime);
+    audioItem.play();
     videoItem.currentTime = time - startTime;
     videoItem.play();
     const timeListener = (data: { time: number }) => {
@@ -85,11 +97,11 @@ class VideoControl {
     const timeUpdateListener = (data: { currentTime: number }) => {
       const { currentTime } = data;
       const currentVideoTimeOffset = videoItem.currentTime + startTime;
+
       if (
         currentTime - startTime > 0 &&
-        Math.abs(currentTime - currentVideoTimeOffset) > 0.1
+        Math.abs(currentTime - currentVideoTimeOffset) > 0.25
       ) {
-        console.log("sync~~");
         videoItem.currentTime = currentTime - startTime;
       }
     };
@@ -98,6 +110,9 @@ class VideoControl {
     engine.on("timeUpdate", timeUpdateListener);
     engine.on("afterSetTime", timeListener);
     engine.on("afterSetPlayRate", rateListener);
+    engine.on("stop", () => {
+      analyserNode?.connect(Howler.ctx.destination);
+    });
     videoItem.addEventListener("load", () => {
       videoItem.playbackRate = engine.getPlayRate();
       if (time - startTime > 0) {
@@ -107,6 +122,7 @@ class VideoControl {
 
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;
+    this.listenerMap[id].timeUpdate = timeUpdateListener;
   }
 
   stop(data: { id: string; engine: TimelineEngine }) {
@@ -121,6 +137,8 @@ class VideoControl {
           engine.off("afterSetTime", this.listenerMap[id].time);
         this.listenerMap[id].rate &&
           engine.off("afterSetPlayRate", this.listenerMap[id].rate);
+        this.listenerMap[id].timeUpdate &&
+          engine.off("timeUpdate", this.listenerMap[id].timeUpdate);
         delete this.listenerMap[id];
       }
     }
@@ -129,12 +147,18 @@ class VideoControl {
   enter(data: { id: string }) {
     const { id } = data;
     const videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
+    if (!videoItem) {
+      return;
+    }
     videoItem.style.visibility = "visible";
   }
 
   leave(data: { id: string }) {
     const { id } = data;
     const videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
+    if (!videoItem) {
+      return;
+    }
     videoItem.style.visibility = "hidden";
     videoItem.currentTime = 0;
   }

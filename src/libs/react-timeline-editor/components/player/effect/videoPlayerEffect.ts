@@ -19,7 +19,7 @@ const videoPlayerEffect: VideoPlayerEffect = {
     start: ({ segment, engine, isPlaying, time }) => {
       if (isPlaying) {
         const src = segment.data.src;
-        const id = segment.data.id;
+        const id = segment.id;
         videoControl.start({
           id,
           src,
@@ -30,7 +30,7 @@ const videoPlayerEffect: VideoPlayerEffect = {
       }
     },
     enter: ({ segment, engine, isPlaying, time }) => {
-      const id = segment.data.id;
+      const id = segment.id;
       if (isPlaying) {
         const src = segment.data.src;
         videoControl.start({
@@ -44,12 +44,12 @@ const videoPlayerEffect: VideoPlayerEffect = {
       videoControl.enter({ id: id });
     },
     leave: ({ segment, engine }) => {
-      const id = segment.data.id;
+      const id = segment.id;
       videoControl.stop({ id: id, engine });
       videoControl.leave({ id: id });
     },
     stop: ({ segment, engine }) => {
-      const id = segment.data.id;
+      const id = segment.id;
       videoControl.stop({ id: id, engine });
     },
   },
