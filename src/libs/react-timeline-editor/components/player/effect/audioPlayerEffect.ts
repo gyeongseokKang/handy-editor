@@ -1,15 +1,7 @@
-import { TimelineSegment } from "@/libs/react-timeline-editor/interface/segment";
+import { AudioPlayerSegment } from "@/libs/react-timeline-editor/interface/segment";
 import { EffectSourceParam, TimelineEffect } from "../../../interface/effect";
 
 import audioControl from "../control/audioControl";
-
-export interface AudioPlayerSegment extends TimelineSegment {
-  data: {
-    id?: string;
-    src: string;
-    name: string;
-  };
-}
 
 export interface AudioPlayerEffect extends TimelineEffect {
   source: {

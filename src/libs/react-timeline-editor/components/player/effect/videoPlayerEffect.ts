@@ -1,15 +1,7 @@
-import { TimelineSegment } from "@/libs/react-timeline-editor/interface/segment";
+import { VideoPlayerSegment } from "@/libs/react-timeline-editor/interface/segment";
 import { EffectSourceParam, TimelineEffect } from "../../../interface/effect";
 
 import videoControl from "../control/videoControl";
-
-export interface VideoPlayerSegment extends TimelineSegment {
-  data: {
-    id?: string;
-    src: string;
-    name: string;
-  };
-}
 
 export interface VideoPlayerEffect extends TimelineEffect {
   source: {

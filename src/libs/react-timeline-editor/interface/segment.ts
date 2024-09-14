@@ -1,9 +1,27 @@
 /**
+ * 동작 행 기본 매개변수
+ * @export
+ * @interface TimelineRow
+ */
+export interface TimelineRow {
+  /** 동작 행 id */
+  id: string;
+  /** 행의 동작 리스트 */
+  segments: TimelineSegment[];
+  /** 사용자 정의 행 높이 */
+  rowHeight?: number;
+  /** 행이 선택되었는지 여부 */
+  selected?: boolean;
+  /** 행의 추가 클래스명 */
+  classNames?: string[];
+}
+
+/**
  * 동작의 기본 매개변수
  * @export
- * @interface TimelineSegment
+ * @interface TimelineSegmentBase
  */
-export interface TimelineSegment {
+export interface TimelineSegmentBase {
   /** 동작 id */
   id: string;
   /** 동작 시작 시간 */
@@ -31,20 +49,20 @@ export interface TimelineSegment {
   isDragging?: boolean;
 }
 
-/**
- * 동작 행 기본 매개변수
- * @export
- * @interface TimelineRow
- */
-export interface TimelineRow {
-  /** 동작 행 id */
-  id: string;
-  /** 행의 동작 리스트 */
-  segments: TimelineSegment[];
-  /** 사용자 정의 행 높이 */
-  rowHeight?: number;
-  /** 행이 선택되었는지 여부 */
-  selected?: boolean;
-  /** 행의 추가 클래스명 */
-  classNames?: string[];
+export interface AudioPlayerSegment extends TimelineSegmentBase {
+  data: {
+    id?: string;
+    src: string;
+    name: string;
+  };
 }
+
+export interface VideoPlayerSegment extends TimelineSegmentBase {
+  data: {
+    id?: string;
+    src: string;
+    name: string;
+  };
+}
+
+export type TimelineSegment = TimelineSegmentBase | AudioPlayerSegment;

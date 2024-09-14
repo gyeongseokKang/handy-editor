@@ -20,10 +20,10 @@ import { AudioPlayerEffect } from "@/libs/react-timeline-editor/components/playe
 import { VideoPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/videoPlayerEffect";
 
 import TimelinePlayer from "@/libs/react-timeline-editor/components/player/player";
-import { CusTomTimelineRow } from "@/libs/react-timeline-editor/components/player/type";
 import ScaleRender from "@/libs/react-timeline-editor/components/time_area/ScaleRender";
 import VideoPlayer from "@/libs/react-timeline-editor/components/video_area/VideoPlayer";
 import Wavesurfer from "@/libs/react-timeline-editor/components/wave/Wavesurfer";
+import { TimelineRow } from "@/libs/react-timeline-editor/interface/segment";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
 import { cloneDeep } from "lodash";
@@ -148,7 +148,7 @@ export default function MediaEditor() {
         </div>
       </div>
       {visualizer && <AudioVisualizer />}
-      <VideoPlayer timelineState={timelineState} editData={data} />
+      <VideoPlayer editData={data} />
 
       <TimelinePlayer
         timelineState={timelineState}
@@ -284,7 +284,6 @@ export default function MediaEditor() {
                               `${newSegment.id.split("_")[0]}` +
                               "_" +
                               Math.random();
-                            newSegment.data.id = newSegment.id + "_data";
                             newSegment.start =
                               targetSegment.start + duration + 5;
                             newSegment.end = targetSegment.end + duration + 5;
@@ -361,7 +360,7 @@ const DraggingTimelineTooltip = ({
   );
 };
 
-export const sample: CusTomTimelineRow[] = [
+export const sample: TimelineRow[] = [
   // {
   //   id: "row1",
   //   segments: [

@@ -85,7 +85,10 @@ class VideoControl {
     const timeUpdateListener = (data: { currentTime: number }) => {
       const { currentTime } = data;
       const currentVideoTimeOffset = videoItem.currentTime + startTime;
-      if (Math.abs(currentTime - currentVideoTimeOffset) > 0.1) {
+      if (
+        currentTime - startTime > 0 &&
+        Math.abs(currentTime - currentVideoTimeOffset) > 0.1
+      ) {
         console.log("sync~~");
         videoItem.currentTime = currentTime - startTime;
       }
