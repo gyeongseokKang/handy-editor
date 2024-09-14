@@ -1,6 +1,6 @@
-import { TimelineAction, TimelineRow } from "../../interface/action";
+import { TimelineRow, TimelineSegment } from "../../interface/segment";
 
-export interface CustomTimelineAction extends TimelineAction {
+export interface CustomTimelineSegment extends TimelineSegment {
   data: {
     id?: string;
     src: string;
@@ -10,5 +10,5 @@ export interface CustomTimelineAction extends TimelineAction {
 }
 
 export interface CusTomTimelineRow extends TimelineRow {
-  actions: CustomTimelineAction[];
+  segments: CustomTimelineSegment[];
 }

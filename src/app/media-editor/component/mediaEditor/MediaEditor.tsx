@@ -62,7 +62,7 @@ export default function MediaEditor() {
           const newData = [...data];
           newData.push({
             id: (newData.length + 1).toString(),
-            actions: [
+            segments: [
               {
                 id: file.name,
                 start: 0,
@@ -158,7 +158,7 @@ export default function MediaEditor() {
         {rowHeader && (
           <RowHeaderArea
             data={data}
-            getRowHeader={({ id, actions }) => {
+            getRowHeader={({ id, segments }) => {
               return <div className="text">{`${id}`}</div>;
             }}
           />
@@ -181,9 +181,9 @@ export default function MediaEditor() {
           dragLine={true}
           disableDrag={!dragMode}
           getScaleRender={(second) => <ScaleRender second={second} />}
-          getActionRender={(action: any, row, { isDragging }) => {
+          getSegmentRender={(segment: any, row, { isDragging }) => {
             const isOriginal = originalData.find(
-              (d) => d.actions[0].id === action.id
+              (d) => d.segments[0].id === segment.id
             );
             return (
               <ContextMenu>
@@ -197,22 +197,22 @@ export default function MediaEditor() {
                     )}
                   >
                     <DraggingTimelineTooltip
-                      time={action.start}
+                      time={segment.start}
                       direction="left"
                       isDragging={isDragging}
                     />
                     {waveform ? (
                       <Wavesurfer
-                        url={action.data.src}
+                        url={segment.data.src}
                         isDragging={isDragging}
                       ></Wavesurfer>
                     ) : (
                       <div className="w-full flex justify-start px-4">
-                        {action.data.name}
+                        {segment.data.name}
                       </div>
                     )}
                     <DraggingTimelineTooltip
-                      time={action.end}
+                      time={segment.end}
                       direction="right"
                       isDragging={isDragging}
                     />
@@ -223,14 +223,14 @@ export default function MediaEditor() {
                     onClick={() => {
                       const newData = [...data];
                       const target = newData.find((d) =>
-                        d.actions.find((a) => a.id === action.id)
+                        d.segments.find((a) => a.id === segment.id)
                       );
-                      const targetAction = target?.actions.find(
-                        (a) => a.id === action.id
+                      const targetSegment = target?.segments.find(
+                        (a) => a.id === segment.id
                       );
-                      if (targetAction) {
-                        target.actions = target.actions.filter(
-                          (a) => a.id !== action.id
+                      if (targetSegment) {
+                        target.segments = target.segments.filter(
+                          (a) => a.id !== segment.id
                         );
                         setData(newData as any);
                       }
@@ -245,20 +245,20 @@ export default function MediaEditor() {
                         onClick={() => {
                           const newData = [...data];
                           const target = newData.find((d) =>
-                            d.actions.find((a) => a.id === action.id)
+                            d.segments.find((a) => a.id === segment.id)
                           );
-                          const targetAction = target?.actions.find(
-                            (a) => a.id === action.id
+                          const targetSegment = target?.segments.find(
+                            (a) => a.id === segment.id
                           );
                           if (target) {
-                            const newAction = cloneDeep(targetAction);
-                            newAction.id =
-                              `${newAction.id.split("_")[0]}` +
+                            const newSegment = cloneDeep(targetSegment);
+                            newSegment.id =
+                              `${newSegment.id.split("_")[0]}` +
                               "_" +
                               Math.random();
                             newData.push({
                               id: (newData.length + 1).toString(),
-                              actions: [newAction],
+                              segments: [newSegment],
                             });
                             setData(newData as any);
                           }
@@ -270,24 +270,25 @@ export default function MediaEditor() {
                         onClick={() => {
                           const newData = [...data];
                           const target = newData.find((d) =>
-                            d.actions.find((a) => a.id === action.id)
+                            d.segments.find((a) => a.id === segment.id)
                           );
-                          const targetAction = target?.actions.find(
-                            (a) => a.id === action.id
+                          const targetSegment = target?.segments.find(
+                            (a) => a.id === segment.id
                           );
-                          if (targetAction) {
+                          if (targetSegment) {
                             const duration =
-                              targetAction.end - targetAction.start;
+                              targetSegment.end - targetSegment.start;
 
-                            const newAction = cloneDeep(targetAction);
-                            newAction.id =
-                              `${newAction.id.split("_")[0]}` +
+                            const newSegment = cloneDeep(targetSegment);
+                            newSegment.id =
+                              `${newSegment.id.split("_")[0]}` +
                               "_" +
                               Math.random();
-                            newAction.data.id = newAction.id + "_data";
-                            newAction.start = targetAction.start + duration + 5;
-                            newAction.end = targetAction.end + duration + 5;
-                            target.actions.push(newAction);
+                            newSegment.data.id = newSegment.id + "_data";
+                            newSegment.start =
+                              targetSegment.start + duration + 5;
+                            newSegment.end = targetSegment.end + duration + 5;
+                            target.segments.push(newSegment);
                             setData(newData as any);
                           }
                         }}
@@ -363,7 +364,7 @@ const DraggingTimelineTooltip = ({
 export const sample: CusTomTimelineRow[] = [
   // {
   //   id: "row1",
-  //   actions: [
+  //   segments: [
   //     {
   //       id: "최애의아이",
   //       start: 0,
@@ -390,7 +391,7 @@ export const sample: CusTomTimelineRow[] = [
   // },
   {
     id: "row2",
-    actions: [
+    segments: [
       {
         id: "video_18분짜리",
         start: 10,
@@ -407,7 +408,7 @@ export const sample: CusTomTimelineRow[] = [
 
   // ...Array.from({ length: 20 }).map((_, i) => ({
   //   id: `${i + 2}`,
-  //   actions: [
+  //   segments: [
   //     {
   //       id: `최애의아이${i}`,
   //       start: i * 5,
@@ -424,7 +425,7 @@ export const sample: CusTomTimelineRow[] = [
 
   // {
   //   id: "3",
-  //   actions: [
+  //   segments: [
   //     {
   //       id: "스트리밍",
   //       start: 0,

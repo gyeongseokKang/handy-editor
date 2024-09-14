@@ -1,5 +1,6 @@
-import { TimelineAction, TimelineRow } from "../interface/action";
 import { TimelineEffect } from "../interface/effect";
+import { TimelineRow, TimelineSegment } from "../interface/segment";
+
 import { Emitter } from "./emitter";
 import { Events, EventTypes } from "./events";
 
@@ -67,14 +68,14 @@ export class TimelineEngine
   /** 액션 효과 맵 */
   private _effectMap: Record<string, TimelineEffect> = {};
   /** 실행할 액션 맵 */
-  private _actionMap: Record<string, TimelineAction> = {};
+  private _segmentMap: Record<string, TimelineSegment> = {};
   /** 액션 시작 시간 순서대로 정렬된 액션 ID 배열 */
-  private _actionSortIds: string[] = [];
+  private _segmentSortIds: string[] = [];
 
   /** 현재 순회 중인 액션 인덱스 */
   private _next: number = 0;
   /** 현재 시간이 포함된 액션 ID 목록 */
-  private _activeActionIds: string[] = [];
+  private _activeSegmentIds: string[] = [];
 
   /** 루프 모드 설정 */
   private _loopStart: number | null = null;
@@ -133,7 +134,7 @@ export class TimelineEngine
    */
   reRender() {
     if (this.isPlaying) return;
-    this._tickAction(this._currentTime);
+    this._tickSegment(this._currentTime);
   }
 
   /**
@@ -275,15 +276,15 @@ export class TimelineEngine
   }
 
   private _startOrStop(type?: "start" | "stop") {
-    for (let i = 0; i < this._activeActionIds.length; i++) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
-      const effect = this._effectMap[action?.effectId];
+    for (let i = 0; i < this._activeSegmentIds.length; i++) {
+      const segmentId = this._activeSegmentIds[i];
+      const segment = this._segmentMap[segmentId];
+      const effect = this._effectMap[segment?.effectId];
 
       if (type === "start") {
         effect?.source?.start &&
           effect.source.start({
-            action,
+            segment,
             effect,
             engine: this,
             isPlaying: this.isPlaying,
@@ -292,7 +293,7 @@ export class TimelineEngine
       } else if (type === "stop") {
         effect?.source?.stop &&
           effect.source.stop({
-            action,
+            segment,
             effect,
             engine: this,
             isPlaying: this.isPlaying,
@@ -326,13 +327,13 @@ export class TimelineEngine
     this.setTime(currentTime, true);
 
     // 액션 실행
-    this._tickAction(currentTime);
+    this._tickSegment(currentTime);
     // 자동 종료 설정 시, 모든 액션이 완료되었는지 확인
     if (
       !to &&
       autoEnd &&
-      this._next >= this._actionSortIds.length &&
-      this._activeActionIds.length === 0
+      this._next >= this._segmentSortIds.length &&
+      this._activeSegmentIds.length === 0
     ) {
       this._end();
       return;
@@ -350,20 +351,20 @@ export class TimelineEngine
   }
 
   /** tick 시 액션 실행 */
-  private _tickAction(time: number) {
+  private _tickSegment(time: number) {
     this._dealEnter(time);
     this._dealLeave(time);
 
     // 렌더링
-    const length = this._activeActionIds.length;
+    const length = this._activeSegmentIds.length;
     for (let i = 0; i < length; i++) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
-      const effect = this._effectMap[action.effectId];
+      const segmentId = this._activeSegmentIds[i];
+      const segment = this._segmentMap[segmentId];
+      const effect = this._effectMap[segment.effectId];
       if (effect && effect.source?.update) {
         effect.source.update({
           time,
-          action,
+          segment,
           isPlaying: this.isPlaying,
           effect,
           engine: this,
@@ -374,14 +375,14 @@ export class TimelineEngine
 
   /** active 데이터 초기화 */
   private _dealClear() {
-    while (this._activeActionIds.length) {
-      const actionId = this._activeActionIds.shift();
-      const action = this._actionMap[actionId];
+    while (this._activeSegmentIds.length) {
+      const segmentId = this._activeSegmentIds.shift();
+      const segment = this._segmentMap[segmentId];
 
-      const effect = this._effectMap[action?.effectId];
+      const effect = this._effectMap[segment?.effectId];
       if (effect?.source?.leave) {
         effect.source.leave({
-          action,
+          segment,
           effect,
           engine: this,
           isPlaying: this.isPlaying,
@@ -395,19 +396,19 @@ export class TimelineEngine
   /** 액션 시작 시점 처리 */
   private _dealEnter(time: number) {
     // active 목록에 추가
-    while (this._actionSortIds[this._next]) {
-      const actionId = this._actionSortIds[this._next];
-      const action = this._actionMap[actionId];
+    while (this._segmentSortIds[this._next]) {
+      const segmentId = this._segmentSortIds[this._next];
+      const segment = this._segmentMap[segmentId];
 
-      if (!action.disable) {
+      if (!segment.disable) {
         // 액션 시작 시간이 도래했는지 확인
-        if (action.start > time) break;
+        if (segment.start > time) break;
         // 액션 실행 가능 여부 확인
-        if (action.end > time && !this._activeActionIds.includes(actionId)) {
-          const effect = this._effectMap[action.effectId];
+        if (segment.end > time && !this._activeSegmentIds.includes(segmentId)) {
+          const effect = this._effectMap[segment.effectId];
           if (effect && effect.source?.enter) {
             effect.source.enter({
-              action,
+              segment,
               effect,
               isPlaying: this.isPlaying,
               time,
@@ -415,7 +416,7 @@ export class TimelineEngine
             });
           }
 
-          this._activeActionIds.push(actionId);
+          this._activeSegmentIds.push(segmentId);
         }
       }
       this._next++;
@@ -425,17 +426,17 @@ export class TimelineEngine
   /** 액션 종료 시점 처리 */
   private _dealLeave(time: number) {
     let i = 0;
-    while (this._activeActionIds[i]) {
-      const actionId = this._activeActionIds[i];
-      const action = this._actionMap[actionId];
+    while (this._activeSegmentIds[i]) {
+      const segmentId = this._activeSegmentIds[i];
+      const segment = this._segmentMap[segmentId];
 
       // 현재 시간 범위에서 벗어났는지 확인
-      if (action.start > time || action.end < time) {
-        const effect = this._effectMap[action.effectId];
+      if (segment.start > time || segment.end < time) {
+        const effect = this._effectMap[segment.effectId];
 
         if (effect && effect.source?.leave) {
           effect.source.leave({
-            action,
+            segment,
             effect,
             isPlaying: this.isPlaying,
             time,
@@ -443,7 +444,7 @@ export class TimelineEngine
           });
         }
 
-        this._activeActionIds.splice(i, 1);
+        this._activeSegmentIds.splice(i, 1);
         continue;
       }
       i++;
@@ -452,19 +453,19 @@ export class TimelineEngine
 
   /** 데이터 처리 */
   private _dealData(data: TimelineRow[]) {
-    const actions: TimelineAction[] = [];
+    const segments: TimelineSegment[] = [];
     data.map((row) => {
-      actions.push(...row.actions);
+      segments.push(...row.segments);
     });
-    const sortActions = actions.sort((a, b) => a.start - b.start);
-    const actionMap: Record<string, TimelineAction> = {};
-    const actionSortIds: string[] = [];
+    const sortSegments = segments.sort((a, b) => a.start - b.start);
+    const segmentMap: Record<string, TimelineSegment> = {};
+    const segmentSortIds: string[] = [];
 
-    sortActions.forEach((action) => {
-      actionSortIds.push(action.id);
-      actionMap[action.id] = { ...action };
+    sortSegments.forEach((segment) => {
+      segmentSortIds.push(segment.id);
+      segmentMap[segment.id] = { ...segment };
     });
-    this._actionMap = actionMap;
-    this._actionSortIds = actionSortIds;
+    this._segmentMap = segmentMap;
+    this._segmentSortIds = segmentSortIds;
   }
 }

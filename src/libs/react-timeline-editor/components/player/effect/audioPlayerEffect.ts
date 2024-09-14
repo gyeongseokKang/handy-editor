@@ -1,8 +1,9 @@
-import { TimelineAction } from "../../../interface/action";
+import { TimelineSegment } from "@/libs/react-timeline-editor/interface/segment";
 import { EffectSourceParam, TimelineEffect } from "../../../interface/effect";
+
 import audioControl from "../control/audioControl";
 
-export interface AudioPlayerAction extends TimelineAction {
+export interface AudioPlayerSegment extends TimelineSegment {
   data: {
     id?: string;
     src: string;
@@ -12,10 +13,10 @@ export interface AudioPlayerAction extends TimelineAction {
 
 export interface AudioPlayerEffect extends TimelineEffect {
   source: {
-    start?: (param: EffectSourceParam<AudioPlayerAction>) => void;
-    enter?: (param: EffectSourceParam<AudioPlayerAction>) => void;
-    leave?: (param: EffectSourceParam<AudioPlayerAction>) => void;
-    stop?: (param: EffectSourceParam<AudioPlayerAction>) => void;
+    start?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
+    enter?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
+    leave?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
+    stop?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
   };
 }
 
@@ -23,38 +24,38 @@ const audioPlayerEffect: AudioPlayerEffect = {
   id: "audioPlayer",
   name: "audioPlayer",
   source: {
-    start: ({ action, engine, isPlaying, time }) => {
+    start: ({ segment, engine, isPlaying, time }) => {
       if (isPlaying) {
-        const src = action.data.src;
-        const id = action.data.id;
+        const src = segment.data.src;
+        const id = segment.data.id;
         audioControl.start({
           id,
           src,
-          startTime: action.start,
+          startTime: segment.start,
           engine,
           time,
         });
       }
     },
-    enter: ({ action, engine, isPlaying, time }) => {
+    enter: ({ segment, engine, isPlaying, time }) => {
       if (isPlaying) {
-        const src = action.data.src;
-        const id = action.data.id;
+        const src = segment.data.src;
+        const id = segment.data.id;
         audioControl.start({
           id,
           src,
-          startTime: action.start,
+          startTime: segment.start,
           engine,
           time,
         });
       }
     },
-    leave: ({ action, engine }) => {
-      const id = action.data.id;
+    leave: ({ segment, engine }) => {
+      const id = segment.data.id;
       audioControl.stop({ id: id, engine });
     },
-    stop: ({ action, engine }) => {
-      const id = action.data.id;
+    stop: ({ segment, engine }) => {
+      const id = segment.data.id;
       audioControl.stop({ id: id, engine });
     },
   },

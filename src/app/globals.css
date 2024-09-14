@@ -55,7 +55,7 @@
   height: 300px;
 }
 
-.timeline-editor-example0 .timeline-editor-action {
+.timeline-editor-example0 .timeline-editor-segment {
   height: 28px !important;
   top: 50%;
   transform: translateY(-50%);
@@ -140,7 +140,7 @@
   transform: translate(50%, -100%);
 }
 
-.timeline-editor-action {
+.timeline-editor-segment {
   position: absolute;
   left: 0;
   top: 0;
@@ -149,8 +149,8 @@
   background-color: #2f3134;
 }
 
-.timeline-editor-action-left-stretch,
-.timeline-editor-action-right-stretch {
+.timeline-editor-segment-left-stretch,
+.timeline-editor-segment-right-stretch {
   position: absolute;
   top: 0;
   width: 10px;
@@ -159,8 +159,8 @@
   overflow: hidden;
 }
 
-.timeline-editor-action-left-stretch::after,
-.timeline-editor-action-right-stretch::after {
+.timeline-editor-segment-left-stretch::after,
+.timeline-editor-segment-right-stretch::after {
   position: absolute;
   top: 0;
   bottom: 0;
@@ -170,22 +170,22 @@
   border-bottom: 28px solid transparent;
 }
 
-.timeline-editor-action-left-stretch {
+.timeline-editor-segment-left-stretch {
   left: 0;
 }
 
-.timeline-editor-action-left-stretch::after {
+.timeline-editor-segment-left-stretch::after {
   left: 0;
   content: "";
   border-left: 7px solid rgba(255, 255, 255, 0.1);
   border-right: 7px solid transparent;
 }
 
-.timeline-editor-action-right-stretch {
+.timeline-editor-segment-right-stretch {
   right: 0;
 }
 
-.timeline-editor-action-right-stretch::after {
+.timeline-editor-segment-right-stretch::after {
   right: 0;
   content: "";
   border-right: 7px solid rgba(255, 255, 255, 0.1);

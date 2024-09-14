@@ -1,10 +1,11 @@
 import React, { FC, useLayoutEffect, useRef, useState } from "react";
-import { TimelineAction, TimelineRow } from "../../interface/action";
 import { CommonProp } from "../../interface/common_prop";
 import {
   DEFAULT_ADSORPTION_DISTANCE,
   DEFAULT_MOVE_GRID,
 } from "../../interface/const";
+
+import { TimelineRow, TimelineSegment } from "../../interface/segment";
 import { prefix } from "../../utils/deal_class_prefix";
 import {
   getScaleCountByPixel,
@@ -24,9 +25,9 @@ import {
 } from "../row_rnd/row_rnd_interface";
 import { DragLineData } from "./drag_lines";
 
-export type EditActionProps = CommonProp & {
+export type EditSegmentProps = CommonProp & {
   row: TimelineRow;
-  action: TimelineAction;
+  segment: TimelineSegment;
   dragLineData: DragLineData;
   setEditorData: (params: TimelineRow[]) => void;
   handleTime: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => number;
@@ -35,10 +36,10 @@ export type EditActionProps = CommonProp & {
   deltaScrollLeft?: (delta: number) => void;
 };
 
-export const EditAction: FC<EditActionProps> = ({
+export const EditSegment: FC<EditSegmentProps> = ({
   editorData,
   row,
-  action,
+  segment,
   effects,
   rowHeight,
   scale,
@@ -51,20 +52,20 @@ export const EditAction: FC<EditActionProps> = ({
   scaleCount,
   maxScaleCount,
   setScaleCount,
-  onActionMoveStart,
-  onActionMoving,
-  onActionMoveEnd,
-  onActionResizeStart,
-  onActionResizeEnd,
-  onActionResizing,
+  onSegmentMoveStart,
+  onSegmentMoving,
+  onSegmentMoveEnd,
+  onSegmentResizeStart,
+  onSegmentResizeEnd,
+  onSegmentResizing,
 
   dragLineData,
   setEditorData,
-  onClickAction,
-  onClickActionOnly,
-  onDoubleClickAction,
-  onContextMenuAction,
-  getActionRender,
+  onClickSegment,
+  onClickSegmentOnly,
+  onDoubleClickSegment,
+  onContextMenuSegment,
+  getSegmentRender,
   handleTime,
   areaRef,
   deltaScrollLeft,
@@ -81,7 +82,7 @@ export const EditAction: FC<EditActionProps> = ({
     flexible = true,
     movable = true,
     effectId,
-  } = action;
+  } = segment;
 
   // 获取最大/最小 像素范围
   const leftLimit = parserTimeToPixel(minStart || 0, {
@@ -118,11 +119,11 @@ export const EditAction: FC<EditActionProps> = ({
   const gridSize = scaleWidth / scaleSplitCount;
 
   // 动作的名称
-  const classNames = ["action"];
-  if (movable) classNames.push("action-movable");
-  if (selected) classNames.push("action-selected");
-  if (flexible) classNames.push("action-flexible");
-  if (effects[effectId]) classNames.push(`action-effect-${effectId}`);
+  const classNames = ["segment"];
+  if (movable) classNames.push("segment-movable");
+  if (selected) classNames.push("segment-selected");
+  if (flexible) classNames.push("segment-flexible");
+  if (effects[effectId]) classNames.push(`segment-effect-${effectId}`);
 
   /** 计算scale count */
   const handleScaleCount = (left: number, width: number) => {
@@ -137,17 +138,17 @@ export const EditAction: FC<EditActionProps> = ({
   //#region [rgba(100,120,156,0.08)] 回调
   const handleDragStart: RndDragStartCallback = () => {
     setIsDragging(true);
-    onActionMoveStart && onActionMoveStart({ action, row });
+    onSegmentMoveStart && onSegmentMoveStart({ segment, row });
   };
   const handleDrag: RndDragCallback = ({ left, width }) => {
     isDragWhenClick.current = true;
 
-    if (onActionMoving) {
+    if (onSegmentMoving) {
       const { start, end } = parserTransformToTime(
         { left, width },
         { scaleWidth, scale, startLeft }
       );
-      const result = onActionMoving({ action, row, start, end });
+      const result = onSegmentMoving({ segment, row, start, end });
       if (result === false) return false;
     }
     setTransform({ left, width });
@@ -164,27 +165,27 @@ export const EditAction: FC<EditActionProps> = ({
 
     // 设置数据
     const rowItem = editorData.find((item) => item.id === row.id);
-    const action = rowItem.actions.find((item) => item.id === id);
-    action.start = start;
-    action.end = end;
+    const segment = rowItem.segments.find((item) => item.id === id);
+    segment.start = start;
+    segment.end = end;
     setEditorData(editorData);
 
     // 执行回调
-    if (onActionMoveEnd) onActionMoveEnd({ action, row, start, end });
+    if (onSegmentMoveEnd) onSegmentMoveEnd({ segment, row, start, end });
   };
 
   const handleResizeStart: RndResizeStartCallback = (dir) => {
-    onActionResizeStart && onActionResizeStart({ action, row, dir });
+    onSegmentResizeStart && onSegmentResizeStart({ segment, row, dir });
   };
 
   const handleResizing: RndResizeCallback = (dir, { left, width }) => {
     isDragWhenClick.current = true;
-    if (onActionResizing) {
+    if (onSegmentResizing) {
       const { start, end } = parserTransformToTime(
         { left, width },
         { scaleWidth, scale, startLeft }
       );
-      const result = onActionResizing({ action, row, start, end, dir });
+      const result = onSegmentResizing({ segment, row, start, end, dir });
       if (result === false) return false;
     }
     setTransform({ left, width });
@@ -200,18 +201,19 @@ export const EditAction: FC<EditActionProps> = ({
 
     // 设置数据
     const rowItem = editorData.find((item) => item.id === row.id);
-    const action = rowItem.actions.find((item) => item.id === id);
-    action.start = start;
-    action.end = end;
+    const segment = rowItem.segments.find((item) => item.id === id);
+    segment.start = start;
+    segment.end = end;
     setEditorData(editorData);
 
     // 触发回调
-    if (onActionResizeEnd) onActionResizeEnd({ action, row, start, end, dir });
+    if (onSegmentResizeEnd)
+      onSegmentResizeEnd({ segment, row, start, end, dir });
   };
   //#endregion
 
-  const nowAction = {
-    ...action,
+  const nowSegment = {
+    ...segment,
     ...parserTransformToTime(
       { left: transform.left, width: transform.width },
       { startLeft, scaleWidth, scale }
@@ -220,10 +222,10 @@ export const EditAction: FC<EditActionProps> = ({
 
   const nowRow: TimelineRow = {
     ...row,
-    actions: [...row.actions],
+    segments: [...row.segments],
   };
-  if (row.actions.includes(action)) {
-    nowRow.actions[row.actions.indexOf(action)] = nowAction;
+  if (row.segments.includes(segment)) {
+    nowRow.segments[row.segments.indexOf(segment)] = nowSegment;
   }
 
   return (
@@ -248,8 +250,9 @@ export const EditAction: FC<EditActionProps> = ({
         right: rightLimit,
       }}
       edges={{
-        left: !disableDrag && flexible && `.${prefix("action-left-stretch")}`,
-        right: !disableDrag && flexible && `.${prefix("action-right-stretch")}`,
+        left: !disableDrag && flexible && `.${prefix("segment-left-stretch")}`,
+        right:
+          !disableDrag && flexible && `.${prefix("segment-right-stretch")}`,
       }}
       enableDragging={!disableDrag && movable}
       enableResizing={!disableDrag && flexible}
@@ -267,36 +270,36 @@ export const EditAction: FC<EditActionProps> = ({
         }}
         onClick={(e) => {
           let time: number;
-          if (onClickAction) {
+          if (onClickSegment) {
             time = handleTime(e);
-            onClickAction(e, { row, action, time: time });
+            onClickSegment(e, { row, segment, time: time });
           }
-          if (!isDragWhenClick.current && onClickActionOnly) {
+          if (!isDragWhenClick.current && onClickSegmentOnly) {
             if (!time) time = handleTime(e);
-            onClickActionOnly(e, { row, action, time: time });
+            onClickSegmentOnly(e, { row, segment, time: time });
           }
         }}
         onDoubleClick={(e) => {
-          if (onDoubleClickAction) {
+          if (onDoubleClickSegment) {
             const time = handleTime(e);
-            onDoubleClickAction(e, { row, action, time: time });
+            onDoubleClickSegment(e, { row, segment, time: time });
           }
         }}
         onContextMenu={(e) => {
-          if (onContextMenuAction) {
+          if (onContextMenuSegment) {
             const time = handleTime(e);
-            onContextMenuAction(e, { row, action, time: time });
+            onContextMenuSegment(e, { row, segment, time: time });
           }
         }}
         className={prefix((classNames || []).join(" "))}
         style={{ height: rowHeight }}
       >
-        {getActionRender &&
-          getActionRender(nowAction, nowRow, {
+        {getSegmentRender &&
+          getSegmentRender(nowSegment, nowRow, {
             isDragging: isDragging,
           })}
-        {flexible && <div className={prefix("action-left-stretch")}></div>}
-        {flexible && <div className={prefix("action-right-stretch")} />}
+        {flexible && <div className={prefix("segment-left-stretch")}></div>}
+        {flexible && <div className={prefix("segment-right-stretch")} />}
       </div>
     </RowDnd>
   );

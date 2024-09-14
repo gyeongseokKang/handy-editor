@@ -1,10 +1,11 @@
 import React, { FC } from "react";
-import { TimelineRow } from "../../interface/action";
 import { CommonProp } from "../../interface/common_prop";
+
+import { TimelineRow } from "../../interface/segment";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserPixelToTime } from "../../utils/deal_data";
 import { DragLineData } from "./drag_lines";
-import { EditAction } from "./edit_action";
+import { EditSegment } from "./edit_action";
 
 export type EditRowProps = CommonProp & {
   areaRef: React.MutableRefObject<HTMLDivElement>;
@@ -69,13 +70,13 @@ export const EditRow: FC<EditRowProps> = (props) => {
         }
       }}
     >
-      {(rowData?.actions || []).map((action) => (
-        <EditAction
-          key={action.id}
+      {(rowData?.segments || []).map((segment) => (
+        <EditSegment
+          key={segment.id}
           {...props}
           handleTime={handleTime}
           row={rowData}
-          action={action}
+          segment={segment}
         />
       ))}
     </div>

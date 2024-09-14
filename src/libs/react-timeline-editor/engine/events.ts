@@ -10,7 +10,7 @@ export class Events {
       setTimeByTick: [],
       beforeSetPlayRate: [],
       afterSetPlayRate: [],
-      setActiveActionIds: [],
+      setActiveSegmentIds: [],
       timeUpdate: [],
       play: [],
       stop: [],

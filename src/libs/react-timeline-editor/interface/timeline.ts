@@ -3,10 +3,11 @@ import { OnScrollParams } from "react-virtualized";
 import { ITimelineEngine } from "..";
 import { Emitter } from "../engine/emitter";
 import { EventTypes } from "../engine/events";
-import { TimelineAction, TimelineRow } from "./action";
 import { TimelineEffect } from "./effect";
-export * from "./action";
+import { TimelineRow, TimelineSegment } from "./segment";
+
 export * from "./effect";
+
 export interface EditData {
   /**
    * @description 시간축 편집 데이터
@@ -78,8 +79,8 @@ export interface EditData {
   /**
    * @description 사용자 정의 동작 영역 렌더링
    */
-  getActionRender?: (
-    action: TimelineAction,
+  getSegmentRender?: (
+    segment: TimelineSegment,
     row: TimelineRow,
     { isDragging }: { isDragging: boolean }
   ) => ReactNode;
@@ -90,15 +91,15 @@ export interface EditData {
   /**
    * @description 동작이 시작될 때의 콜백 함수
    */
-  onActionMoveStart?: (params: {
-    action: TimelineAction;
+  onSegmentMoveStart?: (params: {
+    segment: TimelineSegment;
     row: TimelineRow;
   }) => void;
   /**
    * @description 동작 중 콜백 함수 (false를 반환하면 이동을 차단)
    */
-  onActionMoving?: (params: {
-    action: TimelineAction;
+  onSegmentMoving?: (params: {
+    segment: TimelineSegment;
     row: TimelineRow;
     start: number;
     end: number;
@@ -106,8 +107,8 @@ export interface EditData {
   /**
    * @description 동작이 끝날 때의 콜백 함수 (false를 반환하면 onChange가 호출되지 않음)
    */
-  onActionMoveEnd?: (params: {
-    action: TimelineAction;
+  onSegmentMoveEnd?: (params: {
+    segment: TimelineSegment;
     row: TimelineRow;
     start: number;
     end: number;
@@ -115,16 +116,16 @@ export interface EditData {
   /**
    * @description 크기 조정이 시작될 때의 콜백 함수
    */
-  onActionResizeStart?: (params: {
-    action: TimelineAction;
+  onSegmentResizeStart?: (params: {
+    segment: TimelineSegment;
     row: TimelineRow;
     dir: "right" | "left";
   }) => void;
   /**
    * @description 크기 조정 중 콜백 함수 (false를 반환하면 크기 조정을 차단)
    */
-  onActionResizing?: (params: {
-    action: TimelineAction;
+  onSegmentResizing?: (params: {
+    segment: TimelineSegment;
     row: TimelineRow;
     start: number;
     end: number;
@@ -133,8 +134,8 @@ export interface EditData {
   /**
    * @description 크기 조정이 끝날 때의 콜백 함수 (false를 반환하면 onChange가 호출되지 않음)
    */
-  onActionResizeEnd?: (params: {
-    action: TimelineAction;
+  onSegmentResizeEnd?: (params: {
+    segment: TimelineSegment;
     row: TimelineRow;
     start: number;
     end: number;
@@ -153,10 +154,10 @@ export interface EditData {
   /**
    * @description 동작을 클릭할 때의 콜백 함수
    */
-  onClickAction?: (
+  onClickSegment?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: TimelineAction;
+      segment: TimelineSegment;
       row: TimelineRow;
       time: number;
     }
@@ -164,10 +165,10 @@ export interface EditData {
   /**
    * @description 동작을 클릭할 때의 콜백 함수 (드래그가 발생할 때는 실행되지 않음)
    */
-  onClickActionOnly?: (
+  onClickSegmentOnly?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: TimelineAction;
+      segment: TimelineSegment;
       row: TimelineRow;
       time: number;
     }
@@ -185,10 +186,10 @@ export interface EditData {
   /**
    * @description 동작을 더블 클릭할 때의 콜백 함수
    */
-  onDoubleClickAction?: (
+  onDoubleClickSegment?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: TimelineAction;
+      segment: TimelineSegment;
       row: TimelineRow;
       time: number;
     }
@@ -206,19 +207,19 @@ export interface EditData {
   /**
    * @description 동작을 우클릭할 때의 콜백 함수
    */
-  onContextMenuAction?: (
+  onContextMenuSegment?: (
     e: React.MouseEvent<HTMLElement, MouseEvent>,
     param: {
-      action: TimelineAction;
+      segment: TimelineSegment;
       row: TimelineRow;
       time: number;
     }
   ) => void;
   /**
-   * @description 이동/크기 조정 시작 시 드래그 보조선을 표시할 action id 목록을 가져옴. 기본적으로 현재 이동 중인 동작을 제외한 모든 동작을 가져옴.
+   * @description 이동/크기 조정 시작 시 드래그 보조선을 표시할 segment id 목록을 가져옴. 기본적으로 현재 이동 중인 동작을 제외한 모든 동작을 가져옴.
    */
-  getAssistDragLineActionIds?: (params: {
-    action: TimelineAction;
+  getAssistDragLineSegmentIds?: (params: {
+    segment: TimelineSegment;
     editorData: TimelineRow[];
     row: TimelineRow;
   }) => string[];
@@ -268,8 +269,8 @@ export interface TimelineState {
     toTime?: number;
     /** 재생이 끝난 후 자동 종료할지 여부 */
     autoEnd?: boolean;
-    /** 실행할 actionId 목록, 제공되지 않으면 기본적으로 모두 실행 */
-    runActionIds?: string[];
+    /** 실행할 segmentId 목록, 제공되지 않으면 기본적으로 모두 실행 */
+    runSegmentIds?: string[];
   }) => boolean;
   /** 일시 정지 */
   pause: () => void;

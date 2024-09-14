@@ -13,9 +13,10 @@ import {
   GridCellRenderer,
   OnScrollParams,
 } from "react-virtualized";
-import { TimelineRow } from "../../interface/action";
 import { CommonProp } from "../../interface/common_prop";
 import { EDIT_ARED_DEFAULT_MARGIN_TOP } from "../../interface/const";
+
+import { TimelineRow } from "../../interface/segment";
 import { EditData } from "../../interface/timeline";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserTimeToPixel } from "../../utils/deal_data";
@@ -53,13 +54,13 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
       cursorTime,
       onScroll,
       dragLine,
-      getAssistDragLineActionIds,
-      onActionMoveEnd,
-      onActionMoveStart,
-      onActionMoving,
-      onActionResizeEnd,
-      onActionResizeStart,
-      onActionResizing,
+      getAssistDragLineSegmentIds,
+      onSegmentMoveEnd,
+      onSegmentMoveStart,
+      onSegmentMoving,
+      onSegmentResizeEnd,
+      onSegmentResizeStart,
+      onSegmentResizing,
     } = props;
 
     const { scale, scaleWidth, startLeft } = useOptionStore(
@@ -85,12 +86,12 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
       },
     }));
 
-    const handleInitDragLine: EditData["onActionMoveStart"] = (data) => {
+    const handleInitDragLine: EditData["onSegmentMoveStart"] = (data) => {
       if (dragLine) {
-        const assistActionIds =
-          getAssistDragLineActionIds &&
-          getAssistDragLineActionIds({
-            action: data.action,
+        const assistSegmentIds =
+          getAssistDragLineSegmentIds &&
+          getAssistDragLineSegmentIds({
+            segment: data.segment,
             row: data.row,
             editorData,
           });
@@ -101,8 +102,8 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
         });
         const assistPositions = defaultGetAssistPosition({
           editorData,
-          assistActionIds,
-          action: data.action,
+          assistSegmentIds,
+          segment: data.segment,
           row: data.row,
           scale,
           scaleWidth,
@@ -114,7 +115,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
       }
     };
 
-    const handleUpdateDragLine: EditData["onActionMoving"] = (data) => {
+    const handleUpdateDragLine: EditData["onSegmentMoving"] = (data) => {
       if (dragLine) {
         const movePositions = defaultGetMovePosition({
           ...data,
@@ -142,30 +143,30 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
           rowHeight={row?.rowHeight || rowHeight}
           rowData={row}
           dragLineData={dragLineData}
-          onActionMoveStart={(data) => {
+          onSegmentMoveStart={(data) => {
             handleInitDragLine(data);
-            return onActionMoveStart && onActionMoveStart(data);
+            return onSegmentMoveStart && onSegmentMoveStart(data);
           }}
-          onActionResizeStart={(data) => {
+          onSegmentResizeStart={(data) => {
             handleInitDragLine(data);
 
-            return onActionResizeStart && onActionResizeStart(data);
+            return onSegmentResizeStart && onSegmentResizeStart(data);
           }}
-          onActionMoving={(data) => {
+          onSegmentMoving={(data) => {
             handleUpdateDragLine(data);
-            return onActionMoving && onActionMoving(data);
+            return onSegmentMoving && onSegmentMoving(data);
           }}
-          onActionResizing={(data) => {
+          onSegmentResizing={(data) => {
             handleUpdateDragLine(data);
-            return onActionResizing && onActionResizing(data);
+            return onSegmentResizing && onSegmentResizing(data);
           }}
-          onActionResizeEnd={(data) => {
+          onSegmentResizeEnd={(data) => {
             disposeDragLine();
-            return onActionResizeEnd && onActionResizeEnd(data);
+            return onSegmentResizeEnd && onSegmentResizeEnd(data);
           }}
-          onActionMoveEnd={(data) => {
+          onSegmentMoveEnd={(data) => {
             disposeDragLine();
-            return onActionMoveEnd && onActionMoveEnd(data);
+            return onSegmentMoveEnd && onSegmentMoveEnd(data);
           }}
         />
       );

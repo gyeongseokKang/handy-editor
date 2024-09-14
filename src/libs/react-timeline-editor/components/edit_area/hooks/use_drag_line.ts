@@ -1,7 +1,11 @@
 import { useState } from "react";
-import { TimelineAction, TimelineRow } from "../../../interface/action";
+
 import {
-  parserActionsToPositions,
+  TimelineRow,
+  TimelineSegment,
+} from "@/libs/react-timeline-editor/interface/segment";
+import {
+  parserSegmentsToPositions,
   parserTimeToTransform,
 } from "../../../utils/deal_data";
 import { DragLineData } from "../drag_lines";
@@ -16,8 +20,8 @@ export function useDragLine() {
   /** 获取辅助线 */
   const defaultGetAssistPosition = (data: {
     editorData: TimelineRow[];
-    assistActionIds?: string[];
-    action: TimelineAction;
+    assistSegmentIds?: string[];
+    segment: TimelineSegment;
     row: TimelineRow;
     startLeft: number;
     scale: number;
@@ -27,8 +31,8 @@ export function useDragLine() {
   }) => {
     const {
       editorData,
-      assistActionIds,
-      action,
+      assistSegmentIds,
+      segment,
       row,
       scale,
       scaleWidth,
@@ -36,27 +40,27 @@ export function useDragLine() {
       cursorLeft,
       hideCursor,
     } = data;
-    const otherActions: TimelineAction[] = [];
-    if (assistActionIds) {
+    const otherSegments: TimelineSegment[] = [];
+    if (assistSegmentIds) {
       editorData.forEach((rowItem) => {
-        rowItem.actions.forEach((actionItem) => {
-          if (assistActionIds.includes(actionItem.id))
-            otherActions.push(actionItem);
+        rowItem.segments.forEach((segmentItem) => {
+          if (assistSegmentIds.includes(segmentItem.id))
+            otherSegments.push(segmentItem);
         });
       });
     } else {
       editorData.forEach((rowItem) => {
         if (rowItem.id !== row.id) {
-          otherActions.push(...rowItem.actions);
+          otherSegments.push(...rowItem.segments);
         } else {
-          rowItem.actions.forEach((actionItem) => {
-            if (actionItem.id !== action.id) otherActions.push(actionItem);
+          rowItem.segments.forEach((segmentItem) => {
+            if (segmentItem.id !== segment.id) otherSegments.push(segmentItem);
           });
         }
       });
     }
 
-    const positions = parserActionsToPositions(otherActions, {
+    const positions = parserSegmentsToPositions(otherSegments, {
       startLeft,
       scale,
       scaleWidth,

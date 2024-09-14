@@ -1,10 +1,11 @@
 import { useEffect, useRef } from "react";
-import { TimelineRow } from "../../interface/action";
+
 import {
   EDIT_ARED_DEFAULT_MARGIN_TOP,
   ROW_HEADER_DEFAULT_WIDTH,
   TIME_AREA_DEFAULT_HEIGHT,
 } from "../../interface/const";
+import { TimelineRow } from "../../interface/segment";
 import useScrollStore from "../../store/ScrollStore";
 
 interface RowHeaderAreaProps {

@@ -12,15 +12,15 @@ const VideoPlayer = ({ editData, timelineState }: VideoPlayerProps) => {
   const videoRef = useRef<(HTMLVideoElement | null)[]>([]);
 
   const videoEditData = editData.filter((item) =>
-    item.actions.every((action) => action.effectId === "videoPlayer")
+    item.segments.every((segment) => segment.effectId === "videoPlayer")
   );
 
   console.log(videoEditData);
   return (
     <>
       {videoEditData.map((video, index) => {
-        if (video.actions?.length === 0) return null;
-        const { id, src } = video.actions?.[0]?.data;
+        if (video.segments?.length === 0) return null;
+        const { id, src } = video.segments?.[0]?.data;
         if (!src) return null;
         return (
           <VideoPlayer2

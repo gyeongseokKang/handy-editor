@@ -1,5 +1,5 @@
 import { TimelineEngine } from "../engine/engine";
-import { TimelineAction } from "./action";
+import { TimelineSegment } from "./segment";
 
 export interface TimelineEffect {
   /** 효과 id */
@@ -11,7 +11,7 @@ export interface TimelineEffect {
 }
 
 export interface EffectSourceParam<
-  TAction = TimelineAction,
+  TSegment = TimelineSegment,
   TEffect = TimelineEffect,
   TEngine = TimelineEngine
 > {
@@ -21,7 +21,7 @@ export interface EffectSourceParam<
   /** 재생 중인지 여부 */
   isPlaying: boolean;
   /** 동작 */
-  action: TAction;
+  segment: TSegment;
   /** 동작 효과 */
   effect: TEffect;
   /** 실행 엔진 */
