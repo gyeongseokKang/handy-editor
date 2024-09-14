@@ -22,6 +22,7 @@ class AudioControl {
   }) {
     const { id, src, startTime, time, engine } = data;
     let item: Howl;
+    let analyserNode: AnalyserNode;
     if (this.cacheMap[id]) {
       item = this.cacheMap[id];
       item.rate(engine.getPlayRate());
@@ -37,10 +38,7 @@ class AudioControl {
 
       const gainNode: GainNode = (item as any)?._sounds[0]?._node;
       if (gainNode) {
-        const analyserNode = audioAnalyzer.initNode(
-          Howler.ctx.createAnalyser()
-        );
-
+        analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
         gainNode.connect(analyserNode);
         analyserNode.connect(Howler.ctx.destination);
       }
@@ -54,17 +52,27 @@ class AudioControl {
 
     const timeListener = (data: { time: number }) => {
       const { time } = data;
-      item.seek(time - startTime);
+      if (time - startTime < 0) {
+        delete this.listenerMap[id];
+      } else {
+        item.seek(time - startTime);
+      }
     };
     const rateListener = (data: { rate: number }) => {
       const { rate } = data;
       item.rate(rate);
     };
+
     if (!this.listenerMap[id]) this.listenerMap[id] = {};
     engine.on("afterSetTime", timeListener);
     engine.on("afterSetPlayRate", rateListener);
+    engine.on("stop", () => {
+      // FIXME : disconnect 관련 업데이트 필요
+      analyserNode?.connect(Howler.ctx.destination);
+    });
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;
+    this.listenerMap;
   }
 
   stop(data: { id: string; engine: TimelineEngine }) {
@@ -77,6 +85,7 @@ class AudioControl {
           engine.off("afterSetTime", this.listenerMap[id].time);
         this.listenerMap[id].rate &&
           engine.off("afterSetPlayRate", this.listenerMap[id].rate);
+
         delete this.listenerMap[id];
       }
     }

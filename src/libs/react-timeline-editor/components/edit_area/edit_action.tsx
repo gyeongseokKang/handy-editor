@@ -6,6 +6,7 @@ import {
 } from "../../interface/const";
 
 import { TimelineRow, TimelineSegment } from "../../interface/segment";
+import { DataStoreUtil } from "../../store/DataStore";
 import { prefix } from "../../utils/deal_class_prefix";
 import {
   getScaleCountByPixel,
@@ -29,7 +30,6 @@ export type EditSegmentProps = CommonProp & {
   row: TimelineRow;
   segment: TimelineSegment;
   dragLineData: DragLineData;
-  setEditorData: (params: TimelineRow[]) => void;
   handleTime: (e: React.MouseEvent<HTMLDivElement, MouseEvent>) => number;
   areaRef: React.MutableRefObject<HTMLDivElement>;
   /** 设置scroll left */
@@ -60,7 +60,6 @@ export const EditSegment: FC<EditSegmentProps> = ({
   onSegmentResizing,
 
   dragLineData,
-  setEditorData,
   onClickSegment,
   onClickSegmentOnly,
   onDoubleClickSegment,
@@ -166,9 +165,11 @@ export const EditSegment: FC<EditSegmentProps> = ({
     // 设置数据
     const rowItem = editorData.find((item) => item.id === row.id);
     const segment = rowItem.segments.find((item) => item.id === id);
-    segment.start = start;
-    segment.end = end;
-    setEditorData(editorData);
+    DataStoreUtil.dragAndUpdateSegment({
+      segment,
+      start,
+      end,
+    });
 
     // 执行回调
     if (onSegmentMoveEnd) onSegmentMoveEnd({ segment, row, start, end });
@@ -202,9 +203,11 @@ export const EditSegment: FC<EditSegmentProps> = ({
     // 设置数据
     const rowItem = editorData.find((item) => item.id === row.id);
     const segment = rowItem.segments.find((item) => item.id === id);
-    segment.start = start;
-    segment.end = end;
-    setEditorData(editorData);
+    DataStoreUtil.dragAndUpdateSegment({
+      segment,
+      start,
+      end,
+    });
 
     // 触发回调
     if (onSegmentResizeEnd)

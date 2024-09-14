@@ -10,7 +10,7 @@ const EditorOption = () => {
         label="Scale Per Section"
         value={scaleState.scale}
         description="Select the scale of the timeline"
-        itemlist={[5, 20, 60, 300, 600]}
+        itemlist={[5, 20, 60, 180, 300, 600]}
         onSelect={(item) => {
           useOptionStore.getState().updateScaleState({
             scale: Number(item),

@@ -19,7 +19,7 @@ const audioPlayerEffect: AudioPlayerEffect = {
     start: ({ segment, engine, isPlaying, time }) => {
       if (isPlaying) {
         const src = segment.data.src;
-        const id = segment.data.id;
+        const id = segment.id;
         audioControl.start({
           id,
           src,
@@ -32,7 +32,7 @@ const audioPlayerEffect: AudioPlayerEffect = {
     enter: ({ segment, engine, isPlaying, time }) => {
       if (isPlaying) {
         const src = segment.data.src;
-        const id = segment.data.id;
+        const id = segment.id;
         audioControl.start({
           id,
           src,
@@ -43,11 +43,11 @@ const audioPlayerEffect: AudioPlayerEffect = {
       }
     },
     leave: ({ segment, engine }) => {
-      const id = segment.data.id;
+      const id = segment.id;
       audioControl.stop({ id: id, engine });
     },
     stop: ({ segment, engine }) => {
-      const id = segment.data.id;
+      const id = segment.id;
       audioControl.stop({ id: id, engine });
     },
   },

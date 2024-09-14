@@ -14,7 +14,13 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
   );
 
   return (
-    <>
+    <div className="relative size-full max-w-screen-sm rounded-2xl border aspect-video">
+      {videoEditData.length === 0 && (
+        <div className="z-0 size-full absolute top-0 flex items-center justify-center">
+          No Video
+        </div>
+      )}
+
       {videoEditData.map((video, index) => {
         if (video.segments?.length === 0) return null;
         if ("data" in video.segments[0] === false) return null;
@@ -29,7 +35,7 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
           />
         );
       })}
-    </>
+    </div>
   );
 };
 
@@ -44,9 +50,8 @@ const VideoPlayer2 = forwardRef<any, { src: string; id: string }>(
         style={{
           visibility: "hidden",
         }}
-        className="size-full max-w-screen-sm rounded-2xl object-cover"
+        className="z-10 size-full max-w-screen-sm rounded-2xl object-cover  top-0 absolute"
         muted
-        controls
         src={src}
       />
     );

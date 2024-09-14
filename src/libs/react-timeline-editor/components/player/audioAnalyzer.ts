@@ -1,13 +1,11 @@
 // AudioAnalyzerClass.ts (오디오 분석 클래스)
 export class AudioAnalyzerClass {
   private analyserNode: AnalyserNode | null;
-  public connections: number;
-  public connectedIdList: string[] = [];
+  public connectedList: AudioNode[] = [];
 
   constructor() {
     this.analyserNode = null;
-    this.connections = 0;
-    this.connectedIdList = [];
+    this.connectedList = [];
   }
 
   // AnalyserNode를 외부에서 받아와 초기화하는 메서드
@@ -18,10 +16,32 @@ export class AudioAnalyzerClass {
 
     // AnalyserNode의 connect 메서드를 래핑하여 연결을 감지
     const originalConnect = this.analyserNode.connect.bind(this.analyserNode);
-    (this.analyserNode as any).connect = (...args: any[]) => {
+    (this.analyserNode as any).connect = (...args: AudioDestinationNode[]) => {
       originalConnect(...args);
-      this.connections += 1;
+
+      if (
+        args[0] instanceof AudioNode &&
+        !this.connectedList.includes(args[0])
+      ) {
+        this.connectedList.push(args[0]);
+      }
       this.onConnect(); // 연결 시 호출될 메서드
+    };
+
+    // AnalyserNode의 disconnect 메서드를 래핑하여 연결 해제를 감지
+    const originalDisconnect = this.analyserNode.disconnect.bind(
+      this.analyserNode
+    );
+    (this.analyserNode as any).disconnect = (...args: any[]) => {
+      originalDisconnect(...args);
+
+      if (args[0] instanceof AudioNode) {
+        const index = this.connectedList.indexOf(args[0]);
+        if (index !== -1) {
+          this.connectedList.splice(index, 1);
+        }
+      }
+      this.onDisconnect(); // 연결 해제 시 호출될 메서드
     };
 
     this.analyserNode.fftSize = 2048; // fftSize 설정
@@ -30,9 +50,15 @@ export class AudioAnalyzerClass {
 
   // 연결될 때 호출되는 콜백 함수 (필요에 따라 수정 가능)
   onConnect() {
-    console.log(
-      `New connection detected! Total connections: ${this.connections}`
-    );
+    // console.log(
+    //   `New connection detected! Total connections: ${this.connectedList.length}`
+    // );
+  }
+
+  onDisconnect() {
+    // console.log(
+    //   `Connection disconnected! Total connections: ${this.connectedList.length}`
+    // );
   }
 
   // AnalyserNode의 주파수 데이터를 데시벨 단위로 가져오는 메서드

@@ -9,7 +9,6 @@ import {
   ContextMenuSubTrigger,
   ContextMenuTrigger,
 } from "@/components/ui/context-menu";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
@@ -24,71 +23,30 @@ import ScaleRender from "@/libs/react-timeline-editor/components/time_area/Scale
 import VideoPlayer from "@/libs/react-timeline-editor/components/video_area/VideoPlayer";
 import Wavesurfer from "@/libs/react-timeline-editor/components/wave/Wavesurfer";
 import { TimelineRow } from "@/libs/react-timeline-editor/interface/segment";
-import dayjs from "dayjs";
-import duration from "dayjs/plugin/duration";
-import { cloneDeep } from "lodash";
+import useDataStore, {
+  DataStoreUtil,
+} from "@/libs/react-timeline-editor/store/DataStore";
 import { useRef, useState } from "react";
 import useOptionStore from "../../store/OptionStore";
-import UploadDropdown from "./component/UploadDropdown";
-
-// duration 플러그인 사용 설정
-dayjs.extend(duration);
+import UploadButton from "./component/UploadButton";
 
 export default function MediaEditor() {
-  const originalData = cloneDeep(sample);
-  const [data, setData] = useState(defaultEditorData);
+  const data = useDataStore((state) => state.timelineRowList);
+  const setData = useDataStore((state) => state.setTimelineRowList);
   const [dragMode, setDragMode] = useState(true);
   const timelineState = useRef<TimelineState>();
   const autoScrollWhenPlay = useRef<boolean>(true);
 
   const [waveform, setWaveform] = useState(false);
   const [visualizer, setVisualizer] = useState(false);
-  const [rowHeader, setRowHeader] = useState(true);
 
   const scaleState = useOptionStore((state) => state.editorOption.scaleState);
-  const handleAudioUpload = (event) => {
-    const file = event.target.files[0];
-
-    const fileReader = new FileReader();
-    fileReader.addEventListener("load", (e) => {
-      if (e && e.target && e.target.result && files !== null) {
-        const arrayBuffer = e.target.result as ArrayBuffer;
-        const base64Str = Buffer.from(arrayBuffer).toString("base64");
-        const contentType = "audio/mp3";
-
-        const audio = new Audio();
-        audio.src = URL.createObjectURL(new Blob([arrayBuffer]));
-        audio.onloadedmetadata = () => {
-          const newData = [...data];
-          newData.push({
-            id: (newData.length + 1).toString(),
-            segments: [
-              {
-                id: file.name,
-                start: 0,
-                end: audio.duration,
-                effectId: "audioPlayer",
-                data: {
-                  src: `data:${contentType};base64,${base64Str}`,
-                  name: file.name,
-                },
-                isDragging: false,
-              },
-            ],
-          });
-          setData(newData as any);
-        };
-      }
-    });
-    const files = event.target.files;
-    fileReader.readAsArrayBuffer(files[0]);
-  };
 
   return (
     <div className="px-2">
       <div className="py-4 flex gap-2">
         <div className="flex items-center space-x-2">
-          <UploadDropdown />
+          <UploadButton />
           <Switch
             id="autoScroll-mode"
             defaultChecked={autoScrollWhenPlay.current}
@@ -109,16 +67,7 @@ export default function MediaEditor() {
           />
           <Label htmlFor="drag-mode">DragMode</Label>
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="rowHeader"
-            checked={rowHeader}
-            onCheckedChange={() => {
-              setRowHeader(!rowHeader);
-            }}
-          />
-          <Label htmlFor="rowHeader">Row Header</Label>
-        </div>
+
         <div className="flex items-center space-x-2">
           <Switch
             id="drag-mode"
@@ -140,13 +89,6 @@ export default function MediaEditor() {
           <Label htmlFor="analyzer-mode">Audio Visualizer</Label>
         </div>
       </div>
-
-      <div>
-        <h2>파일</h2>
-        <div className="py-2 flex items-center space-x-2">
-          <FileInput handleAudioUpload={handleAudioUpload} />
-        </div>
-      </div>
       {visualizer && <AudioVisualizer />}
       <VideoPlayer editData={data} />
 
@@ -155,14 +97,12 @@ export default function MediaEditor() {
         autoScrollWhenPlay={autoScrollWhenPlay}
       />
       <div className="flex gap-1 w-full">
-        {rowHeader && (
-          <RowHeaderArea
-            data={data}
-            getRowHeader={({ id, segments }) => {
-              return <div className="text">{`${id}`}</div>;
-            }}
-          />
-        )}
+        <RowHeaderArea
+          data={data}
+          getRowHeader={({ id }, rowIndex) => {
+            return <div className="text">{`Row_#${rowIndex + 1}`}</div>;
+          }}
+        />
         <Timeline
           ref={timelineState}
           scale={scaleState.scale}
@@ -182,9 +122,6 @@ export default function MediaEditor() {
           disableDrag={!dragMode}
           getScaleRender={(second) => <ScaleRender second={second} />}
           getSegmentRender={(segment: any, row, { isDragging }) => {
-            const isOriginal = originalData.find(
-              (d) => d.segments[0].id === segment.id
-            );
             return (
               <ContextMenu>
                 <ContextMenuTrigger>
@@ -208,7 +145,7 @@ export default function MediaEditor() {
                       ></Wavesurfer>
                     ) : (
                       <div className="w-full flex justify-start px-4">
-                        {segment.data.name}
+                        {segment.id?.split("-")[0]}
                       </div>
                     )}
                     <DraggingTimelineTooltip
@@ -221,78 +158,35 @@ export default function MediaEditor() {
                 <ContextMenuContent>
                   <ContextMenuItem
                     onClick={() => {
-                      const newData = [...data];
-                      const target = newData.find((d) =>
-                        d.segments.find((a) => a.id === segment.id)
-                      );
-                      const targetSegment = target?.segments.find(
-                        (a) => a.id === segment.id
-                      );
-                      if (targetSegment) {
-                        target.segments = target.segments.filter(
-                          (a) => a.id !== segment.id
-                        );
-                        setData(newData as any);
-                      }
+                      DataStoreUtil.deleteAndUpdateSegment({
+                        segment,
+                      });
                     }}
                   >
                     Delete
                   </ContextMenuItem>
                   <ContextMenuSub>
-                    <ContextMenuSubTrigger>duplicate</ContextMenuSubTrigger>
+                    <ContextMenuSubTrigger>Copy</ContextMenuSubTrigger>
                     <ContextMenuSubContent className="w-48">
                       <ContextMenuItem
                         onClick={() => {
-                          const newData = [...data];
-                          const target = newData.find((d) =>
-                            d.segments.find((a) => a.id === segment.id)
-                          );
-                          const targetSegment = target?.segments.find(
-                            (a) => a.id === segment.id
-                          );
-                          if (target) {
-                            const newSegment = cloneDeep(targetSegment);
-                            newSegment.id =
-                              `${newSegment.id.split("_")[0]}` +
-                              "_" +
-                              Math.random();
-                            newData.push({
-                              id: (newData.length + 1).toString(),
-                              segments: [newSegment],
-                            });
-                            setData(newData as any);
-                          }
+                          DataStoreUtil.copyAndUpdateSegment({
+                            segment,
+                            type: "newLine",
+                          });
                         }}
                       >
-                        new line
+                        Copy to new row
                       </ContextMenuItem>
                       <ContextMenuItem
                         onClick={() => {
-                          const newData = [...data];
-                          const target = newData.find((d) =>
-                            d.segments.find((a) => a.id === segment.id)
-                          );
-                          const targetSegment = target?.segments.find(
-                            (a) => a.id === segment.id
-                          );
-                          if (targetSegment) {
-                            const duration =
-                              targetSegment.end - targetSegment.start;
-
-                            const newSegment = cloneDeep(targetSegment);
-                            newSegment.id =
-                              `${newSegment.id.split("_")[0]}` +
-                              "_" +
-                              Math.random();
-                            newSegment.start =
-                              targetSegment.start + duration + 5;
-                            newSegment.end = targetSegment.end + duration + 5;
-                            target.segments.push(newSegment);
-                            setData(newData as any);
-                          }
+                          DataStoreUtil.copyAndUpdateSegment({
+                            segment,
+                            type: "sameLine",
+                          });
                         }}
                       >
-                        same line
+                        Copy to same row
                       </ContextMenuItem>
                     </ContextMenuSubContent>
                   </ContextMenuSub>
@@ -305,24 +199,6 @@ export default function MediaEditor() {
     </div>
   );
 }
-
-const FileInput = ({
-  handleAudioUpload,
-}: {
-  handleAudioUpload: (event: any) => void;
-}) => {
-  return (
-    <div className="grid w-full max-w-sm items-center gap-1.5">
-      <Label htmlFor="picture">로컬 파일 업로드(mp3만)</Label>
-      <Input
-        id="picture"
-        type="file"
-        onChange={handleAudioUpload}
-        accept=".mp3"
-      />
-    </div>
-  );
-};
 
 const DraggingTimelineTooltip = ({
   time,
@@ -439,5 +315,3 @@ export const sample: TimelineRow[] = [
   //   ],
   // },
 ];
-
-const defaultEditorData = cloneDeep(sample);

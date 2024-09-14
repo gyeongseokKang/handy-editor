@@ -11,7 +11,7 @@ import useScrollStore from "../../store/ScrollStore";
 interface RowHeaderAreaProps {
   data: TimelineRow[];
   width?: number;
-  getRowHeader?: (row: TimelineRow) => any;
+  getRowHeader?: (row: TimelineRow, rowIndex: number) => any;
 }
 
 const RowHeaderArea = ({ data, width, getRowHeader }: RowHeaderAreaProps) => {
@@ -41,12 +41,12 @@ const RowHeaderArea = ({ data, width, getRowHeader }: RowHeaderAreaProps) => {
         paddingTop: EDIT_ARED_DEFAULT_MARGIN_TOP + TIME_AREA_DEFAULT_HEIGHT,
       }}
     >
-      {data.map((item) => (
+      {data.map((item, index) => (
         <div
           className="flex items-center justify-center min-h-[50px]"
           key={item.id}
         >
-          {getRowHeader?.(item)}
+          {getRowHeader?.(item, index)}
         </div>
       ))}
     </div>
