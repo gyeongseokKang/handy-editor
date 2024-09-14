@@ -11,11 +11,8 @@ import React, {
 import { OnScrollParams, ScrollSync } from "react-virtualized";
 import { ITimelineEngine, TimelineEngine } from "../engine/engine";
 import { MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME } from "../interface/const";
-import {
-  TimelineEditor,
-  TimelineRow,
-  TimelineState,
-} from "../interface/timeline";
+import { TimelineRow } from "../interface/segment";
+import { TimelineEditor, TimelineState } from "../interface/timeline";
 import useScrollStore from "../store/ScrollStore";
 import { checkProps } from "../utils/check_props";
 import {
