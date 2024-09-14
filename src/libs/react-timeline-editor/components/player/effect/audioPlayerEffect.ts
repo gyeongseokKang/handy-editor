@@ -20,12 +20,14 @@ const audioPlayerEffect: AudioPlayerEffect = {
       if (isPlaying) {
         const src = segment.data.src;
         const id = segment.id;
+        const isLargefile = segment.data.isLargefile;
         audioControl.start({
           id,
           src,
           startTime: segment.start,
           engine,
           time,
+          isLargefile,
         });
       }
     },

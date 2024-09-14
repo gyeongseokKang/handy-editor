@@ -53,6 +53,7 @@ export interface AudioPlayerSegment extends TimelineSegmentBase {
   data: {
     src: string;
     name: string;
+    isLargefile?: boolean;
   };
 }
 

@@ -18,9 +18,9 @@ class AudioControl {
     src: string;
     startTime: number;
     time: number;
-    isStreamming?: boolean;
+    isLargefile?: boolean;
   }) {
-    const { id, src, startTime, time, engine } = data;
+    const { id, src, startTime, time, engine, isLargefile } = data;
     let item: Howl;
     let analyserNode: AnalyserNode;
     if (this.cacheMap[id]) {
@@ -33,7 +33,7 @@ class AudioControl {
         src,
         loop: false,
         autoplay: true,
-        ...(data.isStreamming && { html5: true }),
+        ...(isLargefile && { format: ["mp3"] }),
       });
 
       const gainNode: GainNode = (item as any)?._sounds[0]?._node;
@@ -72,7 +72,6 @@ class AudioControl {
     });
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;
-    this.listenerMap;
   }
 
   stop(data: { id: string; engine: TimelineEngine }) {

@@ -16,22 +16,38 @@ type Actions = {
 
 const initialState: State = {
   timelineRowList: [
-    {
-      id: "row2",
-      segments: [
-        {
-          id: "video_18분짜리",
-          start: 10,
-          end: 1167,
-          effectId: "videoPlayer",
-          data: {
-            src: "/video/18분짜리 인터뷰.mp4",
-            name: "18분짜리 인터뷰",
-            videoSrc: "/video/18분짜리 인터뷰.mp4",
-          },
-        },
-      ],
-    },
+    // {
+    //   id: "row1",
+    //   segments: [
+    //     {
+    //       id: "audio_18분짜리",
+    //       start: 0,
+    //       end: 1167,
+    //       effectId: "audioPlayer",
+    //       data: {
+    //         src: "/video/18min_mix_.wav",
+    //         name: "18min_mix_",
+    //         videoSrc: "/video/18min_mix_.wav",
+    //       },
+    //     },
+    //   ],
+    // },
+    // {
+    //   id: "row2",
+    //   segments: [
+    //     {
+    //       id: "video_18분짜리",
+    //       start: 0,
+    //       end: 1167,
+    //       effectId: "videoPlayer",
+    //       data: {
+    //         src: "/video/18분짜리 인터뷰.mp4",
+    //         name: "18분짜리 인터뷰",
+    //         videoSrc: "/video/18분짜리 인터뷰.mp4",
+    //       },
+    //     },
+    //   ],
+    // },
   ],
 };
 

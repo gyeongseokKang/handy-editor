@@ -1,10 +1,5 @@
 import { Howl } from "howler";
 import { TimelineEngine } from "../../../engine/engine";
-import { audioAnalyzer } from "../audioAnalyzer";
-
-interface Window {
-  webkitAudioContext: typeof AudioContext;
-}
 
 class VideoControl {
   cacheMap: Record<
@@ -38,44 +33,17 @@ class VideoControl {
       audioItem = this.cacheMap[id].audioItem;
       videoItem = this.cacheMap[id].videoItem;
     } else {
-      console.log("loadStart!!");
       engine.trigger("loadStart", { id });
       audioItem = new Howl({
         src,
         loop: false,
         autoplay: true,
-        html5: true,
-        preload: true,
       });
-
       videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
-
-      const gainNode: GainNode | HTMLVideoElement = (audioItem as any)
-        ?._sounds[0]?._node;
-      if (gainNode) {
-        analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
-        if ("connect" in gainNode) {
-          gainNode.connect(analyserNode);
-          analyserNode.connect(Howler.ctx.destination);
-        } else {
-          const source = Howler.ctx.createMediaElementSource(gainNode);
-          source.connect(analyserNode);
-          analyserNode.connect(Howler.ctx.destination);
-        }
-      }
-
       this.cacheMap[id] = {
         audioItem: audioItem,
         videoItem: videoItem,
       };
-
-      audioItem.on("load", () => {
-        console.log("load!!");
-        engine.trigger("loadEnd", { id });
-        const currentTime = engine.getTime();
-        audioItem.rate(engine.getPlayRate());
-        audioItem.seek(currentTime - startTime);
-      });
     }
 
     audioItem.rate(engine.getPlayRate());
@@ -119,7 +87,23 @@ class VideoControl {
         videoItem.currentTime = time - startTime;
       }
     });
-
+    audioItem.on("load", () => {
+      engine.trigger("loadEnd", { id });
+      const currentTime = engine.getTime();
+      console.log("load", currentTime, startTime, audioItem);
+      audioItem.rate(engine.getPlayRate());
+      audioItem.seek(currentTime - startTime);
+      // audioItem.seek(10);
+      videoItem.currentTime = currentTime - startTime;
+      // if (!analyserNode) {
+      //   analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
+      // }
+      // const gainNode: HTMLAudioElement = (audioItem as any)?._sounds[0]
+      //   ?._node;
+      // const source = Howler.ctx.createMediaElementSource(gainNode);
+      // source.connect(analyserNode);
+      // analyserNode.connect(Howler.ctx.destination);
+    });
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;
     this.listenerMap[id].timeUpdate = timeUpdateListener;

@@ -14,13 +14,7 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
   );
 
   return (
-    <div className="relative size-full max-w-screen-sm rounded-2xl border aspect-video">
-      {videoEditData.length === 0 && (
-        <div className="z-0 size-full absolute top-0 flex items-center justify-center">
-          No Video
-        </div>
-      )}
-
+    <div className="flex size-full  rounded-2xl border min-w-[33vw]">
       {videoEditData.map((video, index) => {
         if (video.segments?.length === 0) return null;
         if ("data" in video.segments[0] === false) return null;
@@ -30,6 +24,7 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
             <VideoPlayer2
               key={id}
               id={id}
+              count={videoEditData.length}
               ref={(el) => (videoRef.current[index] = el)}
               src={data.videoSrc}
             />
@@ -44,21 +39,23 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
 
 export default VideoPlayer;
 
-const VideoPlayer2 = forwardRef<any, { src: string; id: string }>(
-  ({ src, id }, ref) => {
-    return (
-      <video
-        id={id}
-        ref={ref}
-        style={{
-          visibility: "hidden",
-        }}
-        className="z-10 size-full max-w-screen-sm rounded-2xl object-cover  top-0 absolute"
-        muted
-        controls
-        src={src}
-      />
-    );
-  }
-);
+const VideoPlayer2 = forwardRef<
+  any,
+  { src: string; id: string; count: number }
+>(({ src, id, count }, ref) => {
+  return (
+    <video
+      id={id}
+      ref={ref}
+      style={{
+        visibility: "hidden",
+        width: `${100 / count}%`,
+      }}
+      className="z-10 rounded-2xl object-cover  aspect-video flex-1 max-w-[33vw]"
+      muted
+      controls
+      src={src}
+    />
+  );
+});
 VideoPlayer2.displayName = "VideoPlayer2";
