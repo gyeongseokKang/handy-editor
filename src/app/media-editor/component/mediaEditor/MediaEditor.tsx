@@ -11,23 +11,18 @@ import {
 } from "@/components/ui/context-menu";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectLabel,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
 import { cn } from "@/lib/utils";
 import { Timeline, TimelineState } from "@/libs/react-timeline-editor";
 import RowHeaderArea from "@/libs/react-timeline-editor/components/header_area/RowHeaderArea";
 import AudioVisualizer from "@/libs/react-timeline-editor/components/player/AudioVisualizer";
 import { AudioPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
-import { mockData2 } from "@/libs/react-timeline-editor/components/player/mock";
+import { VideoPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/videoPlayerEffect";
+
 import TimelinePlayer from "@/libs/react-timeline-editor/components/player/player";
+import { CusTomTimelineRow } from "@/libs/react-timeline-editor/components/player/type";
+import ScaleRender from "@/libs/react-timeline-editor/components/time_area/ScaleRender";
+import VideoPlayer from "@/libs/react-timeline-editor/components/video_area/VideoPlayer";
 import Wavesurfer from "@/libs/react-timeline-editor/components/wave/Wavesurfer";
 import dayjs from "dayjs";
 import duration from "dayjs/plugin/duration";
@@ -37,10 +32,9 @@ import useOptionStore from "../../store/OptionStore";
 
 // duration 플러그인 사용 설정
 dayjs.extend(duration);
-const defaultEditorData = cloneDeep(mockData2);
 
 export default function MediaEditor() {
-  const originalData = cloneDeep(mockData2);
+  const originalData = cloneDeep(sample);
   const [data, setData] = useState(defaultEditorData);
   const [dragLine, setDragLine] = useState(true);
   const [hideCursor, setHideCursor] = useState(false);
@@ -173,6 +167,7 @@ export default function MediaEditor() {
         </div>
       </div>
       {visualizer && <AudioVisualizer />}
+      <VideoPlayer timelineState={timelineState} editData={data} />
 
       <TimelinePlayer
         timelineState={timelineState}
@@ -199,32 +194,13 @@ export default function MediaEditor() {
           editorData={data}
           effects={{
             ...AudioPlayerEffect,
-            ...AudioPlayerEffect,
+            ...VideoPlayerEffect,
           }}
           hideCursor={hideCursor}
           autoScroll={true}
           dragLine={dragLine}
           disableDrag={!dragMode}
-          getScaleRender={(second) => {
-            const realSecond = second;
-            const timeDuration = dayjs.duration(realSecond, "seconds");
-            const hours = timeDuration.hours();
-
-            // 시간에 따라 포맷을 다르게 설정
-            if (hours > 0) {
-              return (
-                <div className="text-xs text-gray-500">
-                  {timeDuration.format("HH:mm:ss")}
-                </div>
-              );
-            } else {
-              return (
-                <div className="text-xs text-gray-500">
-                  {timeDuration.format("mm:ss")}
-                </div>
-              );
-            }
-          }}
+          getScaleRender={(second) => <ScaleRender second={second} />}
           getActionRender={(action: any, row, { isDragging }) => {
             const isOriginal = originalData.find(
               (d) => d.actions[0].id === action.id
@@ -390,92 +366,6 @@ const FileInput = ({
   );
 };
 
-const ScaleSelect = ({ scale, setScale }) => {
-  const scaleList = [5, 20, 60, 300, 600];
-  return (
-    <div className="flex  max-w-sm items-center gap-1.5">
-      <Select
-        value={scale.toString()}
-        onValueChange={(value) => {
-          setScale(parseInt(value));
-        }}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="Scale" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>Scale</SelectLabel>
-            {scaleList.map((rate) => (
-              <SelectItem key={rate} value={rate.toString()}>
-                {rate}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      <Label>스케일</Label>
-    </div>
-  );
-};
-
-const ScaleWidthSelect = ({ scaleWidth, setScaleWidth }) => {
-  const scaleWidthList = [150, 300, 450, 600];
-  return (
-    <div className="flex  max-w-sm items-center gap-1.5">
-      <Select
-        value={scaleWidth.toString()}
-        onValueChange={(value) => {
-          setScaleWidth(parseInt(value));
-        }}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="ScaleWidth" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>ScaleWidth(px)</SelectLabel>
-            {scaleWidthList.map((rate) => (
-              <SelectItem key={rate} value={rate.toString()}>
-                {rate}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      <Label>스케일Width</Label>
-    </div>
-  );
-};
-const ScaleSplitCountSelect = ({ scaleSplitCount, setScaleSplitCount }) => {
-  const scaleSplitCountList = [5, 10, 20, 60];
-  return (
-    <div className="flex  max-w-sm items-center gap-1.5">
-      <Select
-        value={scaleSplitCount.toString()}
-        onValueChange={(value) => {
-          setScaleSplitCount(parseInt(value));
-        }}
-      >
-        <SelectTrigger className="w-[180px]">
-          <SelectValue placeholder="ScaleSplitCount" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectGroup>
-            <SelectLabel>ScaleSplitCount(px)</SelectLabel>
-            {scaleSplitCountList.map((rate) => (
-              <SelectItem key={rate} value={rate.toString()}>
-                {rate}
-              </SelectItem>
-            ))}
-          </SelectGroup>
-        </SelectContent>
-      </Select>
-      <Label>간격당 눈금개수</Label>
-    </div>
-  );
-};
-
 const DraggingTimelineTooltip = ({
   time,
   direction,
@@ -511,3 +401,85 @@ const DraggingTimelineTooltip = ({
     </div>
   );
 };
+
+export const sample: CusTomTimelineRow[] = [
+  // {
+  //   id: "row1",
+  //   actions: [
+  //     {
+  //       id: "최애의아이",
+  //       start: 0,
+  //       end: 226,
+  //       effectId: "audioPlayer",
+  //       data: {
+  //         id: "최애의아이",
+  //         src: "/audio/최애의아이.mp3",
+  //         name: "최애의아이",
+  //       },
+  //     },
+  //     // ...Array.from({ length: 20 }).map((_, i) => ({
+  //     //   id: `내손을잡아${i}`,
+  //     //   start: i * 5,
+  //     //   end: i * 5 + 5,
+  //     //   effectId: "audioPlayer",
+  //     //   data: {
+  //     //     id: `내손을잡아${i}`,
+  //     //     src: "/audio/내손을잡아.mp3",
+  //     //     name: `내손을잡아${i}`,
+  //     //   },
+  //     // })),
+  //   ],
+  // },
+  {
+    id: "row2",
+    actions: [
+      {
+        id: "video_18분짜리",
+        start: 10,
+        end: 1167,
+        effectId: "videoPlayer",
+        data: {
+          id: "video_18분짜리",
+          src: "/video/18분짜리 인터뷰.mp4",
+          name: "18분짜리 인터뷰",
+        },
+      },
+    ],
+  },
+
+  // ...Array.from({ length: 20 }).map((_, i) => ({
+  //   id: `${i + 2}`,
+  //   actions: [
+  //     {
+  //       id: `최애의아이${i}`,
+  //       start: i * 5,
+  //       end: i * 5 + 5,
+  //       effectId: "audioPlayer",
+  //       data: {
+  //         id: `최애의아이${i}`,
+  //         src: "/audio/최애의아이.mp3",
+  //         name: `최애의아이${i}`,
+  //       },
+  //     },
+  //   ],
+  // })),
+
+  // {
+  //   id: "3",
+  //   actions: [
+  //     {
+  //       id: "스트리밍",
+  //       start: 0,
+  //       end: 4008,
+  //       effectId: "audioStreammingPlayer",
+  //       data: {
+  //         src: "https://d2u3ecdp9u36hp.cloudfront.net/music_replacement/2/20240829/dQNsCjxEoE0EJ8w=/web_convert%2FStreetFoodFighterEp01_SOV.mp3",
+  //         peak: "https://d2u3ecdp9u36hp.cloudfront.net/music_replacement/2/20240829/dQNsCjxEoE0EJ8w=/web_convert%2FStreetFoodFighterEp01_SOV_48.json",
+  //         name: "스트리밍(1시간 6분 48초)",
+  //       },
+  //     },
+  //   ],
+  // },
+];
+
+const defaultEditorData = cloneDeep(sample);

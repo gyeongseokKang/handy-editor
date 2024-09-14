@@ -312,7 +312,7 @@ export class TimelineEngine
       this.getTime() +
       (Math.min(1000, now - this._prev) / 1000) * this._playRate;
     this._prev = now;
-
+    this.trigger("timeUpdate", { currentTime });
     // 루프가 설정되어 있을 때, end 시간을 넘으면 다시 start로 돌아가도록 처리
     if (this._isLooping && this._loopEnd && currentTime >= this._loopEnd) {
       currentTime = this._loopStart || 0;

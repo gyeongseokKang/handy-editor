@@ -11,11 +11,15 @@ export class Events {
       beforeSetPlayRate: [],
       afterSetPlayRate: [],
       setActiveActionIds: [],
+      timeUpdate: [],
       play: [],
       stop: [],
       playAtLoop: [],
       paused: [],
       ended: [],
+      loadStart: [],
+      loadProgress: [],
+      loadEnd: [],
       ...handlers,
     };
   }
@@ -83,4 +87,16 @@ export interface EventTypes {
    * @memberof EventTypes
    */
   ended: { engine: TimelineEngine };
+  /**
+   * 시간 업데이트
+   * @type {{ time: number, engine: TimelineEngine }}
+   * @memberof EventTypes
+   */
+  timeUpdate: { currentTime: number };
+  /**
+   * 데이터 로딩 관련 리스너
+   */
+  loadStart: { id: string };
+  loadProgress: { id: string; progress: number };
+  loadEnd: { id: string };
 }

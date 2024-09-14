@@ -1,6 +1,6 @@
 import { TimelineAction } from "../../../interface/action";
 import { EffectSourceParam, TimelineEffect } from "../../../interface/effect";
-import audioControl from "../audioControl";
+import audioControl from "../control/audioControl";
 
 export interface AudioPlayerAction extends TimelineAction {
   data: {
