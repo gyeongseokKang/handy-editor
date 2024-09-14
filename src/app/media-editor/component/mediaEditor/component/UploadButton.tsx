@@ -68,7 +68,7 @@ const UploadButton = () => {
       // 파일의 모든 청크를 다 읽었으면 처리 완료
       if (offset >= file.size) {
         // 모든 청크를 Blob으로 결합
-        const blob = new Blob(chunks.slice(0, 1), { type: file.type });
+        const blob = new Blob(chunks, { type: file.type });
         const audioUrl = URL.createObjectURL(blob);
         const audio = new Audio();
         audio.src = audioUrl; // Blob URL을 오디오 소스로 설정

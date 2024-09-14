@@ -14,7 +14,7 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
   );
 
   return (
-    <div className="flex size-full  rounded-2xl border min-w-[33vw]">
+    <div className="flex size-full  rounded-2xl border min-w-[33vw] gap-1">
       {videoEditData.map((video, index) => {
         if (video.segments?.length === 0) return null;
         if ("data" in video.segments[0] === false) return null;
@@ -53,7 +53,6 @@ const VideoPlayer2 = forwardRef<
       }}
       className="z-10 rounded-2xl object-cover  aspect-video flex-1 max-w-[33vw]"
       muted
-      controls
       src={src}
     />
   );
