@@ -1,5 +1,6 @@
 import { Howl } from "howler";
 import { TimelineEngine } from "../../../engine/engine";
+import { audioAnalyzer } from "../audioAnalyzer";
 
 class VideoControl {
   cacheMap: Record<
@@ -88,12 +89,11 @@ class VideoControl {
       }
     });
     audioItem.on("load", () => {
-      engine.trigger("loadEnd", { id });
       const currentTime = engine.getTime();
-      console.log("load", currentTime, startTime, audioItem);
       audioItem.rate(engine.getPlayRate());
       audioItem.seek(currentTime - startTime);
       videoItem.currentTime = currentTime - startTime;
+      this.connectAnalyser(audioItem);
     });
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;
@@ -149,6 +149,16 @@ class VideoControl {
       const videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
       videoItem.currentTime = time - startTime;
     }
+  }
+
+  connectAnalyser(item) {
+    const gainNode: GainNode = (item as any)?._sounds[0]?._node;
+    const analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
+    if (gainNode) {
+      gainNode.connect(analyserNode);
+      analyserNode.connect(Howler.ctx.destination);
+    }
+    return analyserNode;
   }
 }
 

@@ -22,7 +22,6 @@ class AudioControl {
   }) {
     const { id, src, startTime, time, engine, isLargefile } = data;
     let item: Howl;
-    let analyserNode: AnalyserNode;
     if (this.cacheMap[id]) {
       item = this.cacheMap[id];
       item.rate(engine.getPlayRate());
@@ -36,15 +35,9 @@ class AudioControl {
         ...(isLargefile && { format: ["mp3"] }),
       });
 
-      const gainNode: GainNode = (item as any)?._sounds[0]?._node;
-      if (gainNode) {
-        analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
-        gainNode.connect(analyserNode);
-        analyserNode.connect(Howler.ctx.destination);
-      }
-
       this.cacheMap[id] = item;
       item.on("load", () => {
+        this.connectAnalyser(item);
         item.rate(engine.getPlayRate());
         item.seek(time - startTime);
       });
@@ -68,7 +61,7 @@ class AudioControl {
     engine.on("afterSetPlayRate", rateListener);
     engine.on("stop", () => {
       // FIXME : disconnect 관련 업데이트 필요
-      analyserNode?.connect(Howler.ctx.destination);
+      // analyserNode?.connect(Howler.ctx.destination);
     });
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;
@@ -88,6 +81,16 @@ class AudioControl {
         delete this.listenerMap[id];
       }
     }
+  }
+
+  connectAnalyser(item) {
+    const gainNode: GainNode = (item as any)?._sounds[0]?._node;
+    const analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
+    if (gainNode) {
+      gainNode.connect(analyserNode);
+      analyserNode.connect(Howler.ctx.destination);
+    }
+    return analyserNode;
   }
 }
 
