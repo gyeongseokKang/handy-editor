@@ -14,7 +14,10 @@ import {
   OnScrollParams,
 } from "react-virtualized";
 import { CommonProp } from "../../interface/common_prop";
-import { EDIT_ARED_DEFAULT_MARGIN_TOP } from "../../interface/const";
+import {
+  EDIT_ARED_DEFAULT_HEIGHT,
+  EDIT_ARED_DEFAULT_MARGIN_TOP,
+} from "../../interface/const";
 
 import { TimelineRow } from "../../interface/segment";
 import { EditData } from "../../interface/timeline";
@@ -23,21 +26,20 @@ import { parserTimeToPixel } from "../../utils/deal_data";
 import { DragLines } from "./drag_lines";
 import { EditRow } from "./edit_row";
 import { useDragLine } from "./hooks/use_drag_line";
-
 export type EditAreaProps = CommonProp & {
-  /** 距离左侧滚动距离 */
+  /** 거리 왼쪽 스크롤 거리 */
   scrollLeft: number;
-  /** 距离顶部滚动距离 */
+  /** 거리 상단 스크롤 거리 */
   scrollTop: number;
-  /** 滚动回调，用于同步滚动 */
+  /** 스크롤 콜백, 스크롤을 동기화하는 데 사용됨 */
   onScroll: (params: OnScrollParams) => void;
-  /** 设置编辑器数据 */
+  /** 편집기 데이터 설정 */
   setEditorData: (params: TimelineRow[]) => void;
-  /** 设置scroll left */
+  /** scroll left 설정 */
   deltaScrollLeft: (scrollLeft: number) => void;
 };
 
-/** edit area ref数据 */
+/** 편집 영역 ref 데이터 */
 export interface EditAreaState {
   domRef: React.MutableRefObject<HTMLDivElement>;
 }
@@ -79,7 +81,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
     const gridRef = useRef<Grid>();
     const heightRef = useRef(-1);
 
-    // ref 数据
+    // ref 데이터
     useImperativeHandle(ref, () => ({
       get domRef() {
         return editAreaRef;
@@ -127,9 +129,9 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
       }
     };
 
-    /** 获取每个cell渲染内容 */
+    /** 각 cell의 렌더링 내용을 가져옴 */
     const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
-      const row = editorData[rowIndex]; // 行数据
+      const row = editorData[rowIndex]; // 행 데이터
       return (
         <EditRow
           {...props}
@@ -183,21 +185,23 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
     return (
       <div
         ref={editAreaRef}
-        className={cn(prefix("edit-area"), "relative flex-auto ")}
+        className={cn(prefix("edit-area"), "relative flex-auto")}
         style={{
           marginTop: EDIT_ARED_DEFAULT_MARGIN_TOP,
+          minHeight: EDIT_ARED_DEFAULT_HEIGHT,
         }}
       >
         <AutoSizer>
           {({ width, height }) => {
-            // 获取全部高度
+            // 전체 높이 가져오기
             let totalHeight = 0;
-            // 高度列表
+            // 높이 목록
             const heights = editorData.map((row) => {
               const itemHeight = row.rowHeight || rowHeight;
               totalHeight += itemHeight;
               return itemHeight;
             });
+
             if (totalHeight < height) {
               heights.push(height - totalHeight);
               if (heightRef.current !== height && heightRef.current >= 0) {
@@ -209,7 +213,6 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
               }
             }
             heightRef.current = height;
-
             return (
               <Grid
                 columnCount={1}

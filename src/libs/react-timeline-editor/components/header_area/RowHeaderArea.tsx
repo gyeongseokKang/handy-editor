@@ -34,7 +34,7 @@ const RowHeaderArea = ({ data, width, getRowHeader }: RowHeaderAreaProps) => {
           scrollTop: target.scrollTop,
         });
       }}
-      className={"flex flex-col h-[600px] overflow-hidden"}
+      className={"flex flex-col h-full overflow-hidden"}
       style={{
         width: rowWidth,
         minWidth: rowWidth,

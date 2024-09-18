@@ -24,6 +24,7 @@ export const MIN_SCALE_COUNT = 20;
 export const ADD_SCALE_COUNT = 5;
 
 export const EDIT_ARED_DEFAULT_MARGIN_TOP = 10;
+export const EDIT_ARED_DEFAULT_HEIGHT = 200;
 export const TIME_AREA_DEFAULT_HEIGHT = 32;
 export const ROW_HEADER_DEFAULT_WIDTH = 100;
 
