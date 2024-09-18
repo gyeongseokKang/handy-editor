@@ -88,7 +88,7 @@ export class DataStoreUtil {
       id: "row" + crypto.randomUUID(),
       segments: [],
       rowHeight: DEFAULT_ROW_HEIGHT,
-      selected: true,
+      selected: false,
       classNames: [],
     };
     return newTimelineRow;

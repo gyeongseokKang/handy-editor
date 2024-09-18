@@ -14,7 +14,12 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
   );
 
   return (
-    <div className="flex size-full  rounded-2xl border min-w-[33vw] gap-1">
+    <div className="flex size-full rounded-2xl border min-w-[33vw] gap-1">
+      {videoEditData.length === 0 && (
+        <div className="min-h-48 flex items-center justify-center w-full">
+          No video data
+        </div>
+      )}
       {videoEditData.map((video, index) => {
         if (video.segments?.length === 0) return null;
         if ("data" in video.segments[0] === false) return null;
