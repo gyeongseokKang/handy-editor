@@ -93,16 +93,7 @@ class VideoControl {
       console.log("load", currentTime, startTime, audioItem);
       audioItem.rate(engine.getPlayRate());
       audioItem.seek(currentTime - startTime);
-      // audioItem.seek(10);
       videoItem.currentTime = currentTime - startTime;
-      // if (!analyserNode) {
-      //   analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());
-      // }
-      // const gainNode: HTMLAudioElement = (audioItem as any)?._sounds[0]
-      //   ?._node;
-      // const source = Howler.ctx.createMediaElementSource(gainNode);
-      // source.connect(analyserNode);
-      // analyserNode.connect(Howler.ctx.destination);
     });
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;
@@ -145,6 +136,19 @@ class VideoControl {
     }
     videoItem.style.visibility = "hidden";
     videoItem.currentTime = 0;
+  }
+
+  update(data: {
+    id: string;
+    isPlaying: boolean;
+    time: number;
+    startTime: number;
+  }) {
+    const { id, isPlaying, time, startTime } = data;
+    if (!isPlaying) {
+      const videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
+      videoItem.currentTime = time - startTime;
+    }
   }
 }
 

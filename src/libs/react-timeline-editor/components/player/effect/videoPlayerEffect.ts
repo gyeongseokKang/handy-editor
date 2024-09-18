@@ -9,6 +9,7 @@ export interface VideoPlayerEffect extends TimelineEffect {
     enter?: (param: EffectSourceParam<VideoPlayerSegment>) => void;
     leave?: (param: EffectSourceParam<VideoPlayerSegment>) => void;
     stop?: (param: EffectSourceParam<VideoPlayerSegment>) => void;
+    update?: (param: EffectSourceParam<VideoPlayerSegment>) => void;
   };
 }
 
@@ -51,6 +52,15 @@ const videoPlayerEffect: VideoPlayerEffect = {
     stop: ({ segment, engine }) => {
       const id = segment.id;
       videoControl.stop({ id: id, engine });
+    },
+    update: ({ segment, isPlaying, time }) => {
+      const id = segment.id;
+      videoControl.update({
+        id,
+        isPlaying,
+        time: time,
+        startTime: segment.start,
+      });
     },
   },
 };

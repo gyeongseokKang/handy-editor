@@ -354,6 +354,7 @@ export class TimelineEngine
   private _tickSegment(time: number) {
     this._dealEnter(time);
     this._dealLeave(time);
+    this._dealUpdate(time);
 
     // 렌더링
     const length = this._activeSegmentIds.length;
@@ -467,5 +468,27 @@ export class TimelineEngine
     });
     this._segmentMap = segmentMap;
     this._segmentSortIds = segmentSortIds;
+  }
+
+  /** 데이터 업데이트 */
+  private _dealUpdate(time: number) {
+    let i = 0;
+    while (this._activeSegmentIds[i]) {
+      const segmentId = this._activeSegmentIds[i];
+      const segment = this._segmentMap[segmentId];
+      if (segment.start <= time && segment.end >= time) {
+        const effect = this._effectMap[segment.effectId];
+        if (effect && effect.source?.update) {
+          effect.source.update({
+            time,
+            segment,
+            isPlaying: this.isPlaying,
+            effect,
+            engine: this,
+          });
+        }
+      }
+      i++;
+    }
   }
 }
