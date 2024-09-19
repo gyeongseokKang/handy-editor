@@ -65,7 +65,7 @@ export default function MediaEditor() {
         <ResizablePanel defaultSize={30}>
           <ResizablePanelGroup direction="horizontal" className="relative">
             <ResizablePanel defaultSize={80}>
-              <div>
+              <ScrollArea className="size-full rounded-md ">
                 <PathBreadcrumb />
                 <div className="py-1 flex gap-2">
                   <div className="flex items-center space-x-2">
@@ -84,10 +84,11 @@ export default function MediaEditor() {
                   </div>
                 </div>
                 {visualizer && <AudioVisualizer />}
+
                 <div className="px-2 w-full h-full ">
                   <VideoPlayer editData={data} />
                 </div>
-              </div>
+              </ScrollArea>
             </ResizablePanel>
             <ResizableHandle withHandle />
             <ResizablePanel

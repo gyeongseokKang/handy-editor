@@ -1,3 +1,4 @@
+import { Badge } from "@/components/ui/badge";
 import { forwardRef, useRef } from "react";
 import { TimelineRow } from "../../interface/segment";
 
@@ -6,7 +7,6 @@ interface VideoPlayerProps {
 }
 
 const VideoPlayer = ({ editData }: VideoPlayerProps) => {
-  // videoRef를 배열로 초기화하여 여러 비디오 엘리먼트를 참조할 수 있게 함
   const videoRef = useRef<(HTMLVideoElement | null)[]>([]);
 
   const videoEditData = editData.filter((item) =>
@@ -14,7 +14,14 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
   );
 
   return (
-    <div className="flex size-full rounded-2xl border min-w-[33vw] gap-1">
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))",
+        gap: "10px",
+      }}
+      className="w-full"
+    >
       {videoEditData.length === 0 && (
         <div className="min-h-48 flex items-center justify-center w-full">
           No video data
@@ -26,12 +33,13 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
         const { id, data } = video.segments?.[0];
         if ("videoSrc" in data) {
           return (
-            <VideoPlayer2
+            <SegmentVideoPlayer
               key={id}
               id={id}
               count={videoEditData.length}
               ref={(el) => (videoRef.current[index] = el)}
               src={data.videoSrc}
+              label={data.name}
             />
           );
         }
@@ -44,22 +52,38 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
 
 export default VideoPlayer;
 
-const VideoPlayer2 = forwardRef<
+const SegmentVideoPlayer = forwardRef<
   any,
-  { src: string; id: string; count: number }
->(({ src, id, count }, ref) => {
+  { src: string; id: string; count: number; label: string }
+>(({ src, id, label }, ref) => {
   return (
-    <video
-      id={id}
-      ref={ref}
+    <div
+      className="relative w-full aspect-video"
       style={{
-        visibility: "hidden",
-        width: `${100 / count}%`,
+        maxWidth: "500px",
+        minWidth: "300px",
       }}
-      className="z-10 rounded-2xl object-cover  aspect-video flex-1 max-w-[33vw]"
-      muted
-      src={src}
-    />
+    >
+      <div className="absolute  aspect-video top-0 left-0 right-0 bottom-0 bg-red-500/20 z-0  flex justify-center items-center">
+        <span className="text-xl">Out of Time</span>
+      </div>
+      <video
+        id={id}
+        ref={ref}
+        style={{
+          visibility: "hidden",
+        }}
+        preload="metadata"
+        className="z-10 object-cover aspect-video absolute w-full"
+        muted
+        src={src}
+      />
+      <div className="absolute top-0 left-1 z-20 ">
+        <Badge className="text-xxxs" variant="secondary">
+          {label}
+        </Badge>
+      </div>
+    </div>
   );
 });
-VideoPlayer2.displayName = "VideoPlayer2";
+SegmentVideoPlayer.displayName = "SegmentVideoPlayer";
