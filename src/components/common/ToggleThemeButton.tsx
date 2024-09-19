@@ -13,7 +13,6 @@ import {
 
 export function ToggleThemeButton() {
   const { theme, setTheme } = useTheme();
-
   const isDark = theme === "dark";
 
   return (
@@ -21,7 +20,7 @@ export function ToggleThemeButton() {
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="dark">
           {isDark ? (
-            <MoonIcon className="h-[1.2rem] w-[1.2rem] " />
+            <MoonIcon className="h-[1.2rem] w-[1.2rem]" />
           ) : (
             <SunIcon className="h-[1.2rem] w-[1.2rem]" />
           )}

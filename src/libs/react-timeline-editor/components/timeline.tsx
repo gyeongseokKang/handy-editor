@@ -9,10 +9,11 @@ import React, {
   useState,
 } from "react";
 import { OnScrollParams, ScrollSync } from "react-virtualized";
-import { ITimelineEngine, TimelineEngine } from "../engine/engine";
+import { ITimelineEngine } from "../engine/engine";
 import { MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME } from "../interface/const";
 import { TimelineRow } from "../interface/segment";
 import { TimelineEditor, TimelineState } from "../interface/timeline";
+import useEngineStore from "../store/EngineStore";
 import useScrollStore from "../store/ScrollStore";
 import { checkProps } from "../utils/check_props";
 import {
@@ -34,11 +35,9 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       autoScroll,
       hideCursor,
       disableDrag,
-
       minScaleCount,
       maxScaleCount,
       onChange,
-      engine,
       autoReRender = true,
       onScroll: onScrollVertical,
     } = checkedProps;
@@ -47,7 +46,7 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
       (state) => state.editorOption.scaleState
     );
 
-    const engineRef = useRef<ITimelineEngine>(engine || new TimelineEngine());
+    const engineRef = useRef<ITimelineEngine>(useEngineStore.getState().engine);
     const domRef = useRef<HTMLDivElement>();
     const areaRef = useRef<HTMLDivElement>();
     const scrollSync = useRef<ScrollSync>();

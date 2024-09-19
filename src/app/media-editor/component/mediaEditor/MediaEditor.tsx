@@ -22,6 +22,7 @@ import TimelinePlayer from "@/libs/react-timeline-editor/components/player/playe
 import ScaleRender from "@/libs/react-timeline-editor/components/time_area/ScaleRender";
 import VideoPlayer from "@/libs/react-timeline-editor/components/video_area/VideoPlayer";
 import Wavesurfer from "@/libs/react-timeline-editor/components/wave/Wavesurfer";
+import EventSubscriptor from "@/libs/react-timeline-editor/engine/EventSubscriptor";
 import { TimelineRow } from "@/libs/react-timeline-editor/interface/segment";
 import useDataStore, {
   DataStoreUtil,
@@ -35,7 +36,6 @@ export default function MediaEditor() {
   const setData = useDataStore((state) => state.setTimelineRowList);
   const [dragMode, setDragMode] = useState(true);
   const timelineState = useRef<TimelineState>();
-  const autoScrollWhenPlay = useRef<boolean>(true);
 
   const [waveform, setWaveform] = useState(false);
   const [visualizer, setVisualizer] = useState(false);
@@ -43,160 +43,153 @@ export default function MediaEditor() {
   const scaleState = useOptionStore((state) => state.editorOption.scaleState);
 
   return (
-    <div className="px-2">
-      <div className="py-4 flex gap-2">
-        <div className="flex items-center space-x-2">
-          <UploadButton />
-          <Switch
-            id="autoScroll-mode"
-            defaultChecked={autoScrollWhenPlay.current}
-            onCheckedChange={(value) => {
-              autoScrollWhenPlay.current = value;
-            }}
-          />
-          <Label htmlFor="autoScroll-mode">autoScroll</Label>
-        </div>
+    <>
+      {" "}
+      <div className="px-2">
+        <div className="py-4 flex gap-2">
+          <div className="flex items-center space-x-2">
+            <UploadButton />
+          </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="drag-mode"
-            checked={dragMode}
-            onCheckedChange={() => {
-              setDragMode(!dragMode);
-            }}
-          />
-          <Label htmlFor="drag-mode">DragMode</Label>
-        </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="drag-mode"
+              checked={dragMode}
+              onCheckedChange={() => {
+                setDragMode(!dragMode);
+              }}
+            />
+            <Label htmlFor="drag-mode">DragMode</Label>
+          </div>
 
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="drag-mode"
-            checked={waveform}
-            onCheckedChange={() => {
-              setWaveform(!waveform);
-            }}
-          />
-          <Label htmlFor="drag-mode">Waveform</Label>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="drag-mode"
+              checked={waveform}
+              onCheckedChange={() => {
+                setWaveform(!waveform);
+              }}
+            />
+            <Label htmlFor="drag-mode">Waveform</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <Switch
+              id="analyzer-mode"
+              checked={visualizer}
+              onCheckedChange={() => {
+                setVisualizer(!visualizer);
+              }}
+            />
+            <Label htmlFor="analyzer-mode">Audio Visualizer</Label>
+          </div>
         </div>
-        <div className="flex items-center space-x-2">
-          <Switch
-            id="analyzer-mode"
-            checked={visualizer}
-            onCheckedChange={() => {
-              setVisualizer(!visualizer);
-            }}
-          />
-          <Label htmlFor="analyzer-mode">Audio Visualizer</Label>
-        </div>
-      </div>
-      {visualizer && <AudioVisualizer />}
-      <VideoPlayer editData={data} />
+        {visualizer && <AudioVisualizer />}
+        <VideoPlayer editData={data} />
 
-      <TimelinePlayer
-        timelineState={timelineState}
-        autoScrollWhenPlay={autoScrollWhenPlay}
-      />
-      <div className="flex gap-1 w-full">
-        <RowHeaderArea
-          data={data}
-          getRowHeader={({ id }, rowIndex) => {
-            return <div className="text">{`Row_#${rowIndex + 1}`}</div>;
-          }}
-        />
-        <Timeline
-          ref={timelineState}
-          scale={scaleState.scale}
-          scaleWidth={scaleState.scaleWidth}
-          startLeft={scaleState.startLeft}
-          scaleSplitCount={scaleState.scaleSplitCount}
-          onChange={(data) => {
-            setData(data as any);
-          }}
-          editorData={data}
-          effects={{
-            ...AudioPlayerEffect,
-            ...VideoPlayerEffect,
-          }}
-          autoScroll={true}
-          dragLine={true}
-          disableDrag={!dragMode}
-          getScaleRender={(second) => <ScaleRender second={second} />}
-          getSegmentRender={(segment: any, row, { isDragging }) => {
-            return (
-              <ContextMenu>
-                <ContextMenuTrigger>
-                  <div
-                    className={cn(
-                      "relative w-full h-full flex justify-center items-center text-xl text-white",
-                      {
-                        "cursor-ew-resize": isDragging,
-                      }
-                    )}
-                  >
-                    <DraggingTimelineTooltip
-                      time={segment.start}
-                      direction="left"
-                      isDragging={isDragging}
-                    />
-                    {waveform ? (
-                      <Wavesurfer
-                        url={segment.data.src}
+        <TimelinePlayer />
+        <div className="flex gap-1 w-full">
+          <RowHeaderArea
+            data={data}
+            getRowHeader={({ id }, rowIndex) => {
+              return <div className="text">{`Row_#${rowIndex + 1}`}</div>;
+            }}
+          />
+          <Timeline
+            ref={timelineState}
+            scale={scaleState.scale}
+            scaleWidth={scaleState.scaleWidth}
+            startLeft={scaleState.startLeft}
+            scaleSplitCount={scaleState.scaleSplitCount}
+            onChange={(data) => {
+              setData(data as any);
+            }}
+            editorData={data}
+            effects={{
+              ...AudioPlayerEffect,
+              ...VideoPlayerEffect,
+            }}
+            autoScroll={true}
+            dragLine={true}
+            disableDrag={!dragMode}
+            getScaleRender={(second) => <ScaleRender second={second} />}
+            getSegmentRender={(segment: any, row, { isDragging }) => {
+              return (
+                <ContextMenu>
+                  <ContextMenuTrigger>
+                    <div
+                      className={cn(
+                        "relative w-full h-full flex justify-center items-center text-xl text-white",
+                        {
+                          "cursor-ew-resize": isDragging,
+                        }
+                      )}
+                    >
+                      <DraggingTimelineTooltip
+                        time={segment.start}
+                        direction="left"
                         isDragging={isDragging}
-                      ></Wavesurfer>
-                    ) : (
-                      <div className="w-full flex justify-start px-4">
-                        {segment.data.name}
-                      </div>
-                    )}
-                    <DraggingTimelineTooltip
-                      time={segment.end}
-                      direction="right"
-                      isDragging={isDragging}
-                    />
-                  </div>
-                </ContextMenuTrigger>
-                <ContextMenuContent>
-                  <ContextMenuItem
-                    onClick={() => {
-                      DataStoreUtil.deleteAndUpdateSegment({
-                        segment,
-                      });
-                    }}
-                  >
-                    Delete
-                  </ContextMenuItem>
-                  <ContextMenuSub>
-                    <ContextMenuSubTrigger>Copy</ContextMenuSubTrigger>
-                    <ContextMenuSubContent className="w-48">
-                      <ContextMenuItem
-                        onClick={() => {
-                          DataStoreUtil.copyAndUpdateSegment({
-                            segment,
-                            type: "newLine",
-                          });
-                        }}
-                      >
-                        Copy to new row
-                      </ContextMenuItem>
-                      <ContextMenuItem
-                        onClick={() => {
-                          DataStoreUtil.copyAndUpdateSegment({
-                            segment,
-                            type: "sameLine",
-                          });
-                        }}
-                      >
-                        Copy to same row
-                      </ContextMenuItem>
-                    </ContextMenuSubContent>
-                  </ContextMenuSub>
-                </ContextMenuContent>
-              </ContextMenu>
-            );
-          }}
-        />
+                      />
+                      {waveform ? (
+                        <Wavesurfer
+                          url={segment.data.src}
+                          isDragging={isDragging}
+                        ></Wavesurfer>
+                      ) : (
+                        <div className="w-full flex justify-start px-4">
+                          {segment.data.name}
+                        </div>
+                      )}
+                      <DraggingTimelineTooltip
+                        time={segment.end}
+                        direction="right"
+                        isDragging={isDragging}
+                      />
+                    </div>
+                  </ContextMenuTrigger>
+                  <ContextMenuContent>
+                    <ContextMenuItem
+                      onClick={() => {
+                        DataStoreUtil.deleteAndUpdateSegment({
+                          segment,
+                        });
+                      }}
+                    >
+                      Delete
+                    </ContextMenuItem>
+                    <ContextMenuSub>
+                      <ContextMenuSubTrigger>Copy</ContextMenuSubTrigger>
+                      <ContextMenuSubContent className="w-48">
+                        <ContextMenuItem
+                          onClick={() => {
+                            DataStoreUtil.copyAndUpdateSegment({
+                              segment,
+                              type: "newLine",
+                            });
+                          }}
+                        >
+                          Copy to new row
+                        </ContextMenuItem>
+                        <ContextMenuItem
+                          onClick={() => {
+                            DataStoreUtil.copyAndUpdateSegment({
+                              segment,
+                              type: "sameLine",
+                            });
+                          }}
+                        >
+                          Copy to same row
+                        </ContextMenuItem>
+                      </ContextMenuSubContent>
+                    </ContextMenuSub>
+                  </ContextMenuContent>
+                </ContextMenu>
+              );
+            }}
+          />
+        </div>
       </div>
-    </div>
+      <EventSubscriptor timelineState={timelineState} />
+    </>
   );
 }
 
