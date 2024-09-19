@@ -6,6 +6,7 @@ import useEngineStore from "../../store/EngineStore";
 import AutoscrollToggleButton from "./component/AutoscrollToggleButton";
 import PlaybackRateControlPopover from "./component/PlaybackRateControlPopover";
 import TimeViewer from "./component/TimeViewer";
+import WaveformToggleButton from "./component/WaveformToggleButton";
 
 const TimelinePlayer = () => {
   const isPlaying = useEngineStore((state) => state.isPlaying);
@@ -32,15 +33,18 @@ const TimelinePlayer = () => {
   return (
     <div className="flex gap-4 w-full items-center py-4">
       <div className="flex gap-1">
-        <Button variant="outline" size="icon" onClick={handlePlayOrPause}>
+        <Button size="icon" onClick={handlePlayOrPause}>
           {isPlaying ? <IoMdPause size={20} /> : <IoMdPlay size={20} />}
         </Button>
         <Button variant="outline" size="icon" onClick={handleStop}>
           <MdStop size={24} />
         </Button>
       </div>
-      <TimeViewer />
-      <div className="ml-auto flex items-center gap-1">
+      <div className="mx-auto">
+        <TimeViewer />
+      </div>
+      <div className="flex items-center gap-1">
+        <WaveformToggleButton />
         <AutoscrollToggleButton />
         <PlaybackRateControlPopover
           handleChange={handleRateChange}

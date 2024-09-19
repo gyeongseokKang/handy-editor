@@ -4,6 +4,7 @@ import { ITimelineEngine, TimelineEngine } from "../engine/engine";
 
 type State = {
   isPlaying: boolean;
+  isWaveformVisible: boolean;
   isAutoscroll: boolean;
   engine: ITimelineEngine;
 };
@@ -11,6 +12,7 @@ type State = {
 type Actions = {
   setIsPlaying: (isPlaying: State["isPlaying"]) => void;
   setIsAutoscroll: (isAutoscroll: State["isAutoscroll"]) => void;
+  setWaveformVisible: (isWaveformVisible: State["isWaveformVisible"]) => void;
   setEngine: (engine: State["engine"]) => void;
   reset: () => void;
 };
@@ -18,6 +20,7 @@ type Actions = {
 const initialState: State = {
   isPlaying: false,
   isAutoscroll: true,
+  isWaveformVisible: false,
   engine: new TimelineEngine(),
 };
 
@@ -31,6 +34,10 @@ const useEngineStore = create(
     setIsAutoscroll: (isAutoscroll) =>
       set((state) => {
         state.isAutoscroll = isAutoscroll;
+      }),
+    setWaveformVisible: (isWaveformVisible) =>
+      set((state) => {
+        state.isWaveformVisible = isWaveformVisible;
       }),
     setEngine: (engine) => set({ engine }),
     reset: () => set(initialState),

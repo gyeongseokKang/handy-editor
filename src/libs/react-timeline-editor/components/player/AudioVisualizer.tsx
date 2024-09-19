@@ -54,7 +54,7 @@ const AudioVisualizer: React.FC = () => {
 
       // 데시벨 막대 그리기 (데시벨 범위는 -100dB에서 0dB)
       const decibelHeight = ((avg + 100) / 100) * decibelCanvas.height; // -100dB에서 0dB로 스케일링
-      decibelCanvasCtx.fillStyle = "rgba(255, 0, 0, 1)";
+      decibelCanvasCtx.fillStyle = "#6D28D9";
       decibelCanvasCtx.fillRect(
         0,
         decibelCanvas.height - decibelHeight,

@@ -98,8 +98,9 @@
 }
 
 .timeline-editor-time-area {
-  position: relative;
   height: 32px;
+  background-color: #191b1d;
+  opacity: 0.9;
   flex: 0 0 auto;
 }
 
@@ -193,6 +194,7 @@
 
 .timeline-editor-edit-area .ReactVirtualized__Grid {
   outline: none !important;
+  background: #191b1d;
   /* overflow-y: hidden !important; */
   /* overflow: overlay !important; */
 }

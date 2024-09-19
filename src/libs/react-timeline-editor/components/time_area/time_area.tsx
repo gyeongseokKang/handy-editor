@@ -1,4 +1,5 @@
 import useOptionStore from "@/app/media-editor/store/OptionStore";
+import { cn } from "@/lib/utils";
 import { FC, useEffect, useRef, useState } from "react";
 import {
   AutoSizer,
@@ -149,7 +150,7 @@ export const TimeArea: FC<TimeAreaProps> = ({
   };
   const estColumnWidth = getColumnWidth({ index: 1 });
   return (
-    <div className={prefix("time-area")}>
+    <div className={cn(prefix("time-area"), "sticky w-full top-0 z-10")}>
       <AutoSizer>
         {({ width, height: audioSizerHeight }) => {
           const height = TIME_AREA_DEFAULT_HEIGHT || audioSizerHeight;
