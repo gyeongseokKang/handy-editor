@@ -107,6 +107,7 @@ export const EditSegment: FC<EditSegmentProps> = ({
   });
 
   const [isDragging, setIsDragging] = useState(false);
+  const [isResizing, setIsResizing] = useState(false);
 
   useLayoutEffect(() => {
     setTransform(
@@ -176,6 +177,7 @@ export const EditSegment: FC<EditSegmentProps> = ({
   };
 
   const handleResizeStart: RndResizeStartCallback = (dir) => {
+    setIsResizing(true);
     onSegmentResizeStart && onSegmentResizeStart({ segment, row, dir });
   };
 
@@ -194,6 +196,7 @@ export const EditSegment: FC<EditSegmentProps> = ({
   };
 
   const handleResizeEnd: RndResizeEndCallback = (dir, { left, width }) => {
+    setIsResizing(false);
     // 计算时间
     const { start, end } = parserTransformToTime(
       { left, width },
@@ -300,6 +303,7 @@ export const EditSegment: FC<EditSegmentProps> = ({
         {getSegmentRender &&
           getSegmentRender(nowSegment, nowRow, {
             isDragging: isDragging,
+            isResizing: isResizing,
           })}
         {flexible && <div className={prefix("segment-left-stretch")}></div>}
         {flexible && <div className={prefix("segment-right-stretch")} />}

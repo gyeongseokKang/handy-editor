@@ -82,7 +82,7 @@ export interface EditData {
   getSegmentRender?: (
     segment: TimelineSegment,
     row: TimelineRow,
-    { isDragging }: { isDragging: boolean }
+    { isDragging, isResizing }: { isDragging: boolean; isResizing: boolean }
   ) => ReactNode;
   /**
    * @description 사용자 정의 눈금 렌더링

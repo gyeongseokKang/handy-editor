@@ -1,5 +1,6 @@
 import useDataStore from "@/libs/react-timeline-editor/store/DataStore";
 import useEngineStore from "@/libs/react-timeline-editor/store/EngineStore";
+import { getTimeLabel } from "@/libs/react-timeline-editor/utils/timeUtils";
 import { useEffect, useMemo, useState } from "react";
 
 const TimeViewer = () => {
@@ -28,18 +29,13 @@ const TimeViewer = () => {
 
   return (
     <span className="flex gap-1 items-center">
-      <span className="min-w-20 flex justify-center">{getLabel(time)}</span>/
-      <span className="min-w-20 flex justify-center">{getLabel(lastTime)}</span>
+      <span className="min-w-20 flex justify-center">{getTimeLabel(time)}</span>
+      /
+      <span className="min-w-20 flex justify-center">
+        {getTimeLabel(lastTime)}
+      </span>
     </span>
   );
 };
 
 export default TimeViewer;
-
-const getLabel = (time: number) => {
-  const float = (parseInt((time % 1) * 100 + "") + "").padStart(2, "0");
-  const min = (parseInt(time / 60 + "") + "").padStart(2, "0");
-  const second = (parseInt((time % 60) + "") + "").padStart(2, "0");
-
-  return `${min}:${second}.${float.replace("0.", "")}`;
-};

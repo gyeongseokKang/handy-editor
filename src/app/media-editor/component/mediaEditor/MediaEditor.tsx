@@ -19,6 +19,7 @@ import { AudioPlayerEffect } from "@/libs/react-timeline-editor/components/playe
 import { VideoPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/videoPlayerEffect";
 
 import PathBreadcrumb from "@/components/common/PathBreadcrumb";
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
@@ -31,11 +32,11 @@ import ScaleRender from "@/libs/react-timeline-editor/components/time_area/Scale
 import VideoPlayer from "@/libs/react-timeline-editor/components/video_area/VideoPlayer";
 import Wavesurfer from "@/libs/react-timeline-editor/components/wave/Wavesurfer";
 import EventSubscriptor from "@/libs/react-timeline-editor/engine/EventSubscriptor";
-import { TimelineRow } from "@/libs/react-timeline-editor/interface/segment";
 import useDataStore, {
   DataStoreUtil,
 } from "@/libs/react-timeline-editor/store/DataStore";
 import useEngineStore from "@/libs/react-timeline-editor/store/EngineStore";
+import { getTimeLabel } from "@/libs/react-timeline-editor/utils/timeUtils";
 import { useRef, useState } from "react";
 import { GoSidebarExpand } from "react-icons/go";
 import { ImperativePanelHandle } from "react-resizable-panels";
@@ -144,7 +145,11 @@ export default function MediaEditor() {
                 dragLine={true}
                 disableDrag={false}
                 getScaleRender={(second) => <ScaleRender second={second} />}
-                getSegmentRender={(segment: any, row, { isDragging }) => {
+                getSegmentRender={(
+                  segment: any,
+                  row,
+                  { isDragging, isResizing }
+                ) => {
                   return (
                     <ContextMenu>
                       <ContextMenuTrigger>
@@ -159,6 +164,7 @@ export default function MediaEditor() {
                           <DraggingTimelineTooltip
                             time={segment.start}
                             direction="left"
+                            isResizing={isResizing}
                             isDragging={isDragging}
                           />
                           {isWaveformVisible ? (
@@ -174,7 +180,9 @@ export default function MediaEditor() {
                           <DraggingTimelineTooltip
                             time={segment.end}
                             direction="right"
+                            isResizing={isResizing}
                             isDragging={isDragging}
+                            duration={segment.end - segment.start}
                           />
                         </div>
                       </ContextMenuTrigger>
@@ -231,12 +239,16 @@ const DraggingTimelineTooltip = ({
   time,
   direction,
   isDragging,
+  isResizing,
+  duration,
 }: {
   time: number | string;
   direction: "left" | "right";
   isDragging: boolean;
+  isResizing: boolean;
+  duration?: number;
 }) => {
-  if (!isDragging) {
+  if (!isDragging && !isResizing) {
     return null;
   }
 
@@ -246,98 +258,31 @@ const DraggingTimelineTooltip = ({
 
   const renderTime =
     typeof time === "number"
-      ? time.toFixed(2)
+      ? time
       : isConvertibleToNumber(time)
-      ? Number(time).toFixed(2)
+      ? Number(time)
       : "-";
 
   return (
-    <div
-      className={cn(
-        `absolute text-sm bg-gray-500 text-white  px-1 rounded`,
-        direction === "left" ? "-left-6" : "-right-6"
+    <>
+      <Badge
+        className={cn(
+          `flex justify-center absolute text-xs  min-w-16`,
+          direction === "left" ? "-left-20 top-0" : "-right-20 bottom-0"
+        )}
+      >
+        {renderTime !== "-" && getTimeLabel(Number(renderTime))}
+      </Badge>
+      {duration && isResizing && (
+        <Badge
+          variant="secondary"
+          className={cn(
+            `flex justify-center absolute text-xs min-w-16 -right-20 top-0`
+          )}
+        >
+          {getTimeLabel(Number(duration))}
+        </Badge>
       )}
-    >
-      {renderTime}
-    </div>
+    </>
   );
 };
-
-export const sample: TimelineRow[] = [
-  // {
-  //   id: "row1",
-  //   segments: [
-  //     {
-  //       id: "최애의아이",
-  //       start: 0,
-  //       end: 226,
-  //       effectId: "audioPlayer",
-  //       data: {
-  //         id: "최애의아이",
-  //         src: "/audio/최애의아이.mp3",
-  //         name: "최애의아이",
-  //       },
-  //     },
-  //     // ...Array.from({ length: 20 }).map((_, i) => ({
-  //     //   id: `내손을잡아${i}`,
-  //     //   start: i * 5,
-  //     //   end: i * 5 + 5,
-  //     //   effectId: "audioPlayer",
-  //     //   data: {
-  //     //     id: `내손을잡아${i}`,
-  //     //     src: "/audio/내손을잡아.mp3",
-  //     //     name: `내손을잡아${i}`,
-  //     //   },
-  //     // })),
-  //   ],
-  // },
-  {
-    id: "row2",
-    segments: [
-      {
-        id: "video_18분짜리",
-        start: 10,
-        end: 1167,
-        effectId: "videoPlayer",
-        data: {
-          src: "/video/18분짜리 인터뷰.mp4",
-          name: "18분짜리 인터뷰",
-        },
-      },
-    ],
-  },
-
-  // ...Array.from({ length: 20 }).map((_, i) => ({
-  //   id: `${i + 2}`,
-  //   segments: [
-  //     {
-  //       id: `최애의아이${i}`,
-  //       start: i * 5,
-  //       end: i * 5 + 5,
-  //       effectId: "audioPlayer",
-  //       data: {
-  //         id: `최애의아이${i}`,
-  //         src: "/audio/최애의아이.mp3",
-  //         name: `최애의아이${i}`,
-  //       },
-  //     },
-  //   ],
-  // })),
-
-  // {
-  //   id: "3",
-  //   segments: [
-  //     {
-  //       id: "스트리밍",
-  //       start: 0,
-  //       end: 4008,
-  //       effectId: "audioStreammingPlayer",
-  //       data: {
-  //         src: "https://d2u3ecdp9u36hp.cloudfront.net/music_replacement/2/20240829/dQNsCjxEoE0EJ8w=/web_convert%2FStreetFoodFighterEp01_SOV.mp3",
-  //         peak: "https://d2u3ecdp9u36hp.cloudfront.net/music_replacement/2/20240829/dQNsCjxEoE0EJ8w=/web_convert%2FStreetFoodFighterEp01_SOV_48.json",
-  //         name: "스트리밍(1시간 6분 48초)",
-  //       },
-  //     },
-  //   ],
-  // },
-];
