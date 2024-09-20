@@ -1,5 +1,6 @@
 import { match } from "ts-pattern";
-import useOptionStore from "../../store/OptionStore";
+
+import useOptionStore from "@/app/store/OptionStore";
 import EditorOption from "./component/EditorOption";
 import RowOption from "./component/RowOption";
 import SegmentOption from "./component/SegmentOption";

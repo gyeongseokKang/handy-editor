@@ -16,22 +16,24 @@ type Actions = {
 
 const initialState: State = {
   timelineRowList: [
-    // {
-    //   id: "row1",
-    //   segments: [
-    //     {
-    //       id: "audio_18분짜리",
-    //       start: 0,
-    //       end: 1167,
-    //       effectId: "audioPlayer",
-    //       data: {
-    //         src: "/video/18min_mix_.wav",
-    //         name: "18min_mix_",
-    //         videoSrc: "/video/18min_mix_.wav",
+    // ...Array.from({ length: 20 }).map((_, index) => {
+    //   return {
+    //     id: "row" + index,
+    //     segments: [
+    //       {
+    //         id: "video_18분짜리" + index,
+    //         start: 0 + index * 10,
+    //         end: 100 + index * 10,
+    //         effectId: "videoPlayer",
+    //         data: {
+    //           src: "/video/18분짜리 인터뷰.mp4",
+    //           name: "18분짜리 인터뷰",
+    //           videoSrc: "/video/18분짜리 인터뷰.mp4",
+    //         },
     //       },
-    //     },
-    //   ],
-    // },
+    //     ],
+    //   };
+    // }),
     // {
     //   id: "row2",
     //   segments: [
@@ -44,6 +46,48 @@ const initialState: State = {
     //         src: "/video/18분짜리 인터뷰.mp4",
     //         name: "18분짜리 인터뷰",
     //         videoSrc: "/video/18분짜리 인터뷰.mp4",
+    //       },
+    //     },
+    //   ],
+    // },
+    {
+      id: "row1",
+      segments: [
+        {
+          id: "최애의아이",
+          start: 0,
+          end: 226,
+          effectId: "audioPlayer",
+          data: {
+            src: "/audio/최애의아이.mp3",
+            name: "최애의아이",
+          },
+        },
+        // ...Array.from({ length: 20 }).map((_, i) => ({
+        //   id: `내손을잡아${i}`,
+        //   start: i * 5,
+        //   end: i * 5 + 5,
+        //   effectId: "audioPlayer",
+        //   data: {
+        //     id: `내손을잡아${i}`,
+        //     src: "/audio/내손을잡아.mp3",
+        //     name: `내손을잡아${i}`,
+        //   },
+        // })),
+      ],
+    },
+    // {
+    //   id: "3",
+    //   segments: [
+    //     {
+    //       id: "스트리밍",
+    //       start: 0,
+    //       end: 4008,
+    //       effectId: "audioStreammingPlayer",
+    //       data: {
+    //         src: "https://d2u3ecdp9u36hp.cloudfront.net/music_replacement/2/20240829/dQNsCjxEoE0EJ8w=/web_convert%2FStreetFoodFighterEp01_SOV.mp3",
+    //         peak: "https://d2u3ecdp9u36hp.cloudfront.net/music_replacement/2/20240829/dQNsCjxEoE0EJ8w=/web_convert%2FStreetFoodFighterEp01_SOV_48.json",
+    //         name: "스트리밍(1시간 6분 48초)",
     //       },
     //     },
     //   ],

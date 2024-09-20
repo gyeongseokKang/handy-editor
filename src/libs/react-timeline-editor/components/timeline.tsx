@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
 /* eslint-disable react-hooks/exhaustive-deps */
-import useOptionStore from "@/app/media-editor/store/OptionStore";
+import useOptionStore from "@/app/store/OptionStore";
 import React, {
   useEffect,
   useImperativeHandle,

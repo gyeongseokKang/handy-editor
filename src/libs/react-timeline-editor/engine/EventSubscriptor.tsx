@@ -1,4 +1,4 @@
-import useOptionStore from "@/app/media-editor/store/OptionStore";
+import useOptionStore from "@/app/store/OptionStore";
 import { useEffect } from "react";
 import { TimelineState } from "../interface/timeline";
 import useEngineStore from "../store/EngineStore";

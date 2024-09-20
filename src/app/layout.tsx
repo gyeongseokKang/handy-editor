@@ -1,4 +1,3 @@
-import Sidebar from "@/components/common/Sidebar";
 import Topbar from "@/components/common/Topbar";
 import type { Metadata } from "next";
 import "./globals.css";
@@ -18,11 +17,10 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Provider>
-          <div className="flex flex-col">
+          <div className="flex flex-col h-dvh">
             <Topbar />
-            <div className="flex w-full">
-              <Sidebar />
-              <main className="p-2 w-full">{children}</main>
+            <div className="flex size-full">
+              <main className="p-2 size-full">{children}</main>
             </div>
           </div>
         </Provider>

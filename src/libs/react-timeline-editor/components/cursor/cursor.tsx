@@ -1,4 +1,4 @@
-import useOptionStore from "@/app/media-editor/store/OptionStore";
+import useOptionStore from "@/app/store/OptionStore";
 import React, { FC, useEffect, useRef } from "react";
 import { CommonProp } from "../../interface/common_prop";
 import useScrollStore from "../../store/ScrollStore";

@@ -18,7 +18,7 @@ import AudioVisualizer from "@/libs/react-timeline-editor/components/player/Audi
 import { AudioPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
 import { VideoPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/videoPlayerEffect";
 
-import PathBreadcrumb from "@/components/common/PathBreadcrumb";
+import useOptionStore from "@/app/store/OptionStore";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -40,9 +40,8 @@ import { getTimeLabel } from "@/libs/react-timeline-editor/utils/timeUtils";
 import { useRef, useState } from "react";
 import { GoSidebarExpand } from "react-icons/go";
 import { ImperativePanelHandle } from "react-resizable-panels";
-import useOptionStore from "../../store/OptionStore";
-import OptionSideBar from "../optionSideBar/OptionSideBar";
-import UploadButton from "./component/UploadButton";
+import MenuSidebar from "./component/menuSidebar/MenuSidebar";
+import OptionSideBar from "./component/optionSideBar/OptionSideBar";
 
 export default function MediaEditor() {
   const data = useDataStore((state) => state.timelineRowList);
@@ -65,14 +64,10 @@ export default function MediaEditor() {
       <ResizablePanelGroup direction="vertical">
         <ResizablePanel defaultSize={30}>
           <ResizablePanelGroup direction="horizontal" className="relative">
-            <ResizablePanel defaultSize={80}>
+            <MenuSidebar />
+            <ResizablePanel defaultSize={60}>
               <ScrollArea className="size-full rounded-md ">
-                <PathBreadcrumb />
                 <div className="py-1 flex gap-2">
-                  <div className="flex items-center space-x-2">
-                    <UploadButton />
-                  </div>
-
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="analyzer-mode"

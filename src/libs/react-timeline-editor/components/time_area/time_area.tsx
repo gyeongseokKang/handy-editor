@@ -1,4 +1,4 @@
-import useOptionStore from "@/app/media-editor/store/OptionStore";
+import useOptionStore from "@/app/store/OptionStore";
 import { cn } from "@/lib/utils";
 import { FC, useEffect, useRef, useState } from "react";
 import {
