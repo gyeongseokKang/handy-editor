@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useRef, useState } from "react";
+import { useLayoutEffect, useRef, useState } from "react";
 import { MdOutlineAudiotrack, MdOutlineFileUpload } from "react-icons/md";
 import { ImperativePanelHandle } from "react-resizable-panels";
 import { match } from "ts-pattern";
@@ -9,7 +9,7 @@ import UploadPanel from "./component/UploadPanel";
 
 const MenuSidebar = () => {
   const ref = useRef<ImperativePanelHandle>();
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isCollapsed, setIsCollapsed] = useState(true);
 
   const [currentMenu, setCurrentMenu] = useState("");
 
@@ -38,9 +38,15 @@ const MenuSidebar = () => {
     ref.current?.expand();
   };
 
+  useLayoutEffect(() => {
+    setTimeout(() => {
+      ref.current?.collapse();
+    }, 100);
+  }, []);
+
   return (
     <>
-      <div className="flex flex-col gap-2">
+      <div className="flex flex-col gap-2 pr-1">
         {menuList.map((menu) => {
           return (
             <div key={menu.label}>

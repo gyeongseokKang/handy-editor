@@ -89,7 +89,7 @@ export default function MediaEditor() {
             <ResizableHandle withHandle />
             <ResizablePanel
               ref={ref}
-              defaultValue={20}
+              defaultValue={0}
               collapsedSize={0}
               minSize={15}
               collapsible
