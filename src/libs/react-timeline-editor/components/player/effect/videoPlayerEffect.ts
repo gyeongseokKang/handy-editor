@@ -4,6 +4,7 @@ import { EffectSourceParam, TimelineEffect } from "../../../interface/effect";
 import videoControl from "../control/videoControl";
 
 export interface VideoPlayerEffect extends TimelineEffect {
+  id: "videoPlayer";
   source: {
     start?: (param: EffectSourceParam<VideoPlayerSegment>) => void;
     enter?: (param: EffectSourceParam<VideoPlayerSegment>) => void;

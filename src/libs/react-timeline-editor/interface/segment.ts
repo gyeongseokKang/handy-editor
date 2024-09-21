@@ -29,7 +29,7 @@ export interface TimelineSegmentBase {
   /** 동작 종료 시간 */
   end: number;
   /** 동작에 해당하는 effectId */
-  effectId: string;
+  effectId: "audioPlayer" | "videoPlayer";
 
   /** 동작이 선택되었는지 여부 */
   selected?: boolean;
@@ -51,6 +51,7 @@ export interface TimelineSegmentBase {
 }
 
 export interface AudioPlayerSegment extends TimelineSegmentBase {
+  effectId: "audioPlayer";
   data: {
     src: string;
     name: string;
@@ -60,6 +61,7 @@ export interface AudioPlayerSegment extends TimelineSegmentBase {
 }
 
 export interface VideoPlayerSegment extends TimelineSegmentBase {
+  effectId: "videoPlayer";
   data: {
     src: string;
     videoSrc: string;

@@ -4,6 +4,7 @@ import { EffectSourceParam, TimelineEffect } from "../../../interface/effect";
 import audioControl from "../control/audioControl";
 
 export interface AudioPlayerEffect extends TimelineEffect {
+  id: "audioPlayer";
   source: {
     start?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
     enter?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
@@ -25,6 +26,7 @@ const audioPlayerEffect: AudioPlayerEffect = {
           id,
           src,
           startTime: segment.start,
+          startOffset: segment.data.startOffset,
           engine,
           time,
           isLargefile,
@@ -39,6 +41,7 @@ const audioPlayerEffect: AudioPlayerEffect = {
           id,
           src,
           startTime: segment.start,
+          startOffset: segment.data.startOffset,
           engine,
           time,
         });

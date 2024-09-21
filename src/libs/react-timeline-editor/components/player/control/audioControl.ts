@@ -17,15 +17,17 @@ class AudioControl {
     engine: TimelineEngine;
     src: string;
     startTime: number;
+    startOffset: number;
     time: number;
     isLargefile?: boolean;
   }) {
-    const { id, src, startTime, time, engine, isLargefile } = data;
+    const { id, src, startTime, startOffset, time, engine, isLargefile } = data;
+    const seekTime = time - startTime + startOffset;
     let item: Howl;
     if (this.cacheMap[id]) {
       item = this.cacheMap[id];
       item.rate(engine.getPlayRate());
-      item.seek(time - startTime);
+      item.seek(seekTime);
       item.play();
     } else {
       item = new Howl({
@@ -39,16 +41,17 @@ class AudioControl {
       item.on("load", () => {
         this.connectAnalyser(item);
         item.rate(engine.getPlayRate());
-        item.seek(time - startTime);
+        item.seek(seekTime);
       });
     }
 
     const timeListener = (data: { time: number }) => {
       const { time } = data;
-      if (time - startTime < 0) {
+      const seekTime = time - startTime + startOffset;
+      if (seekTime < 0) {
         delete this.listenerMap[id];
       } else {
-        item.seek(time - startTime);
+        item.seek(seekTime);
       }
     };
     const rateListener = (data: { rate: number }) => {

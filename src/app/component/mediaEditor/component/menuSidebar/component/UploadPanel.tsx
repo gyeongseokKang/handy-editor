@@ -148,7 +148,7 @@ const handleAudio = (file: File) => {
     audio.onloadedmetadata = () => {
       const newTimelineRow = DataStoreUtil.makeTimelineRow();
       newTimelineRow.segments.push({
-        id: "audioPlayer" + crypto.randomUUID(),
+        id: "audioPlayer_" + crypto.randomUUID(),
         start: 0,
         end: audio.duration, // 오디오의 duration 사용
         effectId: "audioPlayer",
@@ -187,7 +187,7 @@ const handleLargeAudioFile = (file: File) => {
       audio.onloadedmetadata = () => {
         const newTimelineRow = DataStoreUtil.makeTimelineRow();
         newTimelineRow.segments.push({
-          id: "audioPlayer" + crypto.randomUUID(),
+          id: "audioPlayer_" + crypto.randomUUID(),
           start: 0,
           end: audio.duration, // 오디오의 duration 사용
           effectId: "audioPlayer",
@@ -254,7 +254,7 @@ const handleVideo = (file: File) => {
     audio.onloadedmetadata = () => {
       const newTimelineRow = DataStoreUtil.makeTimelineRow();
       newTimelineRow.segments.push({
-        id: "videoPlayer" + crypto.randomUUID(),
+        id: "videoPlayer_" + crypto.randomUUID(),
         start: 0,
         end: audio.duration,
         effectId: "videoPlayer",
