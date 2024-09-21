@@ -11,7 +11,7 @@ const TimeViewer = () => {
   const lastTime = useMemo(() => {
     return timelineRowList.reduce((acc, row) => {
       const lastSegment = [...row.segments].sort((a, b) => b.end - a.end)[0];
-      return Math.max(acc, lastSegment.end);
+      return Math.max(acc, lastSegment?.end);
     }, 0);
   }, [timelineRowList]);
 
