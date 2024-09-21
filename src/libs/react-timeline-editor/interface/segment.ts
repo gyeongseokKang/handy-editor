@@ -47,12 +47,14 @@ export interface TimelineSegmentBase {
 
   /** 동작dml 드래그 여부*/
   isDragging?: boolean;
+  data: any;
 }
 
 export interface AudioPlayerSegment extends TimelineSegmentBase {
   data: {
     src: string;
     name: string;
+    startOffset: number;
     isLargefile?: boolean;
   };
 }
@@ -61,6 +63,7 @@ export interface VideoPlayerSegment extends TimelineSegmentBase {
   data: {
     src: string;
     videoSrc: string;
+    startOffset: number;
     name: string;
   };
 }

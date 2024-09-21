@@ -24,9 +24,10 @@ class VideoControl {
     engine: TimelineEngine;
     src: string;
     startTime: number;
+    startOffset: number;
     time: number;
   }) {
-    const { id, src, startTime, time, engine } = data;
+    const { id, src, startTime, time, engine, startOffset } = data;
     let audioItem: Howl;
     let videoItem: HTMLVideoElement;
     let analyserNode: AnalyserNode;
@@ -47,15 +48,19 @@ class VideoControl {
       };
     }
 
+    const seekTime = time - startTime + startOffset;
+
+    console.log("seekTime", time, startTime, startOffset);
     audioItem.rate(engine.getPlayRate());
-    audioItem.seek(time - startTime);
+    audioItem.seek(seekTime);
     audioItem.play();
-    videoItem.currentTime = time - startTime;
+    videoItem.currentTime = seekTime;
     videoItem.play();
     const timeListener = (data: { time: number }) => {
       const { time } = data;
-      audioItem.seek(time - startTime);
-      videoItem.currentTime = time - startTime;
+      const seekTime = time - startTime + startOffset;
+      audioItem.seek(seekTime);
+      videoItem.currentTime = seekTime;
     };
     const rateListener = (data: { rate: number }) => {
       const { rate } = data;
@@ -65,13 +70,15 @@ class VideoControl {
 
     const timeUpdateListener = (data: { currentTime: number }) => {
       const { currentTime } = data;
-      const currentVideoTimeOffset = videoItem.currentTime + startTime;
+      const currentVideoTimeOffset =
+        videoItem.currentTime + startTime - startOffset;
 
       if (
-        currentTime - startTime > 0 &&
+        seekTime > 0 &&
         Math.abs(currentTime - currentVideoTimeOffset) > 0.25
       ) {
-        videoItem.currentTime = currentTime - startTime;
+        const seekTime = currentTime - startTime + startOffset;
+        videoItem.currentTime = seekTime;
       }
     };
 
@@ -85,14 +92,16 @@ class VideoControl {
     videoItem.addEventListener("load", () => {
       videoItem.playbackRate = engine.getPlayRate();
       if (time - startTime > 0) {
-        videoItem.currentTime = time - startTime;
+        const seekTime = time - startTime + startOffset;
+        videoItem.currentTime = seekTime;
       }
     });
     audioItem.on("load", () => {
       const currentTime = engine.getTime();
+      const seekTime = currentTime - startTime + startOffset;
       audioItem.rate(engine.getPlayRate());
-      audioItem.seek(currentTime - startTime);
-      videoItem.currentTime = currentTime - startTime;
+      audioItem.seek(seekTime);
+      videoItem.currentTime = seekTime;
       this.connectAnalyser(audioItem);
     });
     this.listenerMap[id].time = timeListener;
@@ -143,11 +152,17 @@ class VideoControl {
     isPlaying: boolean;
     time: number;
     startTime: number;
+    startOffset: number;
   }) {
-    const { id, isPlaying, time, startTime } = data;
+    const { id, isPlaying, time, startTime, startOffset } = data;
     if (!isPlaying) {
       const videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
-      videoItem.currentTime = time - startTime;
+      if (!videoItem) {
+        return;
+      }
+
+      const seekTime = time - startTime + startOffset;
+      videoItem.currentTime = seekTime;
     }
   }
 

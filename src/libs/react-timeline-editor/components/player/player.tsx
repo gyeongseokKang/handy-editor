@@ -5,6 +5,7 @@ import { MdStop } from "react-icons/md";
 import useEngineStore from "../../store/EngineStore";
 import AutoscrollToggleButton from "./component/AutoscrollToggleButton";
 import PlaybackRateControlPopover from "./component/PlaybackRateControlPopover";
+import SegmentSplitButton from "./component/SegmentSplitButton";
 import TimeViewer from "./component/TimeViewer";
 import WaveformToggleButton from "./component/WaveformToggleButton";
 
@@ -40,6 +41,7 @@ const TimelinePlayer = () => {
           <MdStop size={24} />
         </Button>
       </div>
+      <SegmentSplitButton />
       <div className="mx-auto">
         <TimeViewer />
       </div>

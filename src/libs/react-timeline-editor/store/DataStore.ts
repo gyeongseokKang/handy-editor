@@ -4,17 +4,20 @@ import { DEFAULT_ROW_HEIGHT } from "../interface/const";
 import { TimelineRow, TimelineSegment } from "../interface/segment";
 
 type State = {
+  selectedSegmentList: TimelineSegment[];
   timelineRowList: TimelineRow[];
 };
 
 type Actions = {
   setTimelineRowList: (timelineRowList: State["timelineRowList"]) => void;
   addTimelineRow: (timelineRow: TimelineRow) => void;
+  selectSegment: (segment: TimelineSegment) => void;
   updateSegment: (segment: TimelineSegment) => void;
   reset: () => void;
 };
 
 const initialState: State = {
+  selectedSegmentList: [],
   timelineRowList: [
     // ...Array.from({ length: 20 }).map((_, index) => {
     //   return {
@@ -34,48 +37,49 @@ const initialState: State = {
     //     ],
     //   };
     // }),
-    // {
-    //   id: "row2",
-    //   segments: [
-    //     {
-    //       id: "video_18분짜리",
-    //       start: 0,
-    //       end: 1167,
-    //       effectId: "videoPlayer",
-    //       data: {
-    //         src: "/video/18분짜리 인터뷰.mp4",
-    //         name: "18분짜리 인터뷰",
-    //         videoSrc: "/video/18분짜리 인터뷰.mp4",
-    //       },
-    //     },
-    //   ],
-    // },
     {
-      id: "row1",
+      id: "row2",
       segments: [
         {
-          id: "최애의아이",
+          id: "video_18분짜리",
           start: 0,
-          end: 226,
-          effectId: "audioPlayer",
+          end: 1167,
+          effectId: "videoPlayer",
           data: {
-            src: "/audio/최애의아이.mp3",
-            name: "최애의아이",
+            startOffset: 0,
+            src: "/video/18분짜리 인터뷰.mp4",
+            name: "18분짜리 인터뷰",
+            videoSrc: "/video/18분짜리 인터뷰.mp4",
           },
         },
-        // ...Array.from({ length: 20 }).map((_, i) => ({
-        //   id: `내손을잡아${i}`,
-        //   start: i * 5,
-        //   end: i * 5 + 5,
-        //   effectId: "audioPlayer",
-        //   data: {
-        //     id: `내손을잡아${i}`,
-        //     src: "/audio/내손을잡아.mp3",
-        //     name: `내손을잡아${i}`,
-        //   },
-        // })),
       ],
     },
+    // {
+    //   id: "row1",
+    //   segments: [
+    //     {
+    //       id: "최애의아이",
+    //       start: 0,
+    //       end: 226,
+    //       effectId: "audioPlayer",
+    //       data: {
+    //         src: "/audio/최애의아이.mp3",
+    //         name: "최애의아이",
+    //       },
+    //     },
+    //     // ...Array.from({ length: 20 }).map((_, i) => ({
+    //     //   id: `내손을잡아${i}`,
+    //     //   start: i * 5,
+    //     //   end: i * 5 + 5,
+    //     //   effectId: "audioPlayer",
+    //     //   data: {
+    //     //     id: `내손을잡아${i}`,
+    //     //     src: "/audio/내손을잡아.mp3",
+    //     //     name: `내손을잡아${i}`,
+    //     //   },
+    //     // })),
+    //   ],
+    // },
     // {
     //   id: "3",
     //   segments: [
@@ -98,6 +102,31 @@ const initialState: State = {
 const useDataStore = create(
   immer<State & Actions>((set) => ({
     ...initialState,
+    selectSegment: (segment) =>
+      set((state) => {
+        state.selectedSegmentList = [segment];
+        // if (state.selectedSegmentList.length === 0) {
+        //   state.selectedSegmentList.push(segment);
+        //   return;
+        // }
+
+        // const prevSelectedRow = state.timelineRowList.find((row) =>
+        //   row.segments.find((seg) => seg.id === state.selectedSegmentList[0].id)
+        // );
+        // const selectedRow = state.timelineRowList.find((row) =>
+        //   row.segments.find((seg) => seg.id === segment.id)
+        // );
+        // if (prevSelectedRow !== selectedRow) {
+        //   state.selectedSegmentList = [segment];
+        //   return;
+        // }
+
+        // if (state.selectedSegmentList.find((seg) => seg.id === segment.id)) {
+        //   return;
+        // }
+
+        // state.selectedSegmentList.push(segment);
+      }),
     setTimelineRowList: (timelineRowList) =>
       set((state) => {
         state.timelineRowList = timelineRowList;
@@ -217,6 +246,50 @@ export class DataStoreUtil {
     useDataStore.getState().updateSegment(segment);
   }
 
+  static selectSegment(segment: TimelineSegment) {
+    useDataStore.getState().selectSegment(segment);
+  }
+
+  static splitSegment({
+    segment,
+    splitTime,
+  }: {
+    segment: TimelineSegment;
+    splitTime: number;
+  }) {
+    const newSegment = { ...segment, end: splitTime };
+    const newSegment2 = {
+      ...segment,
+      start: splitTime,
+      data: {
+        ...segment.data,
+        startOffset: splitTime,
+      },
+      id: "split_" + crypto.randomUUID(),
+    };
+    const timelineRowList = useDataStore.getState().timelineRowList;
+    const newTimelineRowList = timelineRowList.map((row) => {
+      return {
+        ...row,
+        segments: row.segments.map((seg) => {
+          if (seg.id === segment.id) {
+            return newSegment;
+          }
+          return seg;
+        }),
+      };
+    });
+
+    newTimelineRowList.forEach((row) => {
+      if (row.segments.find((seg) => seg.id === segment.id)) {
+        row.segments.push(newSegment2);
+      }
+    });
+
+    console.log("newTimelineRowList", newTimelineRowList);
+    useDataStore.getState().setTimelineRowList(newTimelineRowList);
+  }
+
   static dragAndUpdateSegment({
     segment,
     start,
@@ -227,6 +300,7 @@ export class DataStoreUtil {
     end: number;
   }) {
     const newSegment = DataStoreUtil.dragSegment({ segment, start, end });
+    DataStoreUtil.selectSegment(newSegment);
     DataStoreUtil.updateSegment(newSegment);
   }
 }

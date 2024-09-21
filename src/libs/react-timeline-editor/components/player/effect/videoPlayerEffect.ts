@@ -25,6 +25,7 @@ const videoPlayerEffect: VideoPlayerEffect = {
           id,
           src,
           startTime: segment.start,
+          startOffset: segment.data.startOffset,
           engine,
           time,
         });
@@ -38,6 +39,7 @@ const videoPlayerEffect: VideoPlayerEffect = {
           id,
           src,
           startTime: segment.start,
+          startOffset: segment.data.startOffset,
           engine,
           time,
         });
@@ -60,6 +62,7 @@ const videoPlayerEffect: VideoPlayerEffect = {
         isPlaying,
         time: time,
         startTime: segment.start,
+        startOffset: segment.data.startOffset,
       });
     },
   },

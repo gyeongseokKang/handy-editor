@@ -10,7 +10,7 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
   const videoRef = useRef<(HTMLVideoElement | null)[]>([]);
 
   const videoEditData = editData.filter((item) =>
-    item.segments.every((segment) => segment.effectId === "videoPlayer")
+    item.segments.some((segment) => segment.effectId === "videoPlayer")
   );
 
   return (
@@ -28,10 +28,12 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
         </div>
       )}
       {videoEditData.map((video, index) => {
-        if (video.segments?.length === 0) return null;
-        if ("data" in video.segments[0] === false) return null;
-        const { id, data } = video.segments?.[0];
-        if ("videoSrc" in data) {
+        return video.segments.map((segment) => {
+          if (!("data" in segment)) return null;
+
+          const { id, data } = segment;
+          if (!("videoSrc" in data)) return null;
+
           return (
             <SegmentVideoPlayer
               key={id}
@@ -42,9 +44,7 @@ const VideoPlayer = ({ editData }: VideoPlayerProps) => {
               label={data.name}
             />
           );
-        }
-
-        return null;
+        });
       })}
     </div>
   );
@@ -73,6 +73,7 @@ const SegmentVideoPlayer = forwardRef<
         style={{
           visibility: "hidden",
         }}
+        controls
         preload="metadata"
         className="z-10 object-cover aspect-video absolute w-full"
         muted

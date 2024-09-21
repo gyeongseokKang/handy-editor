@@ -10,9 +10,7 @@ const TimeViewer = () => {
 
   const lastTime = useMemo(() => {
     return timelineRowList.reduce((acc, row) => {
-      const lastSegment = row.segments.sort(
-        (a, b) => b.end + b.start - a.end + a.start
-      )[0];
+      const lastSegment = [...row.segments].sort((a, b) => b.end - a.end)[0];
       return Math.max(acc, lastSegment.end);
     }, 0);
   }, [timelineRowList]);
@@ -25,6 +23,11 @@ const TimeViewer = () => {
     engine.on("afterSetTime", ({ time }) => {
       setTime(time);
     });
+
+    return () => {
+      engine.off("setTimeByTick");
+      engine.off("afterSetTime");
+    };
   }, [engine]);
 
   return (

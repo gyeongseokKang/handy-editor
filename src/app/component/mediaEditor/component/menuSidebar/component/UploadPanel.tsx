@@ -153,6 +153,7 @@ const handleAudio = (file: File) => {
         end: audio.duration, // 오디오의 duration 사용
         effectId: "audioPlayer",
         data: {
+          startOffset: 0,
           src: data, // DataURL 그대로 사용
           name: file.name,
         },
@@ -193,6 +194,7 @@ const handleLargeAudioFile = (file: File) => {
           data: {
             src: audioUrl, // Blob URL 사용
             name: file.name,
+            startOffset: 0,
             isLargefile: true,
           },
           isDragging: false,
@@ -259,6 +261,7 @@ const handleVideo = (file: File) => {
         data: {
           src: `data:${contentType};base64,${base64Str}`,
           videoSrc: videoSrc,
+          startOffset: 0,
           name: file.name,
         },
         isDragging: false,

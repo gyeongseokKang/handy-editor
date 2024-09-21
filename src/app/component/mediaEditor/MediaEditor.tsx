@@ -1,17 +1,7 @@
 "use client";
 
-import {
-  ContextMenu,
-  ContextMenuContent,
-  ContextMenuItem,
-  ContextMenuSub,
-  ContextMenuSubContent,
-  ContextMenuSubTrigger,
-  ContextMenuTrigger,
-} from "@/components/ui/context-menu";
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
-import { cn } from "@/lib/utils";
 import { Timeline, TimelineState } from "@/libs/react-timeline-editor";
 import RowHeaderArea from "@/libs/react-timeline-editor/components/header_area/RowHeaderArea";
 import AudioVisualizer from "@/libs/react-timeline-editor/components/player/AudioVisualizer";
@@ -19,7 +9,6 @@ import { AudioPlayerEffect } from "@/libs/react-timeline-editor/components/playe
 import { VideoPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/videoPlayerEffect";
 
 import useOptionStore from "@/app/store/OptionStore";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
   ResizableHandle,
@@ -28,15 +17,12 @@ import {
 } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import TimelinePlayer from "@/libs/react-timeline-editor/components/player/player";
+import Segment from "@/libs/react-timeline-editor/components/segment/Segment";
 import ScaleRender from "@/libs/react-timeline-editor/components/time_area/ScaleRender";
 import VideoPlayer from "@/libs/react-timeline-editor/components/video_area/VideoPlayer";
-import Wavesurfer from "@/libs/react-timeline-editor/components/wave/Wavesurfer";
 import EventSubscriptor from "@/libs/react-timeline-editor/engine/EventSubscriptor";
-import useDataStore, {
-  DataStoreUtil,
-} from "@/libs/react-timeline-editor/store/DataStore";
+import useDataStore from "@/libs/react-timeline-editor/store/DataStore";
 import useEngineStore from "@/libs/react-timeline-editor/store/EngineStore";
-import { getTimeLabel } from "@/libs/react-timeline-editor/utils/timeUtils";
 import { useRef, useState } from "react";
 import { GoSidebarExpand } from "react-icons/go";
 import { ImperativePanelHandle } from "react-resizable-panels";
@@ -141,83 +127,17 @@ export default function MediaEditor() {
                 disableDrag={false}
                 getScaleRender={(second) => <ScaleRender second={second} />}
                 getSegmentRender={(
-                  segment: any,
+                  segment,
                   row,
                   { isDragging, isResizing }
                 ) => {
                   return (
-                    <ContextMenu>
-                      <ContextMenuTrigger>
-                        <div
-                          className={cn(
-                            "relative w-full h-full flex justify-center items-center text-xl text-white",
-                            {
-                              "cursor-ew-resize": isDragging,
-                            }
-                          )}
-                        >
-                          <DraggingTimelineTooltip
-                            time={segment.start}
-                            direction="left"
-                            isResizing={isResizing}
-                            isDragging={isDragging}
-                          />
-                          {isWaveformVisible ? (
-                            <Wavesurfer
-                              url={segment.data.src}
-                              isDragging={isDragging}
-                            ></Wavesurfer>
-                          ) : (
-                            <div className="w-full flex justify-start px-4">
-                              {segment.data.name}
-                            </div>
-                          )}
-                          <DraggingTimelineTooltip
-                            time={segment.end}
-                            direction="right"
-                            isResizing={isResizing}
-                            isDragging={isDragging}
-                            duration={segment.end - segment.start}
-                          />
-                        </div>
-                      </ContextMenuTrigger>
-                      <ContextMenuContent>
-                        <ContextMenuItem
-                          onClick={() => {
-                            DataStoreUtil.deleteAndUpdateSegment({
-                              segment,
-                            });
-                          }}
-                        >
-                          Delete
-                        </ContextMenuItem>
-                        <ContextMenuSub>
-                          <ContextMenuSubTrigger>Copy</ContextMenuSubTrigger>
-                          <ContextMenuSubContent className="w-48">
-                            <ContextMenuItem
-                              onClick={() => {
-                                DataStoreUtil.copyAndUpdateSegment({
-                                  segment,
-                                  type: "newLine",
-                                });
-                              }}
-                            >
-                              Copy to new row
-                            </ContextMenuItem>
-                            <ContextMenuItem
-                              onClick={() => {
-                                DataStoreUtil.copyAndUpdateSegment({
-                                  segment,
-                                  type: "sameLine",
-                                });
-                              }}
-                            >
-                              Copy to same row
-                            </ContextMenuItem>
-                          </ContextMenuSubContent>
-                        </ContextMenuSub>
-                      </ContextMenuContent>
-                    </ContextMenu>
+                    <Segment
+                      segment={segment}
+                      row={row}
+                      isDragging={isDragging}
+                      isResizing={isResizing}
+                    />
                   );
                 }}
               />
@@ -229,55 +149,3 @@ export default function MediaEditor() {
     </>
   );
 }
-
-const DraggingTimelineTooltip = ({
-  time,
-  direction,
-  isDragging,
-  isResizing,
-  duration,
-}: {
-  time: number | string;
-  direction: "left" | "right";
-  isDragging: boolean;
-  isResizing: boolean;
-  duration?: number;
-}) => {
-  if (!isDragging && !isResizing) {
-    return null;
-  }
-
-  function isConvertibleToNumber(value) {
-    return !isNaN(Number(value));
-  }
-
-  const renderTime =
-    typeof time === "number"
-      ? time
-      : isConvertibleToNumber(time)
-      ? Number(time)
-      : "-";
-
-  return (
-    <>
-      <Badge
-        className={cn(
-          `flex justify-center absolute text-xs  min-w-16`,
-          direction === "left" ? "-left-20 top-0" : "-right-20 bottom-0"
-        )}
-      >
-        {renderTime !== "-" && getTimeLabel(Number(renderTime))}
-      </Badge>
-      {duration && isResizing && (
-        <Badge
-          variant="secondary"
-          className={cn(
-            `flex justify-center absolute text-xs min-w-16 -right-20 top-0`
-          )}
-        >
-          {getTimeLabel(Number(duration))}
-        </Badge>
-      )}
-    </>
-  );
-};
