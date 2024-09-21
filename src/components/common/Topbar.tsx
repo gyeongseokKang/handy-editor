@@ -4,7 +4,7 @@ import { ToggleThemeButton } from "./ToggleThemeButton";
 
 const Topbar = () => {
   return (
-    <header className="bg-gray-900 p-4 text-white h-16 flex items-center">
+    <header className="p-4 h-16 flex items-center shadow">
       <Link href="/">
         <h1 className="text-xl font-bold">Online Media Editor</h1>
       </Link>

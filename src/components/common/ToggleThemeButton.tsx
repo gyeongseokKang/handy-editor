@@ -18,7 +18,7 @@ export function ToggleThemeButton() {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="dark">
+        <Button variant="outline" size="icon">
           {isDark ? (
             <MoonIcon className="h-[1.2rem] w-[1.2rem]" />
           ) : (
