@@ -16,9 +16,64 @@ type Actions = {
   reset: () => void;
 };
 
+const aa: TimelineRow[] = Array.from({ length: 100 }).map((_, index) => {
+  return {
+    id: "row" + index,
+    segments: [
+      {
+        id: "내손을잡아" + index,
+        start: 0 + index * 50,
+        end: 202 + index * 50,
+        effectId: "audioPlayer",
+        data: {
+          startOffset: 0,
+          src: "/audio/내손을잡아.mp3",
+          name: "내손을잡아",
+          videoSrc: "/audio/내손을잡아.mp3",
+        },
+      },
+    ],
+  };
+});
+
 const initialState: State = {
   selectedSegmentList: [],
   timelineRowList: [
+    // {
+    //   id: "row1",
+    //   segments: Array.from({ length: 40 }).map((_, i) => {
+    //     return {
+    //       id: "내손을잡아" + i,
+    //       start: 50 + i * 50,
+    //       end: 202 + i * 50,
+    //       effectId: "audioPlayer",
+    //       data: {
+    //         startOffset: 0,
+    //         src: "/audio/내손을잡아.mp3",
+    //         name: "내손을잡아",
+    //         videoSrc: "/audio/내손을잡아.mp3",
+    //       },
+    //     };
+    //   }),
+    // },
+    // ...aa,
+    // {
+    //   id: "row1",
+    //   segments: [
+    //     {
+    //       id: "내손을잡아",
+    //       start: 0,
+    //       end: 202,
+    //       effectId: "audioPlayer",
+    //       data: {
+    //         startOffset: 0,
+    //         src: "/audio/내손을잡아.mp3",
+    //         name: "내손을잡아",
+    //         videoSrc: "/audio/내손을잡아.mp3",
+    //       },
+    //     },
+    //   ],
+    // },
     // ...Array.from({ length: 20 }).map((_, index) => {
     //   return {
     //     id: "row" + index,
@@ -37,23 +92,23 @@ const initialState: State = {
     //     ],
     //   };
     // }),
-    {
-      id: "row2",
-      segments: [
-        {
-          id: "video_18분짜리",
-          start: 0,
-          end: 1167,
-          effectId: "videoPlayer",
-          data: {
-            startOffset: 0,
-            src: "/video/18분짜리 인터뷰.mp4",
-            name: "18분짜리 인터뷰",
-            videoSrc: "/video/18분짜리 인터뷰.mp4",
-          },
-        },
-      ],
-    },
+    // {
+    //   id: "row2",
+    //   segments: [
+    //     {
+    //       id: "video_18분짜리",
+    //       start: 0,
+    //       end: 1167,
+    //       effectId: "videoPlayer",
+    //       data: {
+    //         startOffset: 0,
+    //         src: "/video/18분짜리 인터뷰.mp4",
+    //         name: "18분짜리 인터뷰",
+    //         videoSrc: "/video/18분짜리 인터뷰.mp4",
+    //       },
+    //     },
+    //   ],
+    // },
     // {
     //   id: "row1",
     //   segments: [
@@ -67,17 +122,6 @@ const initialState: State = {
     //         name: "최애의아이",
     //       },
     //     },
-    //     // ...Array.from({ length: 20 }).map((_, i) => ({
-    //     //   id: `내손을잡아${i}`,
-    //     //   start: i * 5,
-    //     //   end: i * 5 + 5,
-    //     //   effectId: "audioPlayer",
-    //     //   data: {
-    //     //     id: `내손을잡아${i}`,
-    //     //     src: "/audio/내손을잡아.mp3",
-    //     //     name: `내손을잡아${i}`,
-    //     //   },
-    //     // })),
     //   ],
     // },
     // {
@@ -178,9 +222,7 @@ export class DataStoreUtil {
     segment: TimelineSegment;
     type: "newLine" | "sameLine";
   }) {
-    const timelineRowList = structuredClone(
-      useDataStore.getState().timelineRowList
-    );
+    const timelineRowList = [...useDataStore.getState().timelineRowList];
 
     if (type === "newLine") {
       const newTimelineRow = DataStoreUtil.makeTimelineRow();

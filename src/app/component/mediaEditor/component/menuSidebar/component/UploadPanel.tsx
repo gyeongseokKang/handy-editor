@@ -2,6 +2,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useToast } from "@/hooks/use-toast";
+import {
+  AudioPlayerSegment,
+  VideoPlayerSegment,
+} from "@/libs/react-timeline-editor/interface/segment";
 import useDataStore, {
   DataStoreUtil,
 } from "@/libs/react-timeline-editor/store/DataStore";
@@ -145,9 +149,17 @@ const handleAudio = (file: File) => {
     audio.src = data; // DataURL을 오디오 소스로 설정
 
     // 메타데이터가 로드되면 duration을 가져옴
-    audio.onloadedmetadata = () => {
+    audio.onloadedmetadata = async () => {
+      // get audiobuffer form audio
+      // Decode the audio data into an AudioBuffer
+      const audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
+
+      const arrayBuffer = await fetch(data).then((res) => res.arrayBuffer());
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
       const newTimelineRow = DataStoreUtil.makeTimelineRow();
-      newTimelineRow.segments.push({
+      const newSegment: AudioPlayerSegment = {
         id: "audioPlayer_" + crypto.randomUUID(),
         start: 0,
         end: audio.duration, // 오디오의 duration 사용
@@ -156,10 +168,12 @@ const handleAudio = (file: File) => {
           startOffset: 0,
           src: data, // DataURL 그대로 사용
           name: file.name,
+          audioBuffer: audioBuffer, // AudioBuffer 추가
+          volume: 100,
         },
         isDragging: false,
-      });
-
+      };
+      newTimelineRow.segments.push(newSegment);
       // 데이터스토어에 추가
       useDataStore.getState().addTimelineRow(newTimelineRow);
     };
@@ -184,22 +198,31 @@ const handleLargeAudioFile = (file: File) => {
       audio.src = audioUrl; // Blob URL을 오디오 소스로 설정
 
       // 메타데이터가 로드되면 duration을 가져옴
-      audio.onloadedmetadata = () => {
+      audio.onloadedmetadata = async () => {
+        const audioContext = new (window.AudioContext ||
+          (window as any).webkitAudioContext)();
+
+        const arrayBuffer = await fetch(audioUrl).then((res) =>
+          res.arrayBuffer()
+        );
+        const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+
         const newTimelineRow = DataStoreUtil.makeTimelineRow();
-        newTimelineRow.segments.push({
+        const newSegment: AudioPlayerSegment = {
           id: "audioPlayer_" + crypto.randomUUID(),
           start: 0,
           end: audio.duration, // 오디오의 duration 사용
           effectId: "audioPlayer",
           data: {
-            src: audioUrl, // Blob URL 사용
-            name: file.name,
             startOffset: 0,
-            isLargefile: true,
+            src: audioUrl, // DataURL 그대로 사용
+            name: file.name,
+            audioBuffer: audioBuffer, // AudioBuffer 추가
+            volume: 100,
           },
           isDragging: false,
-        });
-
+        };
+        newTimelineRow.segments.push(newSegment);
         // 데이터스토어에 추가
         useDataStore.getState().addTimelineRow(newTimelineRow);
       };
@@ -236,38 +259,93 @@ const handleLargeAudioFile = (file: File) => {
 const handleVideo = (file: File) => {
   const fileReader = new FileReader();
   fileReader.addEventListener("load", (e) => {
-    const arrayBuffer = e.target.result as ArrayBuffer;
-
-    // 파일의 MIME 타입을 가져와서 사용할 수 있도록 처리
-    const contentType = "audio/mp3"; // 기본값으로 mp4 설정
-
-    const base64Str = Buffer.from(arrayBuffer).toString("base64");
-
-    const videoSrc = URL.createObjectURL(
-      new Blob([arrayBuffer], { type: contentType })
-    );
-
+    const data = fileReader.result as string;
+    // 오디오 객체 생성
     const audio = new Audio();
-    audio.src = URL.createObjectURL(
-      new Blob([arrayBuffer], { type: contentType })
-    );
-    audio.onloadedmetadata = () => {
+    audio.src = data; // DataURL을 오디오 소스로 설정
+
+    // 메타데이터가 로드되면 duration을 가져옴
+    audio.onloadedmetadata = async () => {
+      // get audiobuffer form audio
+      // Decode the audio data into an AudioBuffer
+      const audioContext = new (window.AudioContext ||
+        (window as any).webkitAudioContext)();
+
+      const arrayBuffer = await fetch(data).then((res) => res.arrayBuffer());
+      const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
+      const videoSrc = URL.createObjectURL(file);
+
+      console.log("audioBuffer", audioBuffer);
       const newTimelineRow = DataStoreUtil.makeTimelineRow();
-      newTimelineRow.segments.push({
+      const newSegment: VideoPlayerSegment = {
         id: "videoPlayer_" + crypto.randomUUID(),
         start: 0,
-        end: audio.duration,
+        end: audio.duration, // 오디오의 duration 사용
         effectId: "videoPlayer",
         data: {
-          src: `data:${contentType};base64,${base64Str}`,
-          videoSrc: videoSrc,
           startOffset: 0,
+          src: data, // DataURL 그대로 사용
           name: file.name,
+          videoSrc: videoSrc,
+          audioBuffer: audioBuffer, // AudioBuffer 추가
+          volume: 100,
         },
         isDragging: false,
-      });
+      };
+      newTimelineRow.segments.push(newSegment);
+      // 데이터스토어에 추가
       useDataStore.getState().addTimelineRow(newTimelineRow);
     };
   });
-  fileReader.readAsArrayBuffer(file);
+  fileReader.readAsDataURL(file);
+};
+
+// AudioBuffer를 WAV 파일로 변환하는 함수 (간단한 변환기)
+const audioBufferToWAVBlob = (audioBuffer) => {
+  const numberOfChannels = audioBuffer.numberOfChannels;
+  const length = audioBuffer.length * numberOfChannels * 2 + 44;
+  const buffer = new ArrayBuffer(length);
+  const view = new DataView(buffer);
+
+  // WAV 헤더 작성
+  const writeString = (view, offset, string) => {
+    for (let i = 0; i < string.length; i++) {
+      view.setUint8(offset + i, string.charCodeAt(i));
+    }
+  };
+
+  writeString(view, 0, "RIFF");
+  view.setUint32(4, 36 + audioBuffer.length * numberOfChannels * 2, true);
+  writeString(view, 8, "WAVE");
+  writeString(view, 12, "fmt ");
+  view.setUint32(16, 16, true);
+  view.setUint16(20, 1, true);
+  view.setUint16(22, numberOfChannels, true);
+  view.setUint32(24, audioBuffer.sampleRate, true);
+  view.setUint32(28, audioBuffer.sampleRate * numberOfChannels * 2, true);
+  view.setUint16(32, numberOfChannels * 2, true);
+  view.setUint16(34, 16, true);
+  writeString(view, 36, "data");
+  view.setUint32(40, audioBuffer.length * numberOfChannels * 2, true);
+
+  // PCM 데이터 작성
+  const channels = [];
+  for (let i = 0; i < numberOfChannels; i++) {
+    channels.push(audioBuffer.getChannelData(i));
+  }
+
+  let offset = 44;
+  for (let i = 0; i < audioBuffer.length; i++) {
+    for (let channel = 0; channel < numberOfChannels; channel++) {
+      const sample = Math.max(-1, Math.min(1, channels[channel][i]));
+      view.setInt16(
+        offset,
+        sample < 0 ? sample * 0x8000 : sample * 0x7fff,
+        true
+      );
+      offset += 2;
+    }
+  }
+
+  return new Blob([view], { type: "audio/wav" });
 };

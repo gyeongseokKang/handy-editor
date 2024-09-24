@@ -24,12 +24,13 @@ interface SegmentProps {
   isDragging: boolean;
   isResizing: boolean;
 }
-const Segment = ({ segment, row, isDragging, isResizing }: SegmentProps) => {
+const Segment = ({ segment, isDragging, isResizing }: SegmentProps) => {
   const isSelected = useDataStore((state) => state.selectedSegmentList).find(
     (seg) => seg.id === segment.id
   );
 
-  const isAudioPlayerSegment = segment.effectId === "audioPlayer";
+  const isWaveSurferSegment =
+    segment.effectId === "audioPlayer" || segment.effectId === "videoPlayer";
   if (!("data" in segment)) {
     return <div>base segment</div>;
   }
@@ -57,7 +58,7 @@ const Segment = ({ segment, row, isDragging, isResizing }: SegmentProps) => {
               isResizing={isResizing}
               isDragging={isDragging}
             />
-            {isAudioPlayerSegment ? (
+            {isWaveSurferSegment ? (
               <div
                 id={"ws_" + segment.id}
                 className="w-full h-full overflow-hidden"

@@ -1,4 +1,4 @@
-import { Howl } from "howler";
+import WaveSurfer from "wavesurfer.js";
 import { TimelineEngine } from "../../../engine/engine";
 import { audioAnalyzer } from "../audioAnalyzer";
 
@@ -6,7 +6,7 @@ class VideoControl {
   cacheMap: Record<
     string,
     {
-      audioItem: Howl;
+      audioItem: WaveSurfer;
       videoItem: HTMLVideoElement;
     }
   > = {};
@@ -28,7 +28,7 @@ class VideoControl {
     time: number;
   }) {
     const { id, src, startTime, time, engine, startOffset } = data;
-    let audioItem: Howl;
+    let audioItem: WaveSurfer;
     let videoItem: HTMLVideoElement;
     let analyserNode: AnalyserNode;
     if (this.cacheMap[id]) {
@@ -36,10 +36,15 @@ class VideoControl {
       videoItem = this.cacheMap[id].videoItem;
     } else {
       engine.trigger("loadStart", { id });
-      audioItem = new Howl({
-        src,
-        loop: false,
+      audioItem = WaveSurfer.create({
+        url: src,
+        container: document.querySelector(`#ws_${id}`) as HTMLElement,
+        waveColor: "#9E7FD9",
+        progressColor: "#9E7FD9",
+        height: 100,
+        interact: false,
         autoplay: true,
+        hideScrollbar: true,
       });
       videoItem = document.querySelector(`#${id}`) as HTMLVideoElement;
       this.cacheMap[id] = {
@@ -49,22 +54,20 @@ class VideoControl {
     }
 
     const seekTime = time - startTime + startOffset;
-
-    console.log("seekTime", time, startTime, startOffset);
-    audioItem.rate(engine.getPlayRate());
-    audioItem.seek(seekTime);
+    audioItem.setPlaybackRate(engine.getPlayRate());
+    audioItem.setTime(seekTime);
     audioItem.play();
     videoItem.currentTime = seekTime;
     videoItem.play();
     const timeListener = (data: { time: number }) => {
       const { time } = data;
       const seekTime = time - startTime + startOffset;
-      audioItem.seek(seekTime);
+      audioItem.setTime(seekTime);
       videoItem.currentTime = seekTime;
     };
     const rateListener = (data: { rate: number }) => {
       const { rate } = data;
-      audioItem.rate(rate);
+      audioItem.setPlaybackRate(rate);
       videoItem.playbackRate = rate;
     };
 
@@ -86,9 +89,9 @@ class VideoControl {
     engine.on("timeUpdate", timeUpdateListener);
     engine.on("afterSetTime", timeListener);
     engine.on("afterSetPlayRate", rateListener);
-    engine.on("stop", () => {
-      analyserNode?.connect(Howler.ctx.destination);
-    });
+    // engine.on("stop", () => {
+    //   analyserNode?.connect(Howler.ctx.destination);
+    // });
     videoItem.addEventListener("load", () => {
       videoItem.playbackRate = engine.getPlayRate();
       if (time - startTime > 0) {
@@ -99,10 +102,10 @@ class VideoControl {
     audioItem.on("load", () => {
       const currentTime = engine.getTime();
       const seekTime = currentTime - startTime + startOffset;
-      audioItem.rate(engine.getPlayRate());
-      audioItem.seek(seekTime);
+      audioItem.setPlaybackRate(engine.getPlayRate());
+      audioItem.setTime(seekTime);
       videoItem.currentTime = seekTime;
-      this.connectAnalyser(audioItem);
+      // this.connectAnalyser(audioItem);
     });
     this.listenerMap[id].time = timeListener;
     this.listenerMap[id].rate = rateListener;

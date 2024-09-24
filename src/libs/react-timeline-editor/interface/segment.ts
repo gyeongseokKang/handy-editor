@@ -55,8 +55,11 @@ export interface AudioPlayerSegment extends TimelineSegmentBase {
   data: {
     src: string;
     name: string;
+    audioBuffer?: AudioBuffer;
     startOffset: number;
     isLargefile?: boolean;
+    /** 0 ~ 100 */
+    volume: number;
   };
 }
 
@@ -65,8 +68,11 @@ export interface VideoPlayerSegment extends TimelineSegmentBase {
   data: {
     src: string;
     videoSrc: string;
+    audioBuffer?: AudioBuffer;
     startOffset: number;
     name: string;
+    /** 0 ~ 100 */
+    volume: number;
   };
 }
 

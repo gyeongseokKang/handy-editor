@@ -1,6 +1,8 @@
 import { Badge } from "@/components/ui/badge";
+import { cn } from "@/lib/utils";
 import { forwardRef, useRef } from "react";
 import { TimelineRow } from "../../interface/segment";
+import useDataStore from "../../store/DataStore";
 
 interface VideoPlayerProps {
   editData: TimelineRow[];
@@ -56,9 +58,14 @@ const SegmentVideoPlayer = forwardRef<
   any,
   { src: string; id: string; count: number; label: string }
 >(({ src, id, label }, ref) => {
+  const isSelected = useDataStore((state) => state.selectedSegmentList).find(
+    (seg) => seg.id === id
+  );
   return (
     <div
-      className="relative w-full aspect-video"
+      className={cn("relative w-full aspect-video", {
+        "ring-2 ring-blue-500": isSelected,
+      })}
       style={{
         maxWidth: "500px",
         minWidth: "300px",
@@ -75,14 +82,16 @@ const SegmentVideoPlayer = forwardRef<
         }}
         controls
         preload="metadata"
-        className="z-10 object-cover aspect-video absolute w-full"
+        className={cn("z-10 object-cover aspect-video absolute w-full")}
         muted
         src={src}
       />
       <div className="absolute top-0 left-1 z-20 ">
-        <Badge className="text-xxxs" variant="secondary">
-          {label}
-        </Badge>
+        <div className="flex gap-1">
+          <Badge className="text-xxs" variant="secondary">
+            {label}
+          </Badge>
+        </div>
       </div>
     </div>
   );

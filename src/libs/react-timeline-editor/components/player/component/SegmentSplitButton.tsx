@@ -45,7 +45,8 @@ const SegmentSplitButton = () => {
     <div className="flex gap-1">
       <Button
         variant="outline"
-        disabled={isSplitDisabled}
+        disabled
+        // disabled={isSplitDisabled}
         onClick={handleSplit}
       >
         Split

@@ -1,9 +1,9 @@
-import { Howl } from "howler";
+import WaveSurfer from "wavesurfer.js";
 import { TimelineEngine } from "../../../engine/engine";
 import { audioAnalyzer } from "../audioAnalyzer";
 
 class AudioControl {
-  cacheMap: Record<string, Howl> = {};
+  cacheMap: Record<string, WaveSurfer> = {};
   listenerMap: Record<
     string,
     {
@@ -23,26 +23,28 @@ class AudioControl {
   }) {
     const { id, src, startTime, startOffset, time, engine, isLargefile } = data;
     const seekTime = time - startTime + startOffset;
-    let item: Howl;
+    let item: WaveSurfer;
     if (this.cacheMap[id]) {
       item = this.cacheMap[id];
-      item.rate(engine.getPlayRate());
-      item.seek(seekTime);
+      item.setPlaybackRate(engine.getPlayRate());
+      item.setTime(seekTime);
       item.play();
     } else {
-      item = new Howl({
-        src,
-        loop: false,
+      item = WaveSurfer.create({
+        url: src,
+        container: document.querySelector(`#ws_${id}`) as HTMLElement,
+        waveColor: "#9E7FD9",
+        progressColor: "#9E7FD9",
+        height: 100,
+        interact: false,
         autoplay: true,
-        ...(isLargefile && { format: ["mp3"] }),
+        hideScrollbar: true,
       });
 
       this.cacheMap[id] = item;
       item.on("load", (...args) => {
-        console.log(item, args);
-        this.connectAnalyser(item);
-        item.rate(engine.getPlayRate());
-        item.seek(seekTime);
+        item.setPlaybackRate(engine.getPlayRate());
+        item.setTime(seekTime);
       });
     }
 
@@ -52,12 +54,12 @@ class AudioControl {
       if (seekTime < 0) {
         delete this.listenerMap[id];
       } else {
-        item.seek(seekTime);
+        item.setTime(seekTime);
       }
     };
     const rateListener = (data: { rate: number }) => {
       const { rate } = data;
-      item.rate(rate);
+      item.setPlaybackRate(rate);
     };
 
     if (!this.listenerMap[id]) this.listenerMap[id] = {};
@@ -94,6 +96,7 @@ class AudioControl {
       gainNode.connect(analyserNode);
       analyserNode.connect(Howler.ctx.destination);
     }
+
     return analyserNode;
   }
 }
