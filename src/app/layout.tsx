@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import "./globals.css";
 import { Provider } from "./Provider";
 export const metadata: Metadata = {
-  title: "Online Media Editor",
+  title: "Handy Editor",
   description:
     "A browser-based React online media editor, free and open-source. Allows editing of images, videos, and audio, with cross-platform support.",
 };
@@ -20,7 +20,7 @@ export default function RootLayout({
           <div className="flex flex-col h-dvh">
             <Topbar />
             <div className="flex size-full">
-              <main className="p-2 size-full">{children}</main>
+              <main className="size-full">{children}</main>
             </div>
           </div>
         </Provider>

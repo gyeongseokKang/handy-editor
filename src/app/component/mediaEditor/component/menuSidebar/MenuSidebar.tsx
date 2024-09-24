@@ -2,33 +2,33 @@ import { Button } from "@/components/ui/button";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useLayoutEffect, useRef, useState } from "react";
-import { MdOutlineAudiotrack, MdOutlineFileUpload } from "react-icons/md";
+import { FaFileExport } from "react-icons/fa6";
+import { MdOutlineFileUpload } from "react-icons/md";
 import { ImperativePanelHandle } from "react-resizable-panels";
-import { match } from "ts-pattern";
+import ExportPanel from "./component/ExportPanel";
 import UploadPanel from "./component/UploadPanel";
+
+const menuList = [
+  {
+    icon: <MdOutlineFileUpload size={20} />,
+    label: "Upload",
+    panel: <UploadPanel />,
+  },
+  {
+    icon: <FaFileExport size={16} />,
+    label: "Export",
+    panel: <ExportPanel />,
+  },
+] as const;
+
+type MenuLabel = (typeof menuList)[number]["label"];
 
 const MenuSidebar = () => {
   const ref = useRef<ImperativePanelHandle>();
   const [isCollapsed, setIsCollapsed] = useState(true);
+  const [currentMenu, setCurrentMenu] = useState<MenuLabel | "">();
 
-  const [currentMenu, setCurrentMenu] = useState("");
-
-  const menuList = [
-    {
-      icon: <MdOutlineFileUpload size={20} />,
-      label: "Upload",
-    },
-    {
-      icon: <MdOutlineAudiotrack size={20} />,
-      label: "Audio",
-    },
-  ];
-
-  const Panel = match(currentMenu)
-    .with("upload", () => <UploadPanel />)
-    .otherwise(() => null);
-
-  const toggleMenu = (menu: string) => {
+  const toggleMenu = (menu: MenuLabel) => {
     if (currentMenu === menu) {
       setCurrentMenu("");
       ref.current?.collapse();
@@ -38,6 +38,10 @@ const MenuSidebar = () => {
     ref.current?.expand();
   };
 
+  const currentPanel = menuList.find(
+    (menu) => menu.label === currentMenu
+  )?.panel;
+
   useLayoutEffect(() => {
     setTimeout(() => {
       ref.current?.collapse();
@@ -46,35 +50,29 @@ const MenuSidebar = () => {
 
   return (
     <>
-      <div className="flex flex-col gap-2 pr-1">
-        {menuList.map((menu) => {
-          return (
-            <div key={menu.label}>
-              <Button
-                className="size-12"
-                variant={
-                  menu.label.toLocaleLowerCase() === currentMenu
-                    ? "default"
-                    : "outline"
-                }
-                onClick={() => {
-                  toggleMenu(menu.label.toLocaleLowerCase());
-                }}
-              >
-                <div className="flex flex-col items-center justify-center">
-                  {menu.icon}
-                  <p className="text-xxs">{menu.label}</p>
-                </div>
-              </Button>
-            </div>
-          );
-        })}
+      <div className="flex flex-col gap-2 py-2">
+        {menuList.map((menu) => (
+          <div key={menu.label}>
+            <Button
+              className="size-12"
+              variant={menu.label === currentMenu ? "default" : "outline"}
+              onClick={() => toggleMenu(menu.label)}
+            >
+              <div className="flex flex-col items-center justify-center">
+                {menu.icon}
+                <p className="text-xxs">{menu.label}</p>
+              </div>
+            </Button>
+          </div>
+        ))}
       </div>
+
       <ResizablePanel
         ref={ref}
         defaultValue={0}
         collapsedSize={0}
         minSize={15}
+        maxSize={40}
         collapsible
         onCollapse={() => {
           setIsCollapsed(true);
@@ -84,9 +82,11 @@ const MenuSidebar = () => {
           setIsCollapsed(false);
         }}
       >
-        <ScrollArea className="h-full px-1">
+        <ScrollArea className="h-full p-2">
           <div className="flex gap-1">
-            {currentMenu && <div className="flex p-2 w-full">{Panel}</div>}
+            {currentPanel && (
+              <div className="flex p-2 w-full">{currentPanel}</div>
+            )}
           </div>
         </ScrollArea>
       </ResizablePanel>

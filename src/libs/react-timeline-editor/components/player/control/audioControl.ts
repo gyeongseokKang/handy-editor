@@ -38,7 +38,8 @@ class AudioControl {
       });
 
       this.cacheMap[id] = item;
-      item.on("load", () => {
+      item.on("load", (...args) => {
+        console.log(item, args);
         this.connectAnalyser(item);
         item.rate(engine.getPlayRate());
         item.seek(seekTime);
