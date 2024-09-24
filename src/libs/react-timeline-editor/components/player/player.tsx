@@ -4,6 +4,7 @@ import { IoMdPause, IoMdPlay } from "react-icons/io";
 import { MdStop } from "react-icons/md";
 import useEngineStore from "../../store/EngineStore";
 import AutoscrollToggleButton from "./component/AutoscrollToggleButton";
+import CursorHoverTimeViewer from "./component/CursorHoverTimeViewer";
 import PlaybackRateControlPopover from "./component/PlaybackRateControlPopover";
 import SegmentSplitButton from "./component/SegmentSplitButton";
 import TimeViewer from "./component/TimeViewer";
@@ -32,7 +33,7 @@ const TimelinePlayer = () => {
   };
 
   return (
-    <div className="flex gap-4 w-full items-center py-4">
+    <div className="flex gap-4 w-full items-center py-4  h-16">
       <div className="flex gap-1">
         <Button size="icon" onClick={handlePlayOrPause}>
           {isPlaying ? <IoMdPause size={20} /> : <IoMdPlay size={20} />}
@@ -42,10 +43,11 @@ const TimelinePlayer = () => {
         </Button>
       </div>
       <SegmentSplitButton />
-      <div className="mx-auto">
+      <div className="mx-auto flex gap-4">
         <TimeViewer />
       </div>
       <div className="flex items-center gap-1">
+        <CursorHoverTimeViewer />
         <WaveformToggleButton />
         <AutoscrollToggleButton />
         <PlaybackRateControlPopover

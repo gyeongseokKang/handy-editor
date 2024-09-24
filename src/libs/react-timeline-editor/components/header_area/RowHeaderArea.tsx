@@ -1,55 +1,57 @@
-import { useEffect, useRef } from "react";
-
+import { AutoSizer, List } from "react-virtualized";
 import {
   EDIT_ARED_DEFAULT_MARGIN_TOP,
   ROW_HEADER_DEFAULT_WIDTH,
   TIME_AREA_DEFAULT_HEIGHT,
 } from "../../interface/const";
 import { TimelineRow } from "../../interface/segment";
-import useScrollStore from "../../store/ScrollStore";
 
 interface RowHeaderAreaProps {
   data: TimelineRow[];
-  width?: number;
-  getRowHeader?: (row: TimelineRow, rowIndex: number) => any;
+  scrollTop: number;
 }
 
-const RowHeaderArea = ({ data, width, getRowHeader }: RowHeaderAreaProps) => {
-  const rowWidth = width || ROW_HEADER_DEFAULT_WIDTH;
-  const domRef = useRef<HTMLDivElement>();
-  const scrollTop = useScrollStore((state) => state.scrollTop);
-
-  useEffect(() => {
-    if (domRef.current) {
-      domRef.current.scrollTop = scrollTop;
-    }
-  }, [scrollTop]);
+const RowHeaderArea = ({ data, scrollTop }: RowHeaderAreaProps) => {
+  const rowWidth = ROW_HEADER_DEFAULT_WIDTH;
 
   return (
-    <div
-      ref={domRef}
-      onScroll={(e) => {
-        const target = e.target as HTMLDivElement;
-        useScrollStore.getState().setScrollState({
-          scrollTop: target.scrollTop,
-        });
+    <AutoSizer>
+      {({ height }) => {
+        const listHeight =
+          height - TIME_AREA_DEFAULT_HEIGHT - EDIT_ARED_DEFAULT_MARGIN_TOP;
+        return (
+          <>
+            <div
+              className="border-r flex items-center justify-center bg-gray-800"
+              style={{
+                width: rowWidth,
+                height: TIME_AREA_DEFAULT_HEIGHT + EDIT_ARED_DEFAULT_MARGIN_TOP,
+              }}
+            ></div>
+            <List
+              className="!overflow-hidden border-r bg-gray-800"
+              width={rowWidth}
+              height={listHeight}
+              rowCount={data.length}
+              scrollTop={scrollTop}
+              rowHeight={50}
+              rowRenderer={({ key, index, style }) => {
+                const row = data[index];
+                return (
+                  <div
+                    key={key}
+                    style={style}
+                    className="min-h-[50px] text-white flex items-center justify-center"
+                  >
+                    row {index + 1}
+                  </div>
+                );
+              }}
+            />
+          </>
+        );
       }}
-      className={"flex flex-col h-full overflow-hidden"}
-      style={{
-        width: rowWidth,
-        minWidth: rowWidth,
-        paddingTop: EDIT_ARED_DEFAULT_MARGIN_TOP + TIME_AREA_DEFAULT_HEIGHT,
-      }}
-    >
-      {data.map((item, index) => (
-        <div
-          className="flex items-center justify-center min-h-[50px]"
-          key={item.id}
-        >
-          {getRowHeader?.(item, index)}
-        </div>
-      ))}
-    </div>
+    </AutoSizer>
   );
 };
 

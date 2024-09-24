@@ -1,5 +1,4 @@
 import useOptionStore from "@/app/store/OptionStore";
-import { cn } from "@/lib/utils";
 import { FC, useEffect, useRef, useState } from "react";
 import {
   AutoSizer,
@@ -8,7 +7,11 @@ import {
   OnScrollParams,
 } from "react-virtualized";
 import { CommonProp } from "../../interface/common_prop";
-import { TIME_AREA_DEFAULT_HEIGHT } from "../../interface/const";
+import {
+  ROW_HEADER_DEFAULT_WIDTH,
+  TIME_AREA_DEFAULT_HEIGHT,
+} from "../../interface/const";
+import useScrollStore from "../../store/ScrollStore";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserPixelToTime } from "../../utils/deal_data";
 
@@ -77,11 +80,20 @@ export const TimeArea: FC<TimeAreaProps> = ({
 
   /** 드래그 중 처리 */
   const handleMouseMove = (e: React.MouseEvent) => {
-    if (!dragging) return;
     const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
     const position = e.clientX - rect.x;
     const left = Math.max(position + scrollLeft, startLeft);
 
+    const cursorTime = parserPixelToTime(left, {
+      startLeft,
+      scale,
+      scaleWidth,
+    });
+    useScrollStore.setState({
+      timelineCursorHoverTime: cursorTime,
+    });
+
+    if (!dragging) return;
     setDragEnd(left);
 
     if (dragStart !== null) {
@@ -135,6 +147,12 @@ export const TimeArea: FC<TimeAreaProps> = ({
     }
   };
 
+  const handleMouseLeave = () => {
+    useScrollStore.setState({
+      timelineCursorHoverTime: undefined,
+    });
+  };
+
   useEffect(() => {
     gridRef.current?.recomputeGridSize();
   }, [scaleWidth, startLeft, scaleSplitCount, scaleCount]);
@@ -150,13 +168,20 @@ export const TimeArea: FC<TimeAreaProps> = ({
   };
   const estColumnWidth = getColumnWidth({ index: 1 });
   return (
-    <div className={cn(prefix("time-area"), "sticky w-full top-0 z-10")}>
+    <div
+      className="absolute top-0 "
+      style={{
+        left: ROW_HEADER_DEFAULT_WIDTH,
+        width: `calc(100% - ${ROW_HEADER_DEFAULT_WIDTH}px)`,
+      }}
+    >
       <AutoSizer>
         {({ width, height: audioSizerHeight }) => {
           const height = TIME_AREA_DEFAULT_HEIGHT || audioSizerHeight;
           return (
             <>
               <Grid
+                className="!overflow-hidden"
                 ref={gridRef}
                 columnCount={
                   showUnit ? scaleCount * scaleSplitCount + 1 : scaleCount
@@ -173,11 +198,13 @@ export const TimeArea: FC<TimeAreaProps> = ({
                 scrollLeft={scrollLeft}
               ></Grid>
               <div
+                className="absolute top-0 left-0"
                 id="time-area-interact"
                 style={{ width, height }}
                 onMouseDown={handleMouseDown}
                 onMouseMove={handleMouseMove}
                 onMouseUp={handleMouseUp}
+                onMouseLeave={handleMouseLeave}
                 onClick={(e) => {
                   const isRealDrag = checkRealDrag(dragStart, dragEnd);
 
@@ -203,7 +230,6 @@ export const TimeArea: FC<TimeAreaProps> = ({
                   if (result === false) return; // false를 반환하면 시간 설정을 중단함
                   setCursor({ time });
                 }}
-                className={prefix("time-area-interact")}
               ></div>
             </>
           );

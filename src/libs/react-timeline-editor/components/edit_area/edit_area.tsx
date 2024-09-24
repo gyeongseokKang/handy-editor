@@ -1,6 +1,5 @@
 /* eslint-disable react/display-name */
 import useOptionStore from "@/app/store/OptionStore";
-import { cn } from "@/lib/utils";
 import React, {
   useEffect,
   useImperativeHandle,
@@ -17,11 +16,12 @@ import { CommonProp } from "../../interface/common_prop";
 import {
   EDIT_ARED_DEFAULT_HEIGHT,
   EDIT_ARED_DEFAULT_MARGIN_TOP,
+  ROW_HEADER_DEFAULT_WIDTH,
+  TIME_AREA_DEFAULT_HEIGHT,
 } from "../../interface/const";
 
 import { TimelineRow } from "../../interface/segment";
 import { EditData } from "../../interface/timeline";
-import { prefix } from "../../utils/deal_class_prefix";
 import { parserTimeToPixel } from "../../utils/deal_data";
 import { DragLines } from "./drag_lines";
 import { EditRow } from "./edit_row";
@@ -132,6 +132,7 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
     /** 각 cell의 렌더링 내용을 가져옴 */
     const cellRenderer: GridCellRenderer = ({ rowIndex, key, style }) => {
       const row = editorData[rowIndex]; // 행 데이터
+
       return (
         <EditRow
           {...props}
@@ -185,9 +186,13 @@ export const EditArea = React.forwardRef<EditAreaState, EditAreaProps>(
     return (
       <div
         ref={editAreaRef}
-        className={cn(prefix("edit-area"), "relative flex-auto")}
+        className="absolute"
         style={{
+          width: `calc(100% - ${ROW_HEADER_DEFAULT_WIDTH}px)`,
+          height: "calc(100% - 100px)",
+          top: TIME_AREA_DEFAULT_HEIGHT,
           marginTop: EDIT_ARED_DEFAULT_MARGIN_TOP,
+          left: ROW_HEADER_DEFAULT_WIDTH,
           minHeight: EDIT_ARED_DEFAULT_HEIGHT,
         }}
       >

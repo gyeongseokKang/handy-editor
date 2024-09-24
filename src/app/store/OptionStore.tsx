@@ -19,7 +19,7 @@ const initialState: State = {
   optionType: "editor",
   editorOption: {
     scaleState: {
-      scale: 180,
+      scale: 60,
       scaleWidth: 300,
       startLeft: 20,
       scaleSplitCount: 10,

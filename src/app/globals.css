@@ -22,17 +22,6 @@
   }
 }
 
-.timeline-editor {
-  width: 100%;
-  background-color: #191b1d;
-  min-height: 32px;
-  position: relative;
-  font-size: 12px;
-  font-family: "PingFang SC";
-  display: flex;
-  flex-direction: column;
-  /* overflow: hidden; */
-}
 .timeline-editor-drag-line-container {
   position: absolute;
   height: 100%;
@@ -95,28 +84,6 @@
   display: flex;
   flex-direction: row;
   box-sizing: border-box;
-}
-
-.timeline-editor-time-area {
-  height: 32px;
-  background-color: #191b1d;
-  opacity: 0.9;
-  flex: 0 0 auto;
-}
-
-.timeline-editor-time-area .ReactVirtualized__Grid {
-  outline: none;
-}
-
-.timeline-editor-time-area .ReactVirtualized__Grid::-webkit-scrollbar {
-  display: none;
-}
-
-.timeline-editor-time-area-interact {
-  position: absolute;
-  cursor: pointer;
-  left: 0;
-  top: 0;
 }
 
 .timeline-editor-time-unit {

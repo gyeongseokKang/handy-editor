@@ -3,7 +3,6 @@
 import { Label } from "@/components/ui/label";
 import { Switch } from "@/components/ui/switch";
 import { Timeline, TimelineState } from "@/libs/react-timeline-editor";
-import RowHeaderArea from "@/libs/react-timeline-editor/components/header_area/RowHeaderArea";
 import AudioVisualizer from "@/libs/react-timeline-editor/components/player/AudioVisualizer";
 import { AudioPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
 import { VideoPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/videoPlayerEffect";
@@ -21,6 +20,7 @@ import Segment from "@/libs/react-timeline-editor/components/segment/Segment";
 import ScaleRender from "@/libs/react-timeline-editor/components/time_area/ScaleRender";
 import VideoPlayer from "@/libs/react-timeline-editor/components/video_area/VideoPlayer";
 import EventSubscriptor from "@/libs/react-timeline-editor/engine/EventSubscriptor";
+import { TIME_AREA_DEFAULT_HEIGHT } from "@/libs/react-timeline-editor/interface/const";
 import useDataStore from "@/libs/react-timeline-editor/store/DataStore";
 import useEngineStore from "@/libs/react-timeline-editor/store/EngineStore";
 import { useRef, useState } from "react";
@@ -103,49 +103,42 @@ export default function MediaEditor() {
         <ResizableHandle withHandle />
         <ResizablePanel defaultSize={70} minSize={10} className="px-2">
           <TimelinePlayer />
-          <ScrollArea className="size-full">
-            <div className="size-full flex mb-[100px]">
-              <RowHeaderArea
-                data={data}
-                getRowHeader={({ id }, rowIndex) => {
-                  return <div className="text">{`Row_#${rowIndex + 1}`}</div>;
-                }}
-              />
-              <Timeline
-                ref={timelineState}
-                scale={scaleState.scale}
-                scaleWidth={scaleState.scaleWidth}
-                startLeft={scaleState.startLeft}
-                scaleSplitCount={scaleState.scaleSplitCount}
-                onChange={(data) => {
-                  setData(data as any);
-                }}
-                editorData={data}
-                effects={{
-                  ...AudioPlayerEffect,
-                  ...VideoPlayerEffect,
-                }}
-                autoScroll={true}
-                dragLine={true}
-                disableDrag={false}
-                getScaleRender={(second) => <ScaleRender second={second} />}
-                getSegmentRender={(
-                  segment,
-                  row,
-                  { isDragging, isResizing }
-                ) => {
-                  return (
-                    <Segment
-                      segment={segment}
-                      row={row}
-                      isDragging={isDragging}
-                      isResizing={isResizing}
-                    />
-                  );
-                }}
-              />
-            </div>
-          </ScrollArea>
+          <div
+            className="w-full flex"
+            style={{
+              height: `calc(100% - ${TIME_AREA_DEFAULT_HEIGHT}px)`,
+            }}
+          >
+            <Timeline
+              ref={timelineState}
+              scale={scaleState.scale}
+              scaleWidth={scaleState.scaleWidth}
+              startLeft={scaleState.startLeft}
+              scaleSplitCount={scaleState.scaleSplitCount}
+              onChange={(data) => {
+                setData(data as any);
+              }}
+              editorData={data}
+              effects={{
+                ...AudioPlayerEffect,
+                ...VideoPlayerEffect,
+              }}
+              autoScroll={true}
+              dragLine={true}
+              disableDrag={false}
+              getScaleRender={(second) => <ScaleRender second={second} />}
+              getSegmentRender={(segment, row, { isDragging, isResizing }) => {
+                return (
+                  <Segment
+                    segment={segment}
+                    row={row}
+                    isDragging={isDragging}
+                    isResizing={isResizing}
+                  />
+                );
+              }}
+            />
+          </div>
         </ResizablePanel>
       </ResizablePanelGroup>
       <EventSubscriptor timelineState={timelineState} />

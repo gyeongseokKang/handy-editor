@@ -12,7 +12,6 @@ import {
 import { cn } from "@/lib/utils";
 
 import { Badge } from "@/components/ui/badge";
-import Wavesurfer from "@/libs/react-timeline-editor/components/wave/Wavesurfer";
 import useDataStore, {
   DataStoreUtil,
 } from "@/libs/react-timeline-editor/store/DataStore";
@@ -30,20 +29,21 @@ const Segment = ({ segment, row, isDragging, isResizing }: SegmentProps) => {
     (seg) => seg.id === segment.id
   );
 
-  const isWaveformVisible = false;
+  const isAudioPlayerSegment = segment.effectId === "audioPlayer";
   if (!("data" in segment)) {
     return <div>base segment</div>;
   }
+
   return (
     <>
       <ContextMenu>
         <ContextMenuTrigger>
           <div
             className={cn(
-              "relative w-full h-full flex justify-center items-center text-xl text-white",
+              "relative w-full h-full flex justify-center items-center text-xl text-white ring-2",
+              isSelected ? "ring-blue-500" : "ring-transparent",
               {
                 "cursor-ew-resize": isDragging,
-                "border border-red-500": isSelected,
               }
             )}
             onClick={(e) => {
@@ -57,11 +57,11 @@ const Segment = ({ segment, row, isDragging, isResizing }: SegmentProps) => {
               isResizing={isResizing}
               isDragging={isDragging}
             />
-            {isWaveformVisible ? (
-              <Wavesurfer
-                url={segment.data.src}
-                isDragging={isDragging}
-              ></Wavesurfer>
+            {isAudioPlayerSegment ? (
+              <div
+                id={"ws_" + segment.id}
+                className="w-full h-full overflow-hidden"
+              ></div>
             ) : (
               <div className={cn("w-full flex justify-start px-4")}>
                 {segment.data.name}

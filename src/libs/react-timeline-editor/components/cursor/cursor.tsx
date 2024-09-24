@@ -1,23 +1,22 @@
 import useOptionStore from "@/app/store/OptionStore";
 import React, { FC, useEffect, useRef } from "react";
 import { CommonProp } from "../../interface/common_prop";
-import useScrollStore from "../../store/ScrollStore";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserPixelToTime, parserTimeToPixel } from "../../utils/deal_data";
 import { RowDnd } from "../row_rnd/row_rnd";
 import { RowRndApi } from "../row_rnd/row_rnd_interface";
 
-/** 动画时间轴组件参数 */
+/** 애니메이션 타임라인 컴포넌트의 속성 타입 */
 export type CursorProps = CommonProp & {
-  /** 距离左侧滚动距离 */
+  /** 왼쪽으로부터의 스크롤 거리 */
   scrollLeft: number;
-  /** 设置光标位置 */
+  /** 커서 위치 설정 */
   setCursor: (param: { left?: number; time?: number }) => boolean;
-  /** 时间轴区域dom ref */
+  /** 타임라인 영역의 DOM 참조 */
   areaRef: React.MutableRefObject<HTMLDivElement>;
-  /** 设置scroll left */
+  /** 스크롤 왼쪽 값 설정 */
   deltaScrollLeft: (delta: number) => void;
-  /** 滚动同步ref（TODO: 该数据用于临时解决scrollLeft拖住时不同步问题） */
+  /** 스크롤 동기화용 참조 (TODO: 이 데이터는 스크롤을 드래그할 때 동기화되지 않는 문제를 임시로 해결하기 위한 용도) */
 };
 
 export const Cursor: FC<CursorProps> = ({
@@ -41,7 +40,7 @@ export const Cursor: FC<CursorProps> = ({
 
   useEffect(() => {
     if (typeof draggingLeft.current === "undefined") {
-      // 非dragging时，根据穿参更新cursor刻度
+      // 드래그 중이 아닐 때는 외부에서 전달받은 값으로 커서의 위치를 업데이트
       rowRnd.current.updateLeft(
         parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) -
           scrollLeft
@@ -65,6 +64,7 @@ export const Cursor: FC<CursorProps> = ({
       enableDragging={!disableDrag}
       enableResizing={false}
       onDragStart={() => {
+        console.log("cursorTime", cursorTime);
         onCursorDragStart && onCursorDragStart(cursorTime);
         draggingLeft.current =
           parserTimeToPixel(cursorTime, { startLeft, scaleWidth, scale }) -
@@ -82,14 +82,13 @@ export const Cursor: FC<CursorProps> = ({
         draggingLeft.current = undefined;
       }}
       onDrag={({ left }, scroll = 0) => {
-        const scrollLeft = useScrollStore.getState().scrollLeft;
         if (!scroll || scrollLeft === 0) {
-          // 拖拽时，如果当前left < left min，将数值设置为 left min
+          // 드래그 시, 현재 위치가 최소값보다 작은 경우 최소값으로 설정
           if (left < startLeft - scrollLeft)
             draggingLeft.current = startLeft - scrollLeft;
           else draggingLeft.current = left;
         } else {
-          // 自动滚动时，如果当前left < left min，将数值设置为 left min
+          // 자동 스크롤 중일 때, 현재 위치가 최소값보다 작은 경우 최소값으로 설정
           if (draggingLeft.current < startLeft - scrollLeft - scroll) {
             draggingLeft.current = startLeft - scrollLeft - scroll;
           }

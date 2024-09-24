@@ -10,7 +10,11 @@ import React, {
 } from "react";
 import { OnScrollParams, ScrollSync } from "react-virtualized";
 import { ITimelineEngine } from "../engine/engine";
-import { MIN_SCALE_COUNT, PREFIX, START_CURSOR_TIME } from "../interface/const";
+import {
+  MIN_SCALE_COUNT,
+  ROW_HEADER_DEFAULT_WIDTH,
+  START_CURSOR_TIME,
+} from "../interface/const";
 import { TimelineRow } from "../interface/segment";
 import { TimelineEditor, TimelineState } from "../interface/timeline";
 import useEngineStore from "../store/EngineStore";
@@ -24,6 +28,7 @@ import {
 import { Cursor } from "./cursor/cursor";
 import { DragAreaCursor } from "./cursor/dragAreaCursor";
 import { EditArea } from "./edit_area/edit_area";
+import RowHeaderArea from "./header_area/RowHeaderArea";
 import { TimeArea } from "./time_area/time_area";
 
 export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
@@ -229,87 +234,93 @@ export const Timeline = React.forwardRef<TimelineState, TimelineEditor>(
     }, []);
 
     return (
-      <div ref={domRef} className={`${PREFIX} relative`}>
+      <div ref={domRef} className={`relative flex size-full bg-[#191b1d] `}>
         <ScrollSync ref={scrollSync}>
-          {({ scrollLeft, scrollTop, onScroll }) => {
+          {({ onScroll, scrollLeft, scrollTop }) => {
             const handleOnScroll = (params: OnScrollParams) => {
               onScroll(params);
               useScrollStore.getState().setScrollState(params);
             };
 
+            const cursorScrollLeft = scrollLeft - ROW_HEADER_DEFAULT_WIDTH;
+
             return (
-              <>
-                <TimeArea
-                  {...checkedProps}
-                  timelineWidth={width}
-                  setCursor={handleSetCursor}
-                  cursorTime={cursorTime}
-                  editorData={editorData}
-                  scaleCount={scaleCount}
-                  setScaleCount={handleSetScaleCount}
-                  onScroll={handleOnScroll}
-                  scrollLeft={scrollLeft}
-                  onDragTimeArea={(start, end) => {
-                    setDrag({
-                      start,
-                      end,
-                    });
-                    handleLoop(start, end);
-                  }}
-                />
-                <EditArea
-                  {...checkedProps}
-                  timelineWidth={width}
-                  // TODO: 타입 수정
-                  ref={(ref) =>
-                    ((areaRef.current as any) = ref?.domRef.current) as any
-                  }
-                  disableDrag={disableDrag || isPlaying}
-                  editorData={editorData}
-                  cursorTime={cursorTime}
-                  scaleCount={scaleCount}
-                  setScaleCount={handleSetScaleCount}
-                  scrollTop={scrollTop}
-                  scrollLeft={scrollLeft}
-                  setEditorData={handleEditorDataChange}
-                  deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
-                  onScroll={(params) => {
-                    handleOnScroll(params);
-                    onScrollVertical && onScrollVertical(params);
-                  }}
-                />
-                {!hideCursor && (
-                  <Cursor
+              <div className="relative size-full">
+                <div className="absolute top-[0px] left-0 h-full z-30">
+                  <RowHeaderArea data={data} scrollTop={scrollTop} />
+                </div>
+                <div>
+                  <TimeArea
                     {...checkedProps}
                     timelineWidth={width}
-                    disableDrag={isPlaying}
-                    scrollLeft={scrollLeft}
-                    scaleCount={scaleCount}
-                    setScaleCount={handleSetScaleCount}
                     setCursor={handleSetCursor}
                     cursorTime={cursorTime}
                     editorData={editorData}
-                    areaRef={areaRef}
-                    deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
-                  />
-                )}
-                {drag.start && drag.end && (
-                  <DragAreaCursor
-                    {...checkedProps}
-                    drag={drag}
-                    timelineWidth={width}
-                    disableDrag={isPlaying}
-                    scrollLeft={scrollLeft}
                     scaleCount={scaleCount}
                     setScaleCount={handleSetScaleCount}
-                    setCursor={handleSetCursor}
-                    cursorTime={drag.start}
-                    editorData={editorData}
-                    areaRef={areaRef}
-                    deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                    onScroll={handleOnScroll}
+                    scrollLeft={scrollLeft}
+                    onDragTimeArea={(start, end) => {
+                      setDrag({
+                        start,
+                        end,
+                      });
+                      handleLoop(start, end);
+                    }}
                   />
-                )}
-              </>
+                  <EditArea
+                    {...checkedProps}
+                    timelineWidth={width}
+                    ref={(ref) =>
+                      ((areaRef.current as any) = ref?.domRef.current) as any
+                    }
+                    disableDrag={disableDrag || isPlaying}
+                    editorData={editorData}
+                    cursorTime={cursorTime}
+                    scaleCount={scaleCount}
+                    setScaleCount={handleSetScaleCount}
+                    scrollTop={scrollTop}
+                    scrollLeft={scrollLeft}
+                    setEditorData={handleEditorDataChange}
+                    deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                    onScroll={(params) => {
+                      handleOnScroll(params);
+                      onScrollVertical && onScrollVertical(params);
+                    }}
+                  />
+                  {!hideCursor && (
+                    <Cursor
+                      {...checkedProps}
+                      timelineWidth={width}
+                      disableDrag={isPlaying}
+                      scrollLeft={cursorScrollLeft}
+                      scaleCount={scaleCount}
+                      setScaleCount={handleSetScaleCount}
+                      setCursor={handleSetCursor}
+                      cursorTime={cursorTime}
+                      editorData={editorData}
+                      areaRef={areaRef}
+                      deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                    />
+                  )}
+                  {drag.start && drag.end && (
+                    <DragAreaCursor
+                      {...checkedProps}
+                      drag={drag}
+                      timelineWidth={width}
+                      disableDrag={isPlaying}
+                      scrollLeft={cursorScrollLeft}
+                      scaleCount={scaleCount}
+                      setScaleCount={handleSetScaleCount}
+                      setCursor={handleSetCursor}
+                      cursorTime={drag.start}
+                      editorData={editorData}
+                      areaRef={areaRef}
+                      deltaScrollLeft={autoScroll && handleDeltaScrollLeft}
+                    />
+                  )}
+                </div>
+              </div>
             );
           }}
         </ScrollSync>
