@@ -9,10 +9,11 @@ const TimeViewer = () => {
   const [time, setTime] = useState(0);
 
   const lastTime = useMemo(() => {
-    return timelineRowList.reduce((acc, row) => {
-      const lastSegment = [...row.segments].sort((a, b) => b.end - a.end)[0];
-      return Math.max(acc, lastSegment?.end);
-    }, 0);
+    return timelineRowList
+      .flatMap((row) => row.segments)
+      .reduce((acc, segment) => {
+        return Math.max(acc, segment.end);
+      }, 0);
   }, [timelineRowList]);
 
   useEffect(() => {

@@ -2,6 +2,7 @@ import React, { FC } from "react";
 import { CommonProp } from "../../interface/common_prop";
 
 import { TimelineRow } from "../../interface/segment";
+import { DataStoreUtil } from "../../store/DataStore";
 import { prefix } from "../../utils/deal_class_prefix";
 import { parserPixelToTime } from "../../utils/deal_data";
 import { DragLineData } from "./drag_lines";
@@ -51,6 +52,7 @@ export const EditRow: FC<EditRowProps> = (props) => {
       )} z-10 hover:bg-zinc-800`}
       style={style}
       onClick={(e) => {
+        DataStoreUtil.selectSegment(undefined);
         if (rowData && onClickRow) {
           const time = handleTime(e);
           onClickRow(e, { row: rowData, time: time });

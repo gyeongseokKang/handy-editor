@@ -104,6 +104,10 @@ const useDataStore = create(
     ...initialState,
     selectSegment: (segment) =>
       set((state) => {
+        if (segment === undefined) {
+          state.selectedSegmentList = [];
+          return;
+        }
         state.selectedSegmentList = [segment];
         // if (state.selectedSegmentList.length === 0) {
         //   state.selectedSegmentList.push(segment);
@@ -246,7 +250,7 @@ export class DataStoreUtil {
     useDataStore.getState().updateSegment(segment);
   }
 
-  static selectSegment(segment: TimelineSegment) {
+  static selectSegment(segment: TimelineSegment | undefined) {
     useDataStore.getState().selectSegment(segment);
   }
 
@@ -286,8 +290,8 @@ export class DataStoreUtil {
       }
     });
 
-    console.log("newTimelineRowList", newTimelineRowList);
     useDataStore.getState().setTimelineRowList(newTimelineRowList);
+    DataStoreUtil.selectSegment(newSegment2);
   }
 
   static dragAndUpdateSegment({

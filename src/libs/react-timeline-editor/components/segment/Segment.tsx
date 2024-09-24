@@ -46,8 +46,9 @@ const Segment = ({ segment, row, isDragging, isResizing }: SegmentProps) => {
                 "border border-red-500": isSelected,
               }
             )}
-            onClick={() => {
-              useDataStore.getState().selectSegment(segment);
+            onClick={(e) => {
+              DataStoreUtil.selectSegment(segment);
+              e.stopPropagation();
             }}
           >
             <DraggingTimelineTooltip
