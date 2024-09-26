@@ -17,11 +17,11 @@ const ExportPanel = () => {
 
   const timelineRowList = useDataStore((state) => state.timelineRowList);
 
-  const handleExport = async () => {
-    const audioPlayerSegments = timelineRowList
-      .flatMap((row) => row.segments)
-      .filter((segment) => segment.data.audioBuffer) as AudioPlayerSegment[];
+  const audioPlayerSegments = timelineRowList
+    .flatMap((row) => row.segments)
+    .filter((segment) => segment.data.audioBuffer) as AudioPlayerSegment[];
 
+  const handleExport = async () => {
     if (audioPlayerSegments.length === 0) {
       toast("There is no audio segment to export.");
       return;
@@ -128,7 +128,7 @@ const ExportPanel = () => {
           handleExport();
         }}
       >
-        Export Project to WAV File
+        Export Segment({audioPlayerSegments.length}) to WAV File
       </Button>
     </div>
   );

@@ -45,14 +45,14 @@ export default function MediaEditor() {
   return (
     <>
       <ResizablePanelGroup direction="vertical">
-        <ResizablePanel defaultSize={30}>
+        <ResizablePanel defaultSize={50}>
           <ResizablePanelGroup
             direction="horizontal"
             className="relative px-2 space-x-1"
           >
             <MenuSidebar />
             <ResizablePanel defaultSize={60}>
-              <ScrollArea className="size-full rounded-md pt-28">
+              <ScrollArea className="size-full rounded-md pt-4">
                 {/* <div className="py-1 flex gap-2">
                   <div className="flex items-center space-x-2">
                     <Switch
@@ -98,7 +98,7 @@ export default function MediaEditor() {
           </ResizablePanelGroup>
         </ResizablePanel>
         <ResizableHandle withHandle />
-        <ResizablePanel defaultSize={70} minSize={10} className="px-2">
+        <ResizablePanel defaultSize={50} minSize={10} className="px-2">
           <TimelinePlayer />
           <div
             className="w-full flex"
