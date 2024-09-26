@@ -1,9 +1,6 @@
 "use client";
 
-import { Label } from "@/components/ui/label";
-import { Switch } from "@/components/ui/switch";
 import { Timeline, TimelineState } from "@/libs/react-timeline-editor";
-import AudioVisualizer from "@/libs/react-timeline-editor/components/player/AudioVisualizer";
 import { AudioPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/audioPlayerEffect";
 import { VideoPlayerEffect } from "@/libs/react-timeline-editor/components/player/effect/videoPlayerEffect";
 
@@ -55,8 +52,8 @@ export default function MediaEditor() {
           >
             <MenuSidebar />
             <ResizablePanel defaultSize={60}>
-              <ScrollArea className="size-full rounded-md ">
-                <div className="py-1 flex gap-2">
+              <ScrollArea className="size-full rounded-md pt-28">
+                {/* <div className="py-1 flex gap-2">
                   <div className="flex items-center space-x-2">
                     <Switch
                       id="analyzer-mode"
@@ -68,7 +65,7 @@ export default function MediaEditor() {
                     <Label htmlFor="analyzer-mode">Audio Visualizer</Label>
                   </div>
                 </div>
-                {visualizer && <AudioVisualizer />}
+                {visualizer && <AudioVisualizer />} */}
 
                 <div className="px-2 w-full h-full ">
                   <VideoPlayer editData={data} />

@@ -1,8 +1,14 @@
 import { create } from "zustand";
 import { immer } from "zustand/middleware/immer";
 import { DEFAULT_ROW_HEIGHT } from "../interface/const";
-import { TimelineRow, TimelineSegment } from "../interface/segment";
+import {
+  AudioPlayerSegment,
+  TimelineRow,
+  TimelineSegment,
+  VideoPlayerSegment,
+} from "../interface/segment";
 
+import { produce } from "immer";
 type State = {
   selectedSegmentList: TimelineSegment[];
   timelineRowList: TimelineRow[];
@@ -16,14 +22,14 @@ type Actions = {
   reset: () => void;
 };
 
-const aa: TimelineRow[] = Array.from({ length: 100 }).map((_, index) => {
+const aa: TimelineRow[] = Array.from({ length: 10 }).map((_, index) => {
   return {
     id: "row" + index,
     segments: [
       {
         id: "내손을잡아" + index,
-        start: 0 + index * 50,
-        end: 202 + index * 50,
+        start: 0 + index * 100,
+        end: 202 + index * 100,
         effectId: "audioPlayer",
         data: {
           startOffset: 0,
@@ -35,6 +41,72 @@ const aa: TimelineRow[] = Array.from({ length: 100 }).map((_, index) => {
     ],
   };
 });
+
+const sample: TimelineRow[] = [
+  {
+    id: "row1",
+    segments: [
+      {
+        id: "내손을잡아",
+        start: 60,
+        end: 262,
+        effectId: "audioPlayer",
+        data: {
+          startOffset: 0,
+          src: "/audio/내손을잡아.mp3",
+          name: "내손을잡아",
+          videoSrc: "/audio/내손을잡아.mp3",
+        },
+      },
+    ],
+  },
+  {
+    id: "row2",
+    segments: [
+      {
+        id: "아이유_오렌지태양아래",
+        start: 0,
+        end: 248,
+        effectId: "videoPlayer",
+        data: {
+          startOffset: 0,
+          src: "/video/2022_아이유_오렌지태양아래.mp4",
+          name: "2022_아이유_오렌지태양아래",
+          videoSrc: "/video/2022_아이유_오렌지태양아래.mp4",
+        },
+      },
+    ],
+  },
+  {
+    id: "row3",
+    segments: [
+      {
+        id: "아이들_클락션_240p",
+        start: 0,
+        end: 183,
+        effectId: "videoPlayer",
+        data: {
+          startOffset: 0,
+          src: "/video/아이들_클락션_240p.mp4",
+          name: "아이들_클락션_240p.mp4",
+          videoSrc: "/video/아이들_클락션_240p.mp4",
+        },
+      },
+      {
+        id: "아이들_클락션_360p",
+        start: 183 + 10,
+        end: 183 * 2 + 10,
+        effectId: "videoPlayer",
+        data: {
+          startOffset: 0,
+          src: "/video/아이들_클락션_360p.mp4",
+          name: "아이들_클락션_360p.mp4",
+          videoSrc: "/video/아이들_클락션_360p.mp4",
+        },
+      },
+    ],
+  },
+];
 
 const initialState: State = {
   selectedSegmentList: [],
@@ -56,7 +128,7 @@ const initialState: State = {
     //     };
     //   }),
     // },
-    // ...aa,
+    ...sample,
     // {
     //   id: "row1",
     //   segments: [
@@ -349,4 +421,19 @@ export class DataStoreUtil {
     DataStoreUtil.selectSegment(newSegment);
     DataStoreUtil.updateSegment(newSegment);
   }
+
+  static fetchAudioBuffer({
+    segment,
+    audioBuffer,
+  }: {
+    segment: AudioPlayerSegment | VideoPlayerSegment;
+    audioBuffer: AudioBuffer;
+  }) {
+    const newSegment = produce(segment, (draft) => {
+      draft.data.audioBuffer = audioBuffer;
+    });
+    DataStoreUtil.updateSegment(newSegment);
+  }
 }
+
+// Update the segment using Immer

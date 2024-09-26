@@ -169,6 +169,38 @@ class VideoControl {
     }
   }
 
+  load({
+    id,
+    src,
+    engine,
+  }: {
+    id: string;
+    src: string;
+    engine: TimelineEngine;
+  }) {
+    const item = WaveSurfer.create({
+      url: src,
+      container: document.querySelector(`#ws_${id}`) as HTMLElement,
+      waveColor: "#9E7FD9",
+      progressColor: "#9E7FD9",
+      height: 100,
+      interact: false,
+      autoplay: false,
+      hideScrollbar: true,
+    });
+    item.on("decode", () => {
+      item.setPlaybackRate(engine.getPlayRate());
+      engine.trigger("loadEnd", { id, audioBuffer: item.getDecodedData() });
+    });
+
+    if (!this.cacheMap[id]) {
+      this.cacheMap[id] = {
+        audioItem: item,
+        videoItem: document.querySelector(`#${id}`) as HTMLVideoElement,
+      };
+    }
+  }
+
   connectAnalyser(item) {
     const gainNode: GainNode = (item as any)?._sounds[0]?._node;
     const analyserNode = audioAnalyzer.initNode(Howler.ctx.createAnalyser());

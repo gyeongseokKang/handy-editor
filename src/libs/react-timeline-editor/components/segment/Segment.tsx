@@ -17,6 +17,7 @@ import useDataStore, {
 } from "@/libs/react-timeline-editor/store/DataStore";
 import { getTimeLabel } from "@/libs/react-timeline-editor/utils/timeUtils";
 import { TimelineRow, TimelineSegment } from "../../interface/segment";
+import AudioBufferSegment from "./component/AudioBufferSegment";
 
 interface SegmentProps {
   segment: TimelineSegment;
@@ -24,13 +25,14 @@ interface SegmentProps {
   isDragging: boolean;
   isResizing: boolean;
 }
-const Segment = ({ segment, isDragging, isResizing }: SegmentProps) => {
+const Segment = ({ segment, row, isDragging, isResizing }: SegmentProps) => {
   const isSelected = useDataStore((state) => state.selectedSegmentList).find(
     (seg) => seg.id === segment.id
   );
 
   const isWaveSurferSegment =
     segment.effectId === "audioPlayer" || segment.effectId === "videoPlayer";
+
   if (!("data" in segment)) {
     return <div>base segment</div>;
   }
@@ -59,10 +61,7 @@ const Segment = ({ segment, isDragging, isResizing }: SegmentProps) => {
               isDragging={isDragging}
             />
             {isWaveSurferSegment ? (
-              <div
-                id={"ws_" + segment.id}
-                className="w-full h-full overflow-hidden"
-              ></div>
+              <AudioBufferSegment segment={segment} />
             ) : (
               <div className={cn("w-full flex justify-start px-4")}>
                 {segment.data.name}

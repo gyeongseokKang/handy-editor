@@ -43,4 +43,6 @@ export interface TimeLineEffectSource {
   leave?: (param: EffectSourceParam) => void;
   /** 현재 동작 시간 영역에서 재생이 멈출 때 콜백 */
   stop?: (param: EffectSourceParam) => void;
+  /** segment가 로그될 때 콜백 */
+  load?: (param: EffectSourceParam) => void;
 }

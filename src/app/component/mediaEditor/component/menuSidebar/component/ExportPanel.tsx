@@ -4,6 +4,7 @@ import { Separator } from "@/components/ui/separator";
 import { AudioPlayerSegment } from "@/libs/react-timeline-editor/interface/segment";
 import useDataStore from "@/libs/react-timeline-editor/store/DataStore";
 import { useState } from "react";
+import { toast } from "sonner";
 
 const exportFormatList = ["mp3", "mov", "wav", "mp4"] as const;
 const exportResolutionList = ["360p", "480p", "720p", "1080p"] as const;
@@ -21,6 +22,10 @@ const ExportPanel = () => {
       .flatMap((row) => row.segments)
       .filter((segment) => segment.data.audioBuffer) as AudioPlayerSegment[];
 
+    if (audioPlayerSegments.length === 0) {
+      toast("There is no audio segment to export.");
+      return;
+    }
     // Timeline의 모든 row에서 가장 긴 duration을 계산
     const duration = timelineRowList
       .flatMap((row) => row.segments)

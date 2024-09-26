@@ -10,6 +10,7 @@ export interface AudioPlayerEffect extends TimelineEffect {
     enter?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
     leave?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
     stop?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
+    load?: (param: EffectSourceParam<AudioPlayerSegment>) => void;
   };
 }
 
@@ -54,6 +55,11 @@ const audioPlayerEffect: AudioPlayerEffect = {
     stop: ({ segment, engine }) => {
       const id = segment.id;
       audioControl.stop({ id: id, engine });
+    },
+    load: ({ segment, engine }) => {
+      const src = segment.data.src;
+      const id = segment.id;
+      audioControl.load({ id: id, src, engine });
     },
   },
 };

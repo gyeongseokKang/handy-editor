@@ -36,6 +36,9 @@ export interface ITimelineEngine extends Emitter<EventTypes> {
   pause(): void;
   /** 정지 */
   stop(): void;
+
+  /** 오디오 버퍼 로드 */
+  loadAudioBuffer(segment: TimelineSegment): void;
 }
 
 /**
@@ -97,7 +100,7 @@ export class TimelineEngine
     this._effectMap = effects;
   }
   set data(data: TimelineRow[]) {
-    if (this.isPlaying) this.pause();
+    // if (this.isPlaying) this.pause();
     this._dealData(data);
     this._dealClear();
     this._dealEnter(this._currentTime);
@@ -262,6 +265,20 @@ export class TimelineEngine
 
     // 이벤트 트리거
     this.trigger("stop", { engine: this });
+  }
+
+  /** 오디오 버퍼 로드 */
+  loadAudioBuffer(segment: TimelineSegment) {
+    const effect = this._effectMap[segment.effectId];
+    if (effect && effect.source?.load) {
+      effect.source.load({
+        segment,
+        effect,
+        isPlaying: this.isPlaying,
+        engine: this,
+        time: this.getTime(),
+      });
+    }
   }
 
   /** 재생 완료 */

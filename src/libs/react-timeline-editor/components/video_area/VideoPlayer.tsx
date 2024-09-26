@@ -80,7 +80,7 @@ const SegmentVideoPlayer = forwardRef<
         style={{
           visibility: "hidden",
         }}
-        controls
+        // controls
         preload="metadata"
         className={cn("z-10 object-cover aspect-video absolute w-full")}
         muted

@@ -1,7 +1,7 @@
 import { Button } from "@/components/ui/button";
 import { ResizableHandle, ResizablePanel } from "@/components/ui/resizable";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useLayoutEffect, useRef, useState } from "react";
+import { useRef, useState } from "react";
 import { FaFileExport } from "react-icons/fa6";
 import { MdOutlineFileUpload } from "react-icons/md";
 import { ImperativePanelHandle } from "react-resizable-panels";
@@ -35,18 +35,14 @@ const MenuSidebar = () => {
       return;
     }
     setCurrentMenu(menu);
-    ref.current?.expand();
+    setTimeout(() => {
+      ref.current?.expand();
+    }, 100);
   };
 
   const currentPanel = menuList.find(
     (menu) => menu.label === currentMenu
   )?.panel;
-
-  useLayoutEffect(() => {
-    setTimeout(() => {
-      ref.current?.collapse();
-    }, 100);
-  }, []);
 
   return (
     <>
@@ -80,6 +76,9 @@ const MenuSidebar = () => {
         }}
         onExpand={() => {
           setIsCollapsed(false);
+          if (!currentMenu) {
+            setCurrentMenu("Upload");
+          }
         }}
       >
         <ScrollArea className="h-full p-2">

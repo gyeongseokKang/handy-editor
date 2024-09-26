@@ -20,7 +20,7 @@ type Actions = {
 const initialState: State = {
   isPlaying: false,
   isAutoscroll: true,
-  isWaveformVisible: false,
+  isWaveformVisible: true,
   engine: new TimelineEngine(),
 };
 

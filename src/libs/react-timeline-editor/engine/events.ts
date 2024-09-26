@@ -98,5 +98,5 @@ export interface EventTypes {
    */
   loadStart: { id: string };
   loadProgress: { id: string; progress: number };
-  loadEnd: { id: string };
+  loadEnd: { id: string; audioBuffer: AudioBuffer };
 }

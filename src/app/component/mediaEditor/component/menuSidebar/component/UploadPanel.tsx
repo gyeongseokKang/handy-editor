@@ -275,7 +275,6 @@ const handleVideo = (file: File) => {
       const audioBuffer = await audioContext.decodeAudioData(arrayBuffer);
       const videoSrc = URL.createObjectURL(file);
 
-      console.log("audioBuffer", audioBuffer);
       const newTimelineRow = DataStoreUtil.makeTimelineRow();
       const newSegment: VideoPlayerSegment = {
         id: "videoPlayer_" + crypto.randomUUID(),
