@@ -1,4 +1,5 @@
-import Topbar from "@/components/common/Topbar";
+import { AppSidebar } from "@/components/common/AppSidebar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import type { Metadata } from "next";
 import "./globals.css";
 import { Provider } from "./Provider";
@@ -17,12 +18,15 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <Provider>
-          <div className="flex flex-col h-dvh">
-            <Topbar />
-            <div className="flex size-full">
-              <main className="size-full">{children}</main>
+          <SidebarProvider>
+            <AppSidebar />
+            <SidebarTrigger />
+            <div className="flex flex-col h-dvh w-full">
+              <div className="flex size-full">
+                <main className="size-full">{children}</main>
+              </div>
             </div>
-          </div>
+          </SidebarProvider>
         </Provider>
       </body>
     </html>
