@@ -1,3 +1,5 @@
+"use client";
+
 import PlacementPlayer from "@/features/placement/comonents/PlacementPlayer";
 import PlalyerController from "@/features/placement/comonents/PlalyerController";
 import SegmentPlayer from "@/features/placement/comonents/SegmentPlayer";

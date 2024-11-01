@@ -15,7 +15,7 @@ const SegmentPlayer = () => {
   return (
     <div className="w-5/12 flex flex-col gap-2  max-w-[600px]">
       {segmentList.map((segment) => {
-        return <SegmentCard segment={segment} />;
+        return <SegmentCard key={segment.id} segment={segment} />;
       })}
     </div>
   );
@@ -91,9 +91,6 @@ const SegmentCard = ({ segment }: { segment: Segment }) => {
               variant="ghost"
               className="relative"
               onClick={handleSelect}
-              // className={cn("", {
-              //   "bg-primary/20": currentSegment?.id === segment.id,
-              // })}
             >
               {currentSegment?.id === segment.id && (
                 <Sparkles flicker={false} count={5} overflowPx={2} />

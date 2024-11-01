@@ -1,12 +1,21 @@
 "use client";
 
 import { useWavesurfer } from "@wavesurfer/react";
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import RegionsPlugin from "wavesurfer.js/dist/plugins/regions.esm.js";
 import usePlayerStore from "../stores/PlayerStore";
 import { MediaPlayer } from "../utils/MediaPlayer";
 import { generateRandomSegment } from "../utils/generateRandomSegment";
+
 const VideoWithWaveform = () => {
+  const [isRendering, setIsRendering] = useState(false);
+
+  useEffect(() => {
+    setIsRendering(true);
+  }, []);
+
+  if (!isRendering) return null;
+
   return (
     <div className="w-full min-h-[30vh] flex flex-col justify-evenly ">
       <video
